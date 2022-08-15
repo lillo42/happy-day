@@ -1,0 +1,13 @@
+version: "3"
+volumes:
+  happy-day-mongo:
+services:
+  mongodb:
+    image: mongo
+    volumes:
+      - "happy-day-mongo:/data/db"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: HappyDay@123
+    ports:
+      - "27017:27017"
