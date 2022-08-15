@@ -49,14 +49,14 @@ func TestCreateEndpoint_Should_ReturnError_When_ErrorToExecuteCreate(t *testing.
 
 	operation := &abstract.MockOperation[applications.CreateRequest, applications.CreateResponse]{}
 	operation.
-		On("Execute", mock.Anything, applications.CreateRequest{Name: name, Price: price, Priority: priority}).
+		On("Execute", mock.Anything, mock.Anything).
 		Return(applications.CreateResponse{}, err)
 
 	engine := gin.New()
 	controller := Controller{createOperation: operation}
 	controller.MapEndpoint(engine)
 
-	b, _ := json.Marshal(CreateRequest{Name: name, Price: price})
+	b, _ := json.Marshal(CreateRequest{Name: name, Price: price, Priority: priority})
 	req, _ := http.NewRequest(http.MethodPost, "/api/products", bytes.NewBuffer(b))
 
 	recorder := httptest.NewRecorder()
@@ -79,7 +79,7 @@ func TestCreateEndpoint_Should_ReturnError_When_ErrorToGetById(t *testing.T) {
 
 	operation := &abstract.MockOperation[applications.CreateRequest, applications.CreateResponse]{}
 	operation.
-		On("Execute", mock.Anything, applications.CreateRequest{Name: name, Price: price}).
+		On("Execute", mock.Anything, mock.Anything).
 		Return(applications.CreateResponse{ID: uuid.New()}, nil)
 
 	repository := &test.MockRepository{}
@@ -114,7 +114,7 @@ func TestCreateEndpoint(t *testing.T) {
 
 	operation := &abstract.MockOperation[applications.CreateRequest, applications.CreateResponse]{}
 	operation.
-		On("Execute", mock.Anything, applications.CreateRequest{Name: name, Price: price}).
+		On("Execute", mock.Anything, mock.Anything).
 		Return(applications.CreateResponse{ID: uuid.New()}, nil)
 
 	viewModel := infrastructure.DetailsViewModel{
@@ -133,7 +133,10 @@ func TestCreateEndpoint(t *testing.T) {
 	controller := Controller{createOperation: operation, readOnlyRepository: repository}
 	controller.MapEndpoint(engine)
 
-	b, _ := json.Marshal(CreateRequest{Name: name, Price: price})
+	b, _ := json.Marshal(CreateRequest{Name: name, Price: price, Priority: int64(1), Products: []ProductRequest{{
+		ID:     uuid.New(),
+		Amount: 10,
+	}}})
 	req, _ := http.NewRequest(http.MethodPost, "/api/products", bytes.NewBuffer(b))
 
 	recorder := httptest.NewRecorder()
