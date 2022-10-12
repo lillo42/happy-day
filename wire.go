@@ -103,3 +103,8 @@ func initializeReservationController() apis.ReservationController {
 	wire.Build(ProviderSet)
 	return apis.ReservationController{}
 }
+
+func initializeProductController() apis.ProductController {
+	wire.Build(ProvideSet)
+	return apis.ProductController{}
+}

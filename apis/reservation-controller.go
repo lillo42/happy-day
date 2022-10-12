@@ -31,7 +31,7 @@ func createReservation(ctx echo.Context) error {
 	}
 
 	handler := initCreateReservationHandler()
-	res, err := handler.Handler(ctx.Request().Context(), req)
+	res, err := handler.Handle(ctx.Request().Context(), req)
 
 	if err != nil {
 		return err

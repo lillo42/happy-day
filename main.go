@@ -14,6 +14,7 @@ func main() {
 
 	e.Use(middlewares.ErrorMiddleware)
 	initializeReservationController().Routes(e)
+	//initializeProductController().Routes(e)
 
 	e.Logger.Fatal(e.Start(":5000"))
 }

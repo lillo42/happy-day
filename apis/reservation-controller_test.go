@@ -18,12 +18,6 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func newEcho() *echo.Echo {
-	e := echo.New()
-
-	return e
-}
-
 func TestReservationQuoteWhenBodyIsNotJSON(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/reservations/quote", strings.NewReader(common.RandString(10)))
 	rec := httptest.NewRecorder()

@@ -33,7 +33,7 @@ var (
 	ErrProductListIsEmpty error = errors.New("Product list cannot be empty")
 )
 
-func (handler CreateReservationHandler) Handler(ctx context.Context, req CreateReservationRequest) (reservation.State, error) {
+func (handler CreateReservationHandler) Handle(ctx context.Context, req CreateReservationRequest) (reservation.State, error) {
 
 	var state reservation.State
 
