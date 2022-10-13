@@ -24,7 +24,7 @@ var (
 	uuidType    = reflect.TypeOf(uuid.UUID{})
 	uuidSubtype = byte(0x04)
 
-	ProviderSet = wire.NewSet(
+	ProvideSet = wire.NewSet(
 		ProvideMongoDbOptions,
 
 		apis.ProvideSet,
@@ -100,11 +100,16 @@ func uuidDecodeValue(_ bsoncodec.DecodeContext, reader bsonrw.ValueReader, value
 }
 
 func initializeReservationController() apis.ReservationController {
-	wire.Build(ProviderSet)
+	wire.Build(ProvideSet)
 	return apis.ReservationController{}
 }
 
 func initializeProductController() apis.ProductController {
 	wire.Build(ProvideSet)
 	return apis.ProductController{}
+}
+
+func initializeCustomerController() apis.CustomerController {
+	wire.Build(ProvideSet)
+	return apis.CustomerController{}
 }

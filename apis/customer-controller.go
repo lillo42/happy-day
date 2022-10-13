@@ -22,7 +22,7 @@ type CustomerController struct {
 	repository            infrastructure.CustomerRepository
 }
 
-func (controller CustomerController) Route(e *echo.Echo) {
+func (controller CustomerController) Routes(e *echo.Echo) {
 	e.GET("/api/v1/customers", controller.getAll)
 	e.POST("/api/v1/customers", controller.create)
 

@@ -162,7 +162,7 @@ func TestCreateOrChangeProductWhenProductAmountIsLessOrEqualThanZero(t *testing.
 			_, err := handler.Handle(context.Background(), req)
 
 			assert.NotNil(t, err)
-			assert.Equal(t, ErrProductAmoutIsInvalid, err)
+			assert.Equal(t, ErrProductAmountIsInvalid, err)
 		})
 	}
 }

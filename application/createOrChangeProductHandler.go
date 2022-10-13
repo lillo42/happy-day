@@ -20,10 +20,10 @@ type (
 )
 
 var (
-	ErrProductNameIsEmpty         = errors.New("Product name is empty")
-	ErrProductPriceIsLessThanZero = errors.New("Product price is less than zero")
-	ErrProductNotFound            = errors.New("Product not found")
-	ErrProductAmoutIsInvalid      = errors.New("Product amount is invalid")
+	ErrProductNameIsEmpty         = errors.New("product name is empty")
+	ErrProductPriceIsLessThanZero = errors.New("product price is less than zero")
+	ErrProductNotFound            = errors.New("product not found")
+	ErrProductAmountIsInvalid     = errors.New("product amount is invalid")
 )
 
 func (handler CreateOrChangeProductHandler) Handle(ctx context.Context, req CreateOrChangeProductRequest) (product.State, error) {
@@ -54,7 +54,7 @@ func (handler CreateOrChangeProductHandler) Handle(ctx context.Context, req Crea
 		}
 
 		if product.Amount <= 0 {
-			return state, ErrProductAmoutIsInvalid
+			return state, ErrProductAmountIsInvalid
 		}
 	}
 

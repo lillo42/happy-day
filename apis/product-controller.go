@@ -36,7 +36,7 @@ func (controller ProductController) getAll(ctx echo.Context) error {
 	filter.Text = ctx.QueryParam("text")
 	filter.Size, _ = strconv.ParseInt(ctx.Param("size"), 10, 64)
 	filter.Page, _ = strconv.ParseInt(ctx.Param("page"), 10, 64)
-	filter.SortBy = infrastructure.NameAsc
+	filter.SortBy = infrastructure.ProductNameAsc
 
 	params := ctx.QueryParams()
 	if params.Has("sort") {

@@ -11,6 +11,8 @@ var ProvideSet = wire.NewSet(
 	ProvideReservationController,
 
 	ProvideProductController,
+
+	ProvideCustomerController,
 )
 
 func ProvideReservationController(
@@ -28,6 +30,20 @@ func ProvideProductController(
 	repository infrastructure.ProductRepository,
 ) ProductController {
 	return ProductController{
+		createOrChangeHandler: createOrChangeHandler,
+		deleteHandler:         deleteHandler,
+		getAllHandler:         getAllHandler,
+		repository:            repository,
+	}
+}
+
+func ProvideCustomerController(
+	createOrChangeHandler application.CreateOrChangeCustomerHandler,
+	deleteHandler application.DeleteCustomerHandler,
+	getAllHandler application.GetAllCustomersHandler,
+	repository infrastructure.CustomerRepository,
+) CustomerController {
+	return CustomerController{
 		createOrChangeHandler: createOrChangeHandler,
 		deleteHandler:         deleteHandler,
 		getAllHandler:         getAllHandler,

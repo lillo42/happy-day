@@ -14,12 +14,12 @@ import (
 const (
 	ProductCollection = "products"
 
-	IdAsc     ProductSortBy = "id_asc"
-	IdDesc    ProductSortBy = "id_desc"
-	NameAsc   ProductSortBy = "name_asc"
-	NameDesc  ProductSortBy = "name_desc"
-	PriceAsc  ProductSortBy = "price_asc"
-	PriceDesc ProductSortBy = "price_desc"
+	ProductIdAsc     ProductSortBy = "id_asc"
+	ProductIdDesc    ProductSortBy = "id_desc"
+	ProductNameAsc   ProductSortBy = "name_asc"
+	ProductNameDesc  ProductSortBy = "name_desc"
+	ProductPriceAsc  ProductSortBy = "price_asc"
+	ProductPriceDesc ProductSortBy = "price_desc"
 )
 
 var (
@@ -99,7 +99,7 @@ func (m *MockProductRepository) Delete(ctx context.Context, id uuid.UUID) error 
 	return args.Error(0)
 }
 
-func (repository MongoDbRepository) GetByProducts(ctx context.Context, productsId []uuid.UUID) ([]product.State, error) {
+func (repository MongoDbProductRepository) GetByProducts(ctx context.Context, productsId []uuid.UUID) ([]product.State, error) {
 	query := bson.M{"id": bson.M{"$in": productsId}}
 	client, err := repository.CreateClient(ctx)
 	if err != nil {
@@ -138,7 +138,7 @@ func (repository MongoDbRepository) GetByProducts(ctx context.Context, productsI
 	return products, nil
 }
 
-func (repository MongoDbRepository) GetComposed(ctx context.Context, productsId []uuid.UUID) ([]product.State, error) {
+func (repository MongoDbProductRepository) GetComposed(ctx context.Context, productsId []uuid.UUID) ([]product.State, error) {
 	query := bson.M{"products.id": bson.M{"$in": productsId}}
 	client, err := repository.CreateClient(ctx)
 	if err != nil {
@@ -187,7 +187,7 @@ func (repository MongoDbRepository) GetComposed(ctx context.Context, productsId 
 	}), nil
 }
 
-func (repository MongoDbRepository) GetById(ctx context.Context, id uuid.UUID) (product.State, error) {
+func (repository MongoDbProductRepository) GetById(ctx context.Context, id uuid.UUID) (product.State, error) {
 	query := bson.M{"id": id}
 	client, err := repository.CreateClient(ctx)
 	if err != nil {
@@ -209,7 +209,7 @@ func (repository MongoDbRepository) GetById(ctx context.Context, id uuid.UUID) (
 	return state, nil
 }
 
-func (repository MongoDbRepository) Exists(ctx context.Context, id uuid.UUID) (bool, error) {
+func (repository MongoDbProductRepository) Exists(ctx context.Context, id uuid.UUID) (bool, error) {
 	query := bson.M{"id": id}
 	client, err := repository.CreateClient(ctx)
 	if err != nil {
@@ -228,7 +228,7 @@ func (repository MongoDbRepository) Exists(ctx context.Context, id uuid.UUID) (b
 	return count > 0, nil
 }
 
-func (repository MongoDbRepository) ExistAnyWithProduct(ctx context.Context, productId uuid.UUID) (bool, error) {
+func (repository MongoDbProductRepository) ExistAnyWithProduct(ctx context.Context, productId uuid.UUID) (bool, error) {
 	query := bson.M{"products.id": productId}
 	client, err := repository.CreateClient(ctx)
 	if err != nil {
@@ -247,7 +247,7 @@ func (repository MongoDbRepository) ExistAnyWithProduct(ctx context.Context, pro
 	return count > 0, nil
 }
 
-func (repository MongoDbRepository) Save(ctx context.Context, state product.State) (product.State, error) {
+func (repository MongoDbProductRepository) Save(ctx context.Context, state product.State) (product.State, error) {
 	client, err := repository.CreateClient(ctx)
 	if err != nil {
 		return product.State{}, err
@@ -265,7 +265,7 @@ func (repository MongoDbRepository) Save(ctx context.Context, state product.Stat
 	return state, nil
 }
 
-func (repository MongoDbRepository) Delete(ctx context.Context, id uuid.UUID) error {
+func (repository MongoDbProductRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	query := bson.M{"id": id}
 	client, err := repository.CreateClient(ctx)
 	if err != nil {

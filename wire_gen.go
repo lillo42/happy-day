@@ -32,13 +32,33 @@ func initializeReservationController() apis.ReservationController {
 	return reservationController
 }
 
+func initializeProductController() apis.ProductController {
+	clientOptions := ProvideMongoDbOptions()
+	mongoDbProductRepository := infrastructure.ProvideProductRepository(clientOptions)
+	createOrChangeProductHandler := application.ProvideCreateOrChangeProductHandler(mongoDbProductRepository)
+	deleteProductHandler := application.ProvideDeleteProductHandler(mongoDbProductRepository)
+	getAllProductsHandler := application.ProvideGetAllProductsHandler(mongoDbProductRepository)
+	productController := apis.ProvideProductController(createOrChangeProductHandler, deleteProductHandler, getAllProductsHandler, mongoDbProductRepository)
+	return productController
+}
+
+func initializeCustomerController() apis.CustomerController {
+	clientOptions := ProvideMongoDbOptions()
+	mongoDbCustomerRepository := infrastructure.ProviderCustomerRepository(clientOptions)
+	createOrChangeCustomerHandler := application.ProvideCreateOrChangeCustomerHandler(mongoDbCustomerRepository)
+	deleteCustomerHandler := application.ProvideDeleteCustomerHandler(mongoDbCustomerRepository)
+	getAllCustomersHandler := application.ProvideGetAllCustomersHandler(mongoDbCustomerRepository)
+	customerController := apis.ProvideCustomerController(createOrChangeCustomerHandler, deleteCustomerHandler, getAllCustomersHandler, mongoDbCustomerRepository)
+	return customerController
+}
+
 // wire.go:
 
 var (
 	uuidType    = reflect.TypeOf(uuid.UUID{})
 	uuidSubtype = byte(0x04)
 
-	ProviderSet = wire.NewSet(
+	ProvideSet = wire.NewSet(
 		ProvideMongoDbOptions, apis.ProvideSet, application.ProvideSet, infrastructure.ProvideSet,
 	)
 )

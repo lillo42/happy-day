@@ -13,6 +13,7 @@ var ProvideSet = wire.NewSet(
 	ProvideDeleteProductHandler,
 	ProvideGetAllProductsHandler,
 
+	ProvideCreateOrChangeCustomerHandler,
 	ProvideDeleteCustomerHandler,
 	ProvideGetAllCustomersHandler,
 )

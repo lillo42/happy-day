@@ -7,12 +7,22 @@ import (
 
 var ProvideSet = wire.NewSet(
 	ProvideProductRepository,
-
 	wire.Bind(new(ProductRepository), new(*MongoDbProductRepository)),
+
+	ProviderCustomerRepository,
+	wire.Bind(new(CustomerRepository), new(*MongoDbCustomerRepository)),
 )
 
 func ProvideProductRepository(opt *options.ClientOptions) *MongoDbProductRepository {
 	return &MongoDbProductRepository{
+		MongoDbRepository{
+			options: opt,
+		},
+	}
+}
+
+func ProviderCustomerRepository(opt *options.ClientOptions) *MongoDbCustomerRepository {
+	return &MongoDbCustomerRepository{
 		MongoDbRepository{
 			options: opt,
 		},

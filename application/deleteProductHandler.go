@@ -19,7 +19,7 @@ type (
 )
 
 var (
-	ErrExistOtherProductWithThisProduct = errors.New("Exist other product with this product")
+	ErrExistOtherProductWithThisProduct = errors.New("exist other product with this product")
 )
 
 func (handler DeleteProductHandler) Handle(ctx context.Context, req DeleteProductRequest) error {
