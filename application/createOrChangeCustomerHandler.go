@@ -53,6 +53,7 @@ func (handler CreateOrChangeCustomerHandler) Handle(ctx context.Context, req Cre
 
 			if unicode.IsDigit(c) {
 				size++
+				continue
 			}
 
 			return state, ErrCustomerPhoneIsInvalid

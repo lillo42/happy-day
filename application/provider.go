@@ -12,6 +12,9 @@ var ProvideSet = wire.NewSet(
 	ProvideCreateOrChangeProductHandler,
 	ProvideDeleteProductHandler,
 	ProvideGetAllProductsHandler,
+
+	ProvideDeleteCustomerHandler,
+	ProvideGetAllCustomersHandler,
 )
 
 func ProvideQuoteReservationHandler(repository infrastructure.ProductRepository) QuoteReservationHandler {
@@ -34,6 +37,24 @@ func ProvideDeleteProductHandler(repository infrastructure.ProductRepository) De
 
 func ProvideGetAllProductsHandler(repository infrastructure.ProductRepository) GetAllProductsHandler {
 	return GetAllProductsHandler{
+		repository: repository,
+	}
+}
+
+func ProvideCreateOrChangeCustomerHandler(repository infrastructure.CustomerRepository) CreateOrChangeCustomerHandler {
+	return CreateOrChangeCustomerHandler{
+		repository: repository,
+	}
+}
+
+func ProvideDeleteCustomerHandler(repository infrastructure.CustomerRepository) DeleteCustomerHandler {
+	return DeleteCustomerHandler{
+		repository: repository,
+	}
+}
+
+func ProvideGetAllCustomersHandler(repository infrastructure.CustomerRepository) GetAllCustomersHandler {
+	return GetAllCustomersHandler{
 		repository: repository,
 	}
 }

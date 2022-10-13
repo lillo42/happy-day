@@ -3,7 +3,7 @@ package application
 import (
 	"context"
 	"happy_day/common"
-	"happy_day/domain/product"
+	"happy_day/domain/customer"
 	"happy_day/infrastructure"
 	"testing"
 
@@ -11,19 +11,19 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestGetAllProducst(t *testing.T) {
-	req := infrastructure.ProductFilter{
+func TestGetAllCustomers(t *testing.T) {
+	req := infrastructure.CustomerFilter{
 		Page: 0,
 		Size: 0,
 		Text: common.RandString(10),
 	}
 
-	repo := &infrastructure.MockProductRepository{}
+	repo := &infrastructure.MockCustomerRepository{}
 	repo.
 		On("GetAll", mock.Anything, mock.Anything).
-		Return(infrastructure.Page[product.State]{}, nil)
+		Return(infrastructure.Page[customer.State]{}, nil)
 
-	handler := GetAllProductsHandler{
+	handler := GetAllCustomersHandler{
 		repository: repo,
 	}
 
