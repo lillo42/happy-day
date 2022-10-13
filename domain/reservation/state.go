@@ -21,7 +21,7 @@ type (
 		Delivery            DeliveryOrPickUp     `bson:"delivery" json:"delivery"`
 		PickUp              DeliveryOrPickUp     `bson:"pickUp" json:"pickUp"`
 		PaymentInstallments []PaymentInstallment `bson:"paymentInstallments" json:"paymentInstallments"`
-		Comment             string               `json:"comment"`
+		Comment             string               `bson:"comment" json:"comment"`
 		CreateAt            time.Time            `bson:"createAt" json:"createAt"`
 		ModifyAt            time.Time            `bson:"modifyAt" json:"modifyAt"`
 	}
