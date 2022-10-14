@@ -5,10 +5,12 @@ import (
 	"errors"
 	"happy_day/common"
 	"happy_day/domain/product"
+	"math"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const (
@@ -157,13 +159,14 @@ func (repository MongoDbProductRepository) GetComposed(ctx context.Context, prod
 	products := make([]product.State, 0)
 	for cursor.Next(ctx) {
 		var state product.State
-		err := cursor.Decode(&state)
+		err = cursor.Decode(&state)
 		if err != nil {
 			return nil, err
 		}
 
 		products = append(products, state)
 	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -281,5 +284,65 @@ func (repository MongoDbProductRepository) Delete(ctx context.Context, id uuid.U
 }
 
 func (repository MongoDbProductRepository) GetAll(ctx context.Context, filter ProductFilter) (Page[product.State], error) {
-	return Page[product.State]{}, nil
+	opt := options.Find().
+		SetSkip(filter.Page * filter.Size).
+		SetLimit(filter.Size)
+
+	if filter.SortBy == ProductIdAsc {
+		opt.SetSort(bson.D{{"id", 1}})
+	} else if filter.SortBy == ProductIdDesc {
+		opt.SetSort(bson.D{{"id", -1}})
+	} else if filter.SortBy == ProductNameAsc {
+		opt.SetSort(bson.D{{"name", 1}})
+	} else if filter.SortBy == ProductNameDesc {
+		opt.SetSort(bson.D{{"name", -1}})
+	} else if filter.SortBy == ProductPriceAsc {
+		opt.SetSort(bson.D{{"price", 1}})
+	} else if filter.SortBy == ProductPriceDesc {
+		opt.SetSort(bson.D{{"price", -1}})
+	}
+
+	query := bson.M{}
+	if len(filter.Text) > 0 {
+		query["$text"] = bson.M{"$search": filter.Text}
+	}
+
+	client, err := repository.CreateClient(ctx)
+	var page Page[product.State]
+	if err != nil {
+		return page, err
+	}
+
+	collection := client.
+		Database(Database).
+		Collection(ProductCollection)
+
+	totalElements, err := collection.CountDocuments(ctx, query)
+	if err != nil {
+		return page, err
+	}
+
+	cursor, err := collection.Find(ctx, query, opt)
+	if err != nil {
+		return page, err
+	}
+
+	page.Items = make([]product.State, 0)
+	page.TotalElements = totalElements
+	if totalElements > 0 {
+		tmp := float64(totalElements) / float64(filter.Size)
+		tmp = math.Ceil(tmp)
+		page.TotalPages = int64(tmp)
+	}
+
+	for cursor.Next(ctx) {
+		var state product.State
+		err = cursor.Decode(&state)
+		if err != nil {
+			break
+		}
+
+		page.Items = append(page.Items, state)
+	}
+	return page, nil
 }

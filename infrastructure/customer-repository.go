@@ -3,10 +3,12 @@ package infrastructure
 import (
 	"context"
 	"happy_day/domain/customer"
+	"math"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const (
@@ -70,7 +72,64 @@ func (repository *MockCustomerRepository) Delete(ctx context.Context, id uuid.UU
 }
 
 func (repository MongoDbCustomerRepository) GetAll(ctx context.Context, filter CustomerFilter) (Page[customer.State], error) {
-	return Page[customer.State]{}, nil
+	opt := options.Find().
+		SetSkip(filter.Page * filter.Size).
+		SetLimit(filter.Size)
+
+	if filter.SortBy == CustomerIdAsc {
+		opt.SetSort(bson.D{{"id", 1}})
+	} else if filter.SortBy == CustomerIdDesc {
+		opt.SetSort(bson.D{{"id", -1}})
+	} else if filter.SortBy == CustomerNameAsc {
+		opt.SetSort(bson.D{{"name", 1}})
+	} else if filter.SortBy == CustomerNameDesc {
+		opt.SetSort(bson.D{{"name", -1}})
+	}
+
+	query := bson.M{}
+	if len(filter.Text) > 0 {
+		query["$text"] = bson.M{"$search": filter.Text}
+	}
+
+	client, err := repository.CreateClient(ctx)
+	var page Page[customer.State]
+	if err != nil {
+		return page, err
+	}
+
+	defer client.Disconnect(ctx)
+	collection := client.
+		Database(Database).
+		Collection(CustomersCollection)
+
+	totalElements, err := collection.CountDocuments(ctx, query)
+	if err != nil {
+		return page, err
+	}
+
+	cursor, err := collection.Find(ctx, query, opt)
+	if err != nil {
+		return page, err
+	}
+
+	page.Items = make([]customer.State, 0)
+	page.TotalElements = totalElements
+	if totalElements > 0 {
+		tmp := float64(totalElements) / float64(filter.Size)
+		tmp = math.Ceil(tmp)
+		page.TotalPages = int64(tmp)
+	}
+
+	for cursor.Next(ctx) {
+		var state customer.State
+		err = cursor.Decode(&state)
+		if err != nil {
+			break
+		}
+
+		page.Items = append(page.Items, state)
+	}
+	return page, nil
 }
 
 func (repository MongoDbCustomerRepository) GetById(ctx context.Context, id uuid.UUID) (customer.State, error) {
@@ -125,5 +184,4 @@ func (repository MongoDbCustomerRepository) Delete(ctx context.Context, id uuid.
 		Collection(CustomersCollection).
 		DeleteOne(ctx, query)
 	return err
-
 }
