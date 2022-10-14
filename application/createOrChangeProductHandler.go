@@ -22,41 +22,42 @@ type (
 var (
 	ErrProductNameIsEmpty         = errors.New("product name is empty")
 	ErrProductPriceIsLessThanZero = errors.New("product price is less than zero")
-	ErrProductNotFound            = errors.New("product not found")
 	ErrProductAmountIsInvalid     = errors.New("product amount is invalid")
 )
 
 func (handler CreateOrChangeProductHandler) Handle(ctx context.Context, req CreateOrChangeProductRequest) (product.State, error) {
-	state := req.State
-	if req.Id != uuid.Nil {
-		product, err := handler.repository.GetById(ctx, req.Id)
-		if err != nil {
-			return product, err
-		}
-	}
-
 	if len(req.Name) == 0 {
-		return state, ErrProductNameIsEmpty
+		return req.State, ErrProductNameIsEmpty
 	}
 
 	if req.Price < 0 {
-		return state, ErrProductPriceIsLessThanZero
+		return req.State, ErrProductPriceIsLessThanZero
 	}
 
 	for _, product := range req.Products {
 		exists, err := handler.repository.Exists(ctx, product.Id)
 		if err != nil {
-			return state, err
+			return req.State, err
 		}
 
 		if !exists {
-			return state, ErrProductNotFound
+			return req.State, infrastructure.ErrProductNotFound
 		}
 
 		if product.Amount <= 0 {
-			return state, ErrProductAmountIsInvalid
+			return req.State, ErrProductAmountIsInvalid
 		}
 	}
 
-	return handler.repository.Save(ctx, state)
+	if req.Id != uuid.Nil {
+		state, err := handler.repository.GetById(ctx, req.Id)
+		if err != nil {
+			return state, err
+		}
+
+		req.CreateAt = state.CreateAt
+		req.ModifyAt = state.ModifyAt
+	}
+
+	return handler.repository.Save(ctx, req.State)
 }

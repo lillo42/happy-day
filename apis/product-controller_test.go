@@ -116,11 +116,16 @@ func TestProductControllerUpdateWhenIdIsNotUuid(t *testing.T) {
 	err := controller.update(ctx)
 
 	assert.NotNil(t, err)
-	assert.Equal(t, ErrProductNotFound, err)
+	assert.Equal(t, infrastructure.ErrProductNotFound, err)
 }
 
 func TestProductControllerUpdateWhenErrOnHandler(t *testing.T) {
-	b, _ := json.Marshal(application.CreateOrChangeProductRequest{})
+	b, _ := json.Marshal(application.CreateOrChangeProductRequest{
+		State: product.State{
+			Name:  common.RandString(10),
+			Price: 2.5,
+		},
+	})
 
 	rec := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodPut, "/", bytes.NewBuffer(b))
@@ -200,7 +205,7 @@ func TestProductControllerDeleteWhenIdIsNotUuid(t *testing.T) {
 	err := controller.delete(ctx)
 
 	assert.NotNil(t, err)
-	assert.Equal(t, ErrProductNotFound, err)
+	assert.Equal(t, infrastructure.ErrProductNotFound, err)
 }
 
 func TestProductControllerDeleteWhenErrOnHandler(t *testing.T) {
@@ -264,7 +269,7 @@ func TestProductControllerGetWhenIdIsNotUuid(t *testing.T) {
 	err := controller.get(ctx)
 
 	assert.NotNil(t, err)
-	assert.Equal(t, ErrProductNotFound, err)
+	assert.Equal(t, infrastructure.ErrProductNotFound, err)
 }
 
 func TestProductControllerGetWhenErrToGetById(t *testing.T) {

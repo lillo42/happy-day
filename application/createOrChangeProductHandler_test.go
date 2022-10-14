@@ -17,7 +17,9 @@ import (
 func TestCreateOrChangeProductWhenProductNotFound(t *testing.T) {
 	req := CreateOrChangeProductRequest{
 		State: product.State{
-			Id: uuid.New(),
+			Id:    uuid.New(),
+			Name:  common.RandString(10),
+			Price: 10,
 		},
 	}
 
@@ -117,7 +119,7 @@ func TestCreateOrChangeProductWhenProductNotExsits(t *testing.T) {
 	_, err := handler.Handle(context.Background(), req)
 
 	assert.NotNil(t, err)
-	assert.Equal(t, ErrProductNotFound, err)
+	assert.Equal(t, infrastructure.ErrProductNotFound, err)
 }
 
 func TestCreateOrChangeProductWhenProductAmountIsLessOrEqualThanZero(t *testing.T) {

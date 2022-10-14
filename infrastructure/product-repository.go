@@ -6,10 +6,12 @@ import (
 	"happy_day/common"
 	"happy_day/domain/product"
 	"math"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -28,7 +30,9 @@ var (
 	_ ProductRepository = (*MockProductRepository)(nil)
 	_ ProductRepository = (*MongoDbProductRepository)(nil)
 
-	ErrOneProductNotFound = errors.New("one product in the list not found")
+	ErrProductConcurrencyIssue = errors.New("product concurrency issue")
+	ErrProductNotFound         = errors.New("product not found")
+	ErrOneProductNotFound      = errors.New("one product in the list not found")
 )
 
 type (
@@ -203,6 +207,9 @@ func (repository MongoDbProductRepository) GetById(ctx context.Context, id uuid.
 		FindOne(ctx, query)
 
 	err = decode.Err()
+	if err == mongo.ErrNoDocuments {
+		return product.State{}, ErrProductNotFound
+	}
 	if err != nil {
 		return product.State{}, err
 	}
@@ -257,15 +264,26 @@ func (repository MongoDbProductRepository) Save(ctx context.Context, state produ
 	}
 
 	defer client.Disconnect(ctx)
-	_, err = client.Database(Database).
-		Collection(ProductCollection).
-		InsertOne(ctx, state)
+	collection := client.Database(Database).
+		Collection(ProductCollection)
 
-	if err != nil {
-		return product.State{}, err
+	if state.Id == uuid.Nil {
+		state.Id = uuid.New()
+		state.CreateAt = time.Now().UTC()
+		state.ModifyAt = time.Now().UTC()
+		_, err = collection.InsertOne(ctx, state)
+		return state, err
 	}
 
-	return state, nil
+	lastChange := state.ModifyAt
+	state.ModifyAt = time.Now().UTC()
+
+	res, err := collection.ReplaceOne(ctx, bson.M{"id": state.Id, "modifyAt": lastChange}, state)
+	if res.ModifiedCount == 0 {
+		return state, ErrProductConcurrencyIssue
+	}
+
+	return state, err
 }
 
 func (repository MongoDbProductRepository) Delete(ctx context.Context, id uuid.UUID) error {
@@ -285,7 +303,7 @@ func (repository MongoDbProductRepository) Delete(ctx context.Context, id uuid.U
 
 func (repository MongoDbProductRepository) GetAll(ctx context.Context, filter ProductFilter) (Page[product.State], error) {
 	opt := options.Find().
-		SetSkip(filter.Page * filter.Size).
+		SetSkip((filter.Page - 1) * filter.Size).
 		SetLimit(filter.Size)
 
 	if filter.SortBy == ProductIdAsc {
@@ -304,7 +322,10 @@ func (repository MongoDbProductRepository) GetAll(ctx context.Context, filter Pr
 
 	query := bson.M{}
 	if len(filter.Text) > 0 {
-		query["$text"] = bson.M{"$search": filter.Text}
+		query["$or"] = []interface{}{
+			bson.M{"id": bson.M{"$regex": filter.Text, "$options": "im"}},
+			bson.M{"name": bson.M{"$regex": filter.Text, "$options": "im"}},
+		}
 	}
 
 	client, err := repository.CreateClient(ctx)
@@ -322,12 +343,6 @@ func (repository MongoDbProductRepository) GetAll(ctx context.Context, filter Pr
 		return page, err
 	}
 
-	cursor, err := collection.Find(ctx, query, opt)
-	if err != nil {
-		return page, err
-	}
-
-	page.Items = make([]product.State, 0)
 	page.TotalElements = totalElements
 	if totalElements > 0 {
 		tmp := float64(totalElements) / float64(filter.Size)
@@ -335,14 +350,11 @@ func (repository MongoDbProductRepository) GetAll(ctx context.Context, filter Pr
 		page.TotalPages = int64(tmp)
 	}
 
-	for cursor.Next(ctx) {
-		var state product.State
-		err = cursor.Decode(&state)
-		if err != nil {
-			break
-		}
-
-		page.Items = append(page.Items, state)
+	cursor, err := collection.Find(ctx, query, opt)
+	if err != nil {
+		return page, err
 	}
-	return page, nil
+
+	err = cursor.All(ctx, &page.Items)
+	return page, err
 }

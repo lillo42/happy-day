@@ -18,7 +18,7 @@ func ErrorMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 				return ctx.JSON(problem.Status, problem)
 			}
 
-			ctx.Logger().Fatal("Unexpected error during message processing", err)
+			ctx.Logger().Error("unexpected error during message processing", err)
 			return ctx.JSON(unexpectedErr.Status, unexpectedErr)
 		}
 
@@ -48,6 +48,40 @@ var (
 			Message: apis.ErrInvalidBody.Error(),
 			Status:  http.StatusBadRequest,
 		},
+
+		// Products
+		infrastructure.ErrProductConcurrencyIssue: {
+			Type:    "/api/v1/product-concurrency-issue",
+			Title:   "PRD000",
+			Message: infrastructure.ErrProductConcurrencyIssue.Error(),
+			Status:  http.StatusConflict,
+		},
+		infrastructure.ErrProductNotFound: {
+			Type:    "/api/v1/product-not-found",
+			Title:   "PROD001",
+			Message: infrastructure.ErrProductNotFound.Error(),
+			Status:  http.StatusNotFound,
+		},
+		application.ErrProductAmountIsInvalid: {
+			Type:    "/api/v1/product-amount-is-invalid",
+			Title:   "PROD002",
+			Message: application.ErrProductAmountIsInvalid.Error(),
+			Status:  http.StatusUnprocessableEntity,
+		},
+		application.ErrProductNameIsEmpty: {
+			Type:    "/api/v1/product-name-is-empty",
+			Title:   "PROD003",
+			Message: application.ErrProductNameIsEmpty.Error(),
+			Status:  http.StatusBadRequest,
+		},
+		application.ErrProductPriceIsLessThanZero: {
+			Type:    "/api/v1/product-price-is-less-than-zero",
+			Title:   "PROD004",
+			Message: application.ErrProductPriceIsLessThanZero.Error(),
+			Status:  http.StatusUnprocessableEntity,
+		},
+
+		// Reservations
 		application.ErrProductListIsEmpty: {
 			Type:    "/api/v1/reservations/product-list-is-empty",
 			Title:   "RSV000",

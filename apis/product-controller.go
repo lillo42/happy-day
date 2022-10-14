@@ -1,7 +1,6 @@
 package apis
 
 import (
-	"errors"
 	"happy_day/application"
 	"happy_day/infrastructure"
 	"net/http"
@@ -11,9 +10,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-var (
-	ErrProductNotFound = errors.New("Product not found")
-)
+var ()
 
 type ProductController struct {
 	createOrChangeHandler application.CreateOrChangeProductHandler
@@ -69,7 +66,7 @@ func (controller ProductController) create(ctx echo.Context) error {
 func (controller ProductController) get(ctx echo.Context) error {
 	id, err := uuid.Parse(ctx.Param("id"))
 	if err != nil {
-		return ErrProductNotFound
+		return infrastructure.ErrProductNotFound
 	}
 
 	res, err := controller.repository.GetById(ctx.Request().Context(), id)
@@ -88,7 +85,7 @@ func (controller ProductController) update(ctx echo.Context) error {
 
 	id, err := uuid.Parse(ctx.Param("id"))
 	if err != nil {
-		return ErrProductNotFound
+		return infrastructure.ErrProductNotFound
 	}
 
 	req.Id = id
@@ -103,7 +100,7 @@ func (controller ProductController) update(ctx echo.Context) error {
 func (controller ProductController) delete(ctx echo.Context) error {
 	id, err := uuid.Parse(ctx.Param("id"))
 	if err != nil {
-		return ErrProductNotFound
+		return infrastructure.ErrProductNotFound
 	}
 
 	req := application.DeleteProductRequest{

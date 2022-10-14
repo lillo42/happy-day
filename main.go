@@ -4,6 +4,7 @@ import (
 	"happy_day/middlewares"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/spf13/viper"
 )
 
@@ -12,6 +13,11 @@ func main() {
 
 	e := echo.New()
 
+	e.Use(middleware.LoggerWithConfig(middleware.DefaultLoggerConfig))
+	//e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
+	//	LogStatus: true,
+	//	LogURI:    true,
+	//}))
 	e.Use(middlewares.ErrorMiddleware)
 	initializeReservationController().Routes(e)
 	initializeProductController().Routes(e)
