@@ -2,12 +2,15 @@ package infrastructure
 
 import (
 	"context"
+	"errors"
 	"happy_day/domain/customer"
 	"math"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -23,6 +26,9 @@ const (
 var (
 	_ CustomerRepository = (*MockCustomerRepository)(nil)
 	_ CustomerRepository = (*MongoDbCustomerRepository)(nil)
+
+	ErrCustomerConcurrencyIssue = errors.New("product concurrency issue")
+	ErrCustomerNotFound         = errors.New("product not found")
 )
 
 type (
@@ -73,7 +79,7 @@ func (repository *MockCustomerRepository) Delete(ctx context.Context, id uuid.UU
 
 func (repository MongoDbCustomerRepository) GetAll(ctx context.Context, filter CustomerFilter) (Page[customer.State], error) {
 	opt := options.Find().
-		SetSkip(filter.Page * filter.Size).
+		SetSkip((filter.Page - 1) * filter.Size).
 		SetLimit(filter.Size)
 
 	if filter.SortBy == CustomerIdAsc {
@@ -88,7 +94,12 @@ func (repository MongoDbCustomerRepository) GetAll(ctx context.Context, filter C
 
 	query := bson.M{}
 	if len(filter.Text) > 0 {
-		query["$text"] = bson.M{"$search": filter.Text}
+		query["$or"] = []interface{}{
+			bson.M{"id": bson.M{"$regex": filter.Text, "$options": "im"}},
+			bson.M{"name": bson.M{"$regex": filter.Text, "$options": "im"}},
+			bson.M{"comment": bson.M{"$regex": filter.Text, "$options": "im"}},
+			bson.M{"phones": bson.M{"$elemMatch": bson.M{"number": bson.M{"$regex": filter.Text, "$options": "im"}}}},
+		}
 	}
 
 	client, err := repository.CreateClient(ctx)
@@ -107,11 +118,6 @@ func (repository MongoDbCustomerRepository) GetAll(ctx context.Context, filter C
 		return page, err
 	}
 
-	cursor, err := collection.Find(ctx, query, opt)
-	if err != nil {
-		return page, err
-	}
-
 	page.Items = make([]customer.State, 0)
 	page.TotalElements = totalElements
 	if totalElements > 0 {
@@ -120,15 +126,12 @@ func (repository MongoDbCustomerRepository) GetAll(ctx context.Context, filter C
 		page.TotalPages = int64(tmp)
 	}
 
-	for cursor.Next(ctx) {
-		var state customer.State
-		err = cursor.Decode(&state)
-		if err != nil {
-			break
-		}
-
-		page.Items = append(page.Items, state)
+	cursor, err := collection.Find(ctx, query, opt)
+	if err != nil {
+		return page, err
 	}
+
+	err = cursor.All(ctx, &page.Items)
 	return page, nil
 }
 
@@ -145,6 +148,10 @@ func (repository MongoDbCustomerRepository) GetById(ctx context.Context, id uuid
 		FindOne(ctx, query)
 
 	err = decode.Err()
+	if err == mongo.ErrNoDocuments {
+		return customer.State{}, ErrCustomerNotFound
+	}
+
 	if err != nil {
 		return customer.State{}, err
 	}
@@ -161,15 +168,27 @@ func (repository MongoDbCustomerRepository) Save(ctx context.Context, state cust
 	}
 
 	defer client.Disconnect(ctx)
-	_, err = client.Database(Database).
-		Collection(CustomersCollection).
-		InsertOne(ctx, state)
+	collection := client.Database(Database).
+		Collection(CustomersCollection)
 
-	if err != nil {
-		return customer.State{}, err
+	if state.Id == uuid.Nil {
+		state.Id = uuid.New()
+		state.CreateAt = time.Now().UTC()
+		state.ModifyAt = time.Now().UTC()
+		_, err = collection.InsertOne(ctx, state)
+		return state, err
 	}
 
-	return state, nil
+	lastChange := state.ModifyAt
+	state.ModifyAt = time.Now().UTC()
+
+	res, err := collection.ReplaceOne(ctx, bson.M{"id": state.Id, "modifyAt": lastChange}, state)
+
+	if res.ModifiedCount == 0 {
+		return state, ErrCustomerConcurrencyIssue
+	}
+
+	return state, err
 }
 
 func (repository MongoDbCustomerRepository) Delete(ctx context.Context, id uuid.UUID) error {

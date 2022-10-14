@@ -1,7 +1,6 @@
 package apis
 
 import (
-	"errors"
 	"happy_day/application"
 	"happy_day/infrastructure"
 	"net/http"
@@ -9,10 +8,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
-)
-
-var (
-	ErrCustomerNotFound = errors.New("customer not found")
 )
 
 type CustomerController struct {
@@ -74,7 +69,7 @@ func (controller CustomerController) update(ctx echo.Context) error {
 
 	id, err := uuid.Parse(ctx.Param("id"))
 	if err != nil {
-		return ErrCustomerNotFound
+		return infrastructure.ErrCustomerNotFound
 	}
 
 	req.Id = id
@@ -89,7 +84,7 @@ func (controller CustomerController) update(ctx echo.Context) error {
 func (controller CustomerController) get(ctx echo.Context) error {
 	id, err := uuid.Parse(ctx.Param("id"))
 	if err != nil {
-		return ErrCustomerNotFound
+		return infrastructure.ErrCustomerNotFound
 	}
 
 	res, err := controller.repository.GetById(ctx.Request().Context(), id)
@@ -103,7 +98,7 @@ func (controller CustomerController) get(ctx echo.Context) error {
 func (controller CustomerController) delete(ctx echo.Context) error {
 	id, err := uuid.Parse(ctx.Param("id"))
 	if err != nil {
-		return ErrCustomerNotFound
+		return infrastructure.ErrCustomerNotFound
 	}
 
 	req := application.DeleteCustomerRequest{Id: id}

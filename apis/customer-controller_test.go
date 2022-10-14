@@ -119,7 +119,7 @@ func TestCustomerControllerUpdateWhenIdIsNotUuid(t *testing.T) {
 	err := controller.update(ctx)
 
 	assert.NotNil(t, err)
-	assert.Equal(t, ErrCustomerNotFound, err)
+	assert.Equal(t, infrastructure.ErrCustomerNotFound, err)
 }
 
 func TestCustomerControllerUpdateWhenErrOnHandler(t *testing.T) {
@@ -216,7 +216,7 @@ func TestCustomerControllerDeleteWhenIdIsNotUuid(t *testing.T) {
 	err := controller.delete(ctx)
 
 	assert.NotNil(t, err)
-	assert.Equal(t, ErrCustomerNotFound, err)
+	assert.Equal(t, infrastructure.ErrCustomerNotFound, err)
 }
 
 func TestCustomerControllerDeleteWhenErrOnHandler(t *testing.T) {
@@ -277,7 +277,7 @@ func TestCustomerControllerGetWhenIdIsNotUuid(t *testing.T) {
 	err := controller.get(ctx)
 
 	assert.NotNil(t, err)
-	assert.Equal(t, ErrCustomerNotFound, err)
+	assert.Equal(t, infrastructure.ErrCustomerNotFound, err)
 }
 
 func TestCustomerControllerGetWhenErrToGetById(t *testing.T) {

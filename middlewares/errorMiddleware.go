@@ -51,33 +51,65 @@ var (
 
 		// Products
 		infrastructure.ErrProductConcurrencyIssue: {
-			Type:    "/api/v1/product-concurrency-issue",
+			Type:    "/api/v1/products/concurrency-issue",
 			Title:   "PRD000",
 			Message: infrastructure.ErrProductConcurrencyIssue.Error(),
 			Status:  http.StatusConflict,
 		},
 		infrastructure.ErrProductNotFound: {
-			Type:    "/api/v1/product-not-found",
+			Type:    "/api/v1/products/not-found",
 			Title:   "PROD001",
 			Message: infrastructure.ErrProductNotFound.Error(),
 			Status:  http.StatusNotFound,
 		},
 		application.ErrProductAmountIsInvalid: {
-			Type:    "/api/v1/product-amount-is-invalid",
+			Type:    "/api/v1/products/amount-is-invalid",
 			Title:   "PROD002",
 			Message: application.ErrProductAmountIsInvalid.Error(),
 			Status:  http.StatusUnprocessableEntity,
 		},
 		application.ErrProductNameIsEmpty: {
-			Type:    "/api/v1/product-name-is-empty",
+			Type:    "/api/v1/products/name-is-empty",
 			Title:   "PROD003",
 			Message: application.ErrProductNameIsEmpty.Error(),
 			Status:  http.StatusBadRequest,
 		},
 		application.ErrProductPriceIsLessThanZero: {
-			Type:    "/api/v1/product-price-is-less-than-zero",
+			Type:    "/api/v1/products/price-is-less-than-zero",
 			Title:   "PROD004",
 			Message: application.ErrProductPriceIsLessThanZero.Error(),
+			Status:  http.StatusUnprocessableEntity,
+		},
+
+		// Customers
+		infrastructure.ErrCustomerConcurrencyIssue: {
+			Type:    "/api/v1/customers/concurrency-issue",
+			Title:   "CUS000",
+			Message: infrastructure.ErrCustomerConcurrencyIssue.Error(),
+			Status:  http.StatusConflict,
+		},
+		infrastructure.ErrCustomerNotFound: {
+			Type:    "/api/v1/customers/not-found",
+			Title:   "CUS001",
+			Message: infrastructure.ErrCustomerNotFound.Error(),
+			Status:  http.StatusNotFound,
+		},
+		application.ErrCustomerNameIsEmpty: {
+			Type:    "/api/v1/customers/name-is-empty",
+			Title:   "CUS002",
+			Message: application.ErrCustomerNameIsEmpty.Error(),
+			Status:  http.StatusBadRequest,
+		},
+		application.ErrCustomerPhonesIsEmpty: {
+			Type:    "/api/v1/customers/phones-is-empty",
+			Title:   "CUS003",
+			Message: application.ErrCustomerPhonesIsEmpty.Error(),
+			Status:  http.StatusBadRequest,
+		},
+		application.ErrCustomerPhoneIsInvalid: {
+			Type:    "/api/v1/customers/phone-is-invalid",
+			Title:   "CUS004",
+			Message: application.ErrCustomerPhoneIsInvalid.Error(),
 			Status:  http.StatusUnprocessableEntity,
 		},
 

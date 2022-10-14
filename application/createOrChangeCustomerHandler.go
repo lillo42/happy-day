@@ -27,24 +27,15 @@ type (
 )
 
 func (handler CreateOrChangeCustomerHandler) Handle(ctx context.Context, req CreateOrChangeCustomerRequest) (customer.State, error) {
-	state := req.State
-	if state.Id != uuid.Nil {
-		var err error
-		state, err = handler.repository.GetById(ctx, state.Id)
-		if err != nil {
-			return state, err
-		}
+	if len(req.Name) == 0 {
+		return customer.State{}, ErrCustomerNameIsEmpty
 	}
 
-	if len(state.Name) == 0 {
-		return state, ErrCustomerNameIsEmpty
+	if len(req.Phones) == 0 {
+		return customer.State{}, ErrCustomerPhonesIsEmpty
 	}
 
-	if len(state.Phones) == 0 {
-		return state, ErrCustomerPhonesIsEmpty
-	}
-
-	for _, phone := range state.Phones {
+	for _, phone := range req.Phones {
 		size := 0
 		for index, c := range phone.Number {
 			if (index == 0 && c == '+') || c == ' ' {
@@ -56,13 +47,23 @@ func (handler CreateOrChangeCustomerHandler) Handle(ctx context.Context, req Cre
 				continue
 			}
 
-			return state, ErrCustomerPhoneIsInvalid
+			return customer.State{}, ErrCustomerPhoneIsInvalid
 		}
 
 		if size < 8 || size > 12 {
-			return state, ErrCustomerPhoneIsInvalid
+			return customer.State{}, ErrCustomerPhoneIsInvalid
 		}
 	}
 
-	return handler.repository.Save(ctx, state)
+	if req.Id != uuid.Nil {
+		state, err := handler.repository.GetById(ctx, req.Id)
+		if err != nil {
+			return state, err
+		}
+
+		req.CreateAt = state.CreateAt
+		req.ModifyAt = state.ModifyAt
+	}
+
+	return handler.repository.Save(ctx, req.State)
 }

@@ -8,9 +8,9 @@ import (
 
 type (
 	State struct {
-		Id       uuid.UUID `json:"id" bson:"id"`
+		Id       uuid.UUID `json:"id,omitempty" bson:"id"`
 		Name     string    `json:"name" bson:"name"`
-		Comment  string    `json:"comment" bson:"comment"`
+		Comment  string    `json:"comment,omitempty" bson:"comment"`
 		Phones   []Phone   `json:"phones" bson:"phones"`
 		CreateAt time.Time `json:"createAt" bson:"createAt"`
 		ModifyAt time.Time `json:"modifyAt" bson:"modifyAt"`
