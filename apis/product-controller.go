@@ -10,13 +10,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-var ()
-
 type ProductController struct {
+	getAllHandler         application.GetAllProductsHandler
+	getByIdHandler        application.GetProductByIdHandler
 	createOrChangeHandler application.CreateOrChangeProductHandler
 	deleteHandler         application.DeleteProductHandler
-	getAllHandler         application.GetAllProductsHandler
-	repository            infrastructure.ProductRepository
 }
 
 func (controller ProductController) Routes(e *echo.Echo) {
@@ -69,7 +67,7 @@ func (controller ProductController) get(ctx echo.Context) error {
 		return infrastructure.ErrProductNotFound
 	}
 
-	res, err := controller.repository.GetById(ctx.Request().Context(), id)
+	res, err := controller.getByIdHandler.Handle(ctx.Request().Context(), id)
 	if err != nil {
 		return err
 	}

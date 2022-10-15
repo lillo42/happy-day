@@ -70,7 +70,13 @@ func TestCreateOrChangeCustomerHandlerWhenErrToGetById(t *testing.T) {
 	handler := CreateOrChangeCustomerHandler{repository: repo}
 	_, err := handler.Handle(context.Background(), CreateOrChangeCustomerRequest{
 		State: customer.State{
-			Id: uuid.New(),
+			Id:   uuid.New(),
+			Name: common.RandString(10),
+			Phones: []customer.Phone{
+				{
+					Number: "123456789",
+				},
+			},
 		},
 	})
 	assert.NotNil(t, err)

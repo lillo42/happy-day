@@ -11,6 +11,9 @@ var ProvideSet = wire.NewSet(
 
 	ProviderCustomerRepository,
 	wire.Bind(new(CustomerRepository), new(*MongoDbCustomerRepository)),
+
+	ProvideReservationRepository,
+	wire.Bind(new(ReservationRepository), new(*MongoDbReservationRepository)),
 )
 
 func ProvideProductRepository(opt *options.ClientOptions) *MongoDbProductRepository {
@@ -23,6 +26,14 @@ func ProvideProductRepository(opt *options.ClientOptions) *MongoDbProductReposit
 
 func ProviderCustomerRepository(opt *options.ClientOptions) *MongoDbCustomerRepository {
 	return &MongoDbCustomerRepository{
+		MongoDbRepository{
+			options: opt,
+		},
+	}
+}
+
+func ProvideReservationRepository(opt *options.ClientOptions) *MongoDbReservationRepository {
+	return &MongoDbReservationRepository{
 		MongoDbRepository{
 			options: opt,
 		},

@@ -135,17 +135,12 @@ func TestCustomerControllerUpdateWhenErrOnHandler(t *testing.T) {
 	ctx.SetParamNames("id")
 	ctx.SetParamValues("cf9fe14e-393d-4d5d-9800-3f4448a04e9c")
 
-	expectedErr := errors.New(common.RandString(10))
 	repo := &infrastructure.MockCustomerRepository{}
-	repo.
-		On("GetById", mock.Anything, mock.Anything).
-		Return(customer.State{}, expectedErr)
-
 	controller := CustomerController{createOrChangeHandler: application.ProvideCreateOrChangeCustomerHandler(repo)}
 	err := controller.update(ctx)
 
 	assert.NotNil(t, err)
-	assert.Equal(t, expectedErr, err)
+	assert.Equal(t, application.ErrCustomerNameIsEmpty, err)
 }
 
 func TestCustomerControllerUpdate(t *testing.T) {
@@ -296,7 +291,7 @@ func TestCustomerControllerGetWhenErrToGetById(t *testing.T) {
 		On("GetById", mock.Anything, mock.Anything).
 		Return(customer.State{}, expectedErr)
 
-	controller := CustomerController{repository: repo}
+	controller := CustomerController{getByIdHandler: application.ProvideGetCustomerByIdHandler(repo)}
 	err := controller.get(ctx)
 
 	assert.NotNil(t, err)
@@ -318,7 +313,7 @@ func TestCustomerControllerGet(t *testing.T) {
 		On("GetById", mock.Anything, mock.Anything).
 		Return(customer.State{}, nil)
 
-	controller := CustomerController{repository: repo}
+	controller := CustomerController{getByIdHandler: application.ProvideGetCustomerByIdHandler(repo)}
 	err := controller.get(ctx)
 
 	assert.Nil(t, err)

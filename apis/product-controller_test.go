@@ -288,7 +288,7 @@ func TestProductControllerGetWhenErrToGetById(t *testing.T) {
 		On("GetById", mock.Anything, mock.Anything).
 		Return(product.State{}, expectedErr)
 
-	controller := ProductController{repository: repo}
+	controller := ProductController{getByIdHandler: application.ProvideGetProductByIdHandler(repo)}
 	err := controller.get(ctx)
 
 	assert.NotNil(t, err)
@@ -310,7 +310,7 @@ func TestProductControllerGet(t *testing.T) {
 		On("GetById", mock.Anything, mock.Anything).
 		Return(product.State{}, nil)
 
-	controller := ProductController{repository: repo}
+	controller := ProductController{getByIdHandler: application.ProvideGetProductByIdHandler(repo)}
 	err := controller.get(ctx)
 
 	assert.Nil(t, err)

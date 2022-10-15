@@ -27,28 +27,32 @@ import (
 func initializeReservationController() apis.ReservationController {
 	clientOptions := ProvideMongoDbOptions()
 	mongoDbProductRepository := infrastructure.ProvideProductRepository(clientOptions)
+	mongoDbReservationRepository := infrastructure.ProvideReservationRepository(clientOptions)
+	createReservationHandler := application.ProvideCreateReservationHandler(mongoDbProductRepository, mongoDbReservationRepository)
 	quoteReservationHandler := application.ProvideQuoteReservationHandler(mongoDbProductRepository)
-	reservationController := apis.ProvideReservationController(quoteReservationHandler)
+	reservationController := apis.ProvideReservationController(createReservationHandler, quoteReservationHandler)
 	return reservationController
 }
 
 func initializeProductController() apis.ProductController {
 	clientOptions := ProvideMongoDbOptions()
 	mongoDbProductRepository := infrastructure.ProvideProductRepository(clientOptions)
+	getAllProductsHandler := application.ProvideGetAllProductsHandler(mongoDbProductRepository)
+	getProductByIdHandler := application.ProvideGetProductByIdHandler(mongoDbProductRepository)
 	createOrChangeProductHandler := application.ProvideCreateOrChangeProductHandler(mongoDbProductRepository)
 	deleteProductHandler := application.ProvideDeleteProductHandler(mongoDbProductRepository)
-	getAllProductsHandler := application.ProvideGetAllProductsHandler(mongoDbProductRepository)
-	productController := apis.ProvideProductController(createOrChangeProductHandler, deleteProductHandler, getAllProductsHandler, mongoDbProductRepository)
+	productController := apis.ProvideProductController(getAllProductsHandler, getProductByIdHandler, createOrChangeProductHandler, deleteProductHandler)
 	return productController
 }
 
 func initializeCustomerController() apis.CustomerController {
 	clientOptions := ProvideMongoDbOptions()
 	mongoDbCustomerRepository := infrastructure.ProviderCustomerRepository(clientOptions)
+	getAllCustomersHandler := application.ProvideGetAllCustomersHandler(mongoDbCustomerRepository)
+	getCustomerByIdHandler := application.ProvideGetCustomerByIdHandler(mongoDbCustomerRepository)
 	createOrChangeCustomerHandler := application.ProvideCreateOrChangeCustomerHandler(mongoDbCustomerRepository)
 	deleteCustomerHandler := application.ProvideDeleteCustomerHandler(mongoDbCustomerRepository)
-	getAllCustomersHandler := application.ProvideGetAllCustomersHandler(mongoDbCustomerRepository)
-	customerController := apis.ProvideCustomerController(createOrChangeCustomerHandler, deleteCustomerHandler, getAllCustomersHandler, mongoDbCustomerRepository)
+	customerController := apis.ProvideCustomerController(getAllCustomersHandler, getCustomerByIdHandler, createOrChangeCustomerHandler, deleteCustomerHandler)
 	return customerController
 }
 

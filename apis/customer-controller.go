@@ -11,10 +11,10 @@ import (
 )
 
 type CustomerController struct {
+	getAllHandler         application.GetAllCustomersHandler
+	getByIdHandler        application.GetCustomerByIdHandler
 	createOrChangeHandler application.CreateOrChangeCustomerHandler
 	deleteHandler         application.DeleteCustomerHandler
-	getAllHandler         application.GetAllCustomersHandler
-	repository            infrastructure.CustomerRepository
 }
 
 func (controller CustomerController) Routes(e *echo.Echo) {
@@ -87,7 +87,7 @@ func (controller CustomerController) get(ctx echo.Context) error {
 		return infrastructure.ErrCustomerNotFound
 	}
 
-	res, err := controller.repository.GetById(ctx.Request().Context(), id)
+	res, err := controller.getByIdHandler.Handle(ctx.Request().Context(), id)
 	if err != nil {
 		return err
 	}

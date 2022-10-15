@@ -2,7 +2,6 @@ package apis
 
 import (
 	"happy_day/application"
-	"happy_day/infrastructure"
 
 	"github.com/google/wire"
 )
@@ -16,37 +15,39 @@ var ProvideSet = wire.NewSet(
 )
 
 func ProvideReservationController(
+	createHandler application.CreateReservationHandler,
 	quoteHandler application.QuoteReservationHandler,
 ) ReservationController {
 	return ReservationController{
-		quoteHandler: quoteHandler,
+		createHandler: createHandler,
+		quoteHandler:  quoteHandler,
 	}
 }
 
 func ProvideProductController(
+	getAllHandler application.GetAllProductsHandler,
+	getByIdHandler application.GetProductByIdHandler,
 	createOrChangeHandler application.CreateOrChangeProductHandler,
 	deleteHandler application.DeleteProductHandler,
-	getAllHandler application.GetAllProductsHandler,
-	repository infrastructure.ProductRepository,
 ) ProductController {
 	return ProductController{
+		getAllHandler:         getAllHandler,
+		getByIdHandler:        getByIdHandler,
 		createOrChangeHandler: createOrChangeHandler,
 		deleteHandler:         deleteHandler,
-		getAllHandler:         getAllHandler,
-		repository:            repository,
 	}
 }
 
 func ProvideCustomerController(
+	getAllHandler application.GetAllCustomersHandler,
+	getByIdHandler application.GetCustomerByIdHandler,
 	createOrChangeHandler application.CreateOrChangeCustomerHandler,
 	deleteHandler application.DeleteCustomerHandler,
-	getAllHandler application.GetAllCustomersHandler,
-	repository infrastructure.CustomerRepository,
 ) CustomerController {
 	return CustomerController{
+		getAllHandler:         getAllHandler,
+		getByIdHandler:        getByIdHandler,
 		createOrChangeHandler: createOrChangeHandler,
 		deleteHandler:         deleteHandler,
-		getAllHandler:         getAllHandler,
-		repository:            repository,
 	}
 }

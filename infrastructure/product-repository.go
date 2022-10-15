@@ -122,17 +122,7 @@ func (repository MongoDbProductRepository) GetByProducts(ctx context.Context, pr
 	}
 
 	products := make([]product.State, 0)
-	for cursor.Next(ctx) {
-		var state product.State
-		err := cursor.Decode(&state)
-		if err != nil {
-			return nil, err
-		}
-
-		products = append(products, state)
-	}
-
-	err = cursor.Err()
+	err = cursor.All(ctx, &products)
 	if err != nil {
 		return nil, err
 	}
@@ -298,7 +288,6 @@ func (repository MongoDbProductRepository) Delete(ctx context.Context, id uuid.U
 		Collection(ProductCollection).
 		DeleteOne(ctx, query)
 	return err
-
 }
 
 func (repository MongoDbProductRepository) GetAll(ctx context.Context, filter ProductFilter) (Page[product.State], error) {

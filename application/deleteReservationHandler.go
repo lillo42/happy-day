@@ -8,9 +8,9 @@ import (
 )
 
 type DeleteReservationHandler struct {
-	reservationRepository infrastructure.ReservationRepository
+	repository infrastructure.ReservationRepository
 }
 
-func (handler DeleteReservationHandler) Handler(ctx context.Context, req uuid.UUID) error {
-	return handler.reservationRepository.Delete(ctx, req)
+func (handler DeleteReservationHandler) Handle(ctx context.Context, req uuid.UUID) error {
+	return handler.repository.Delete(ctx, req)
 }

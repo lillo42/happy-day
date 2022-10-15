@@ -12,6 +12,6 @@ type GetReservationByIdHandler struct {
 	repository infrastructure.ReservationRepository
 }
 
-func (handler GetReservationByIdHandler) Handler(ctx context.Context, req uuid.UUID) (reservation.State, error) {
-	return handler.repository.Get(ctx, req)
+func (handler GetReservationByIdHandler) Handle(ctx context.Context, req uuid.UUID) (reservation.State, error) {
+	return handler.repository.GetById(ctx, req)
 }

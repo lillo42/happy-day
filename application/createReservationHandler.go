@@ -13,7 +13,7 @@ import (
 
 type (
 	CreateReservationRequest struct {
-		Product  []CreateReservationProductRequest `json:"product"`
+		Products []CreateReservationProductRequest `json:"products"`
 		Price    float64                           `json:"price"`
 		Discount float64                           `json:"discount"`
 	}
@@ -34,14 +34,12 @@ var (
 )
 
 func (handler CreateReservationHandler) Handle(ctx context.Context, req CreateReservationRequest) (reservation.State, error) {
-
 	var state reservation.State
-
-	if len(req.Product) == 0 {
+	if len(req.Products) == 0 {
 		return state, ErrProductListIsEmpty
 	}
 
-	products, err := handler.productRepository.GetByProducts(ctx, common.Map(req.Product, func(item CreateReservationProductRequest) uuid.UUID {
+	products, err := handler.productRepository.GetByProducts(ctx, common.Map(req.Products, func(item CreateReservationProductRequest) uuid.UUID {
 		return item.Id
 	}))
 
@@ -50,14 +48,20 @@ func (handler CreateReservationHandler) Handle(ctx context.Context, req CreateRe
 	}
 
 	state = reservation.State{
-		Id:       uuid.New(),
-		Discount: req.Discount,
-		Price:    req.Price,
-		Products: common.MapWithIndex(products, func(index int, item product.State) reservation.Product {
+		Id:         uuid.New(),
+		Discount:   req.Discount,
+		Price:      req.Price,
+		FinalPrice: req.Price - req.Discount,
+		Products: common.Map(products, func(item product.State) reservation.Product {
+			p, _ := common.First(req.Products,
+				func(item2 CreateReservationProductRequest) bool {
+					return item2.Id == item.Id
+				},
+				CreateReservationProductRequest{})
 			return reservation.Product{
 				Id:     item.Id,
 				Price:  item.Price,
-				Amount: req.Product[index].Amount,
+				Amount: p.Amount,
 			}
 		}),
 	}

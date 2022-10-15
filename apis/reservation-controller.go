@@ -11,27 +11,33 @@ import (
 )
 
 type ReservationController struct {
-	quoteHandler application.QuoteReservationHandler
+	getAllHandler  application.GetAllReservationHandler
+	getByIdHandler application.GetReservationByIdHandler
+	createHandler  application.CreateReservationHandler
+	changeHandler  application.ChangeReservationHandler
+	deleteHandler  application.DeleteReservationHandler
+	quoteHandler   application.QuoteReservationHandler
 }
 
 func (controller ReservationController) Routes(e *echo.Echo) {
-	e.GET("/api/v1/reservations", getAllReservations)
-	e.POST("/api/v1/reservations", createReservation)
-	e.POST("/api/v1/reservations/quote", controller.quoteReservation)
-	e.GET("/api/v1/reservations/:id", getReservationById)
-	e.PUT("/api/v1/reservations/:id", changeReservation)
-	e.DELETE("/api/v1/reservations/:id", deleteReservation)
+	e.GET("/api/v1/reservations", controller.getAll)
+	e.POST("/api/v1/reservations", controller.create)
+
+	e.POST("/api/v1/reservations/quote", controller.quote)
+
+	e.GET("/api/v1/reservations/:id", controller.get)
+	e.PUT("/api/v1/reservations/:id", controller.update)
+	e.DELETE("/api/v1/reservations/:id", controller.delete)
 }
 
-func createReservation(ctx echo.Context) error {
+func (controller ReservationController) create(ctx echo.Context) error {
 	var req application.CreateReservationRequest
 
 	if err := ctx.Bind(&req); err != nil {
 		return ErrInvalidBody
 	}
 
-	handler := initCreateReservationHandler()
-	res, err := handler.Handle(ctx.Request().Context(), req)
+	res, err := controller.createHandler.Handle(ctx.Request().Context(), req)
 
 	if err != nil {
 		return err
@@ -40,8 +46,11 @@ func createReservation(ctx echo.Context) error {
 	return ctx.JSON(http.StatusCreated, res)
 }
 
-func changeReservation(ctx echo.Context) error {
-	id, _ := uuid.Parse(ctx.Param("id"))
+func (controller ReservationController) update(ctx echo.Context) error {
+	id, err := uuid.Parse(ctx.Param("id"))
+	if err != nil {
+		return infrastructure.ErrReservationNotFound
+	}
 
 	var req application.ChangeReservationRequest
 
@@ -50,8 +59,7 @@ func changeReservation(ctx echo.Context) error {
 	}
 
 	req.Id = id
-	handler := initChangeReservationHandler()
-	res, err := handler.Handler(ctx.Request().Context(), req)
+	res, err := controller.changeHandler.Handle(ctx.Request().Context(), req)
 
 	if err != nil {
 		return err
@@ -60,12 +68,13 @@ func changeReservation(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, res)
 }
 
-func deleteReservation(ctx echo.Context) error {
-	id, _ := uuid.Parse(ctx.Param("id"))
+func (controller ReservationController) delete(ctx echo.Context) error {
+	id, err := uuid.Parse(ctx.Param("id"))
+	if err != nil {
+		return infrastructure.ErrReservationNotFound
+	}
 
-	handler := initDeleteReservationHandler()
-	err := handler.Handler(ctx.Request().Context(), id)
-
+	err = controller.deleteHandler.Handle(ctx.Request().Context(), id)
 	if err != nil {
 		return err
 	}
@@ -73,11 +82,13 @@ func deleteReservation(ctx echo.Context) error {
 	return ctx.NoContent(http.StatusNoContent)
 }
 
-func getReservationById(ctx echo.Context) error {
-	id, _ := uuid.Parse(ctx.Param("id"))
+func (controller ReservationController) get(ctx echo.Context) error {
+	id, err := uuid.Parse(ctx.Param("id"))
+	if err != nil {
+		return infrastructure.ErrReservationNotFound
+	}
 
-	handler := initGetReservationByIdHandler()
-	res, err := handler.Handler(ctx.Request().Context(), id)
+	res, err := controller.getByIdHandler.Handle(ctx.Request().Context(), id)
 
 	if err != nil {
 		return err
@@ -86,15 +97,14 @@ func getReservationById(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, res)
 }
 
-func getAllReservations(ctx echo.Context) error {
+func (controller ReservationController) getAll(ctx echo.Context) error {
 	var filter infrastructure.ReservationFilter
 	filter.Text = ctx.Param("text")
 	filter.Size, _ = strconv.ParseInt(ctx.Param("size"), 10, 64)
 	filter.Page, _ = strconv.ParseInt(ctx.Param("page"), 10, 64)
-	filter.OrderBy = infrastructure.ReservationOrderBy(ctx.Param("orderBy"))
+	filter.SortBy = infrastructure.ReservationOrderBy(ctx.Param("orderBy"))
 
-	handler := initGetAllReservationHandler()
-	res, err := handler.Handler(ctx.Request().Context(), filter)
+	res, err := controller.getAllHandler.Handle(ctx.Request().Context(), filter)
 	if err != nil {
 		return err
 	}
@@ -102,7 +112,7 @@ func getAllReservations(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, res)
 }
 
-func (controller ReservationController) quoteReservation(ctx echo.Context) error {
+func (controller ReservationController) quote(ctx echo.Context) error {
 	var req application.QuoteReservationRequest
 	if err := ctx.Bind(&req); err != nil {
 		return ErrInvalidBody

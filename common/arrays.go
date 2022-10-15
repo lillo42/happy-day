@@ -18,17 +18,6 @@ func MapWithIndex[TSource any, TTarget any](source []TSource, f func(int, TSourc
 	return res
 }
 
-func Sum[TSource any](source []TSource, f func(TSource) float64) float64 {
-	var res float64
-	res = 0
-
-	for _, item := range source {
-		res += f(item)
-	}
-
-	return res
-}
-
 func Filter[TSource any](source []TSource, filter func(TSource) bool) []TSource {
 	res := make([]TSource, 0)
 
@@ -39,4 +28,14 @@ func Filter[TSource any](source []TSource, filter func(TSource) bool) []TSource 
 	}
 
 	return res
+}
+
+func First[TSource any](source []TSource, filter func(TSource) bool, defaultValue TSource) (TSource, bool) {
+	for _, item := range source {
+		if filter(item) {
+			return item, true
+		}
+	}
+
+	return defaultValue, false
 }

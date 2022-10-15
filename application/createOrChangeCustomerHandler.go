@@ -27,32 +27,9 @@ type (
 )
 
 func (handler CreateOrChangeCustomerHandler) Handle(ctx context.Context, req CreateOrChangeCustomerRequest) (customer.State, error) {
-	if len(req.Name) == 0 {
-		return customer.State{}, ErrCustomerNameIsEmpty
-	}
-
-	if len(req.Phones) == 0 {
-		return customer.State{}, ErrCustomerPhonesIsEmpty
-	}
-
-	for _, phone := range req.Phones {
-		size := 0
-		for index, c := range phone.Number {
-			if (index == 0 && c == '+') || c == ' ' {
-				continue
-			}
-
-			if unicode.IsDigit(c) {
-				size++
-				continue
-			}
-
-			return customer.State{}, ErrCustomerPhoneIsInvalid
-		}
-
-		if size < 8 || size > 12 {
-			return customer.State{}, ErrCustomerPhoneIsInvalid
-		}
+	err := validateCustomer(req.State)
+	if err != nil {
+		return req.State, err
 	}
 
 	if req.Id != uuid.Nil {
@@ -66,4 +43,36 @@ func (handler CreateOrChangeCustomerHandler) Handle(ctx context.Context, req Cre
 	}
 
 	return handler.repository.Save(ctx, req.State)
+}
+
+func validateCustomer(state customer.State) error {
+	if len(state.Name) == 0 {
+		return ErrCustomerNameIsEmpty
+	}
+
+	if len(state.Phones) == 0 {
+		return ErrCustomerPhonesIsEmpty
+	}
+
+	for _, phone := range state.Phones {
+		size := 0
+		for index, c := range phone.Number {
+			if (index == 0 && c == '+') || c == ' ' {
+				continue
+			}
+
+			if unicode.IsDigit(c) {
+				size++
+				continue
+			}
+
+			return ErrCustomerPhoneIsInvalid
+		}
+
+		if size < 8 || size > 12 {
+			return ErrCustomerPhoneIsInvalid
+		}
+	}
+
+	return nil
 }

@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"happy_day/domain/reservation"
 	"happy_day/infrastructure"
 )
 
@@ -11,7 +12,7 @@ type (
 	}
 )
 
-func (handler GetAllReservationHandler) Handler(ctx context.Context, req infrastructure.ReservationFilter) (infrastructure.Page[infrastructure.ReservationViewModel], error) {
+func (handler GetAllReservationHandler) Handle(ctx context.Context, req infrastructure.ReservationFilter) (infrastructure.Page[reservation.State], error) {
 	if req.Size <= 0 {
 		req.Size = 50
 	}
