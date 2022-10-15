@@ -60,8 +60,8 @@ func TestReservationCreate(t *testing.T) {
 	b, _ := json.Marshal(application.CreateReservationRequest{
 		Products: []application.CreateReservationProductRequest{
 			{
-				Id:     uuid.New(),
-				Amount: 10,
+				Id:       uuid.New(),
+				Quantity: 10,
 			},
 		},
 		Price:    100,
@@ -113,8 +113,8 @@ func TestReservationQuoteWhenHandlerReturnErr(t *testing.T) {
 	quote := application.QuoteReservationRequest{
 		Products: []application.QuoteReservationProductRequest{
 			{
-				Id:     uuid.New(),
-				Amount: 10,
+				Id:       uuid.New(),
+				Quantity: 10,
 			},
 		},
 	}
@@ -144,8 +144,8 @@ func TestReservationQuote(t *testing.T) {
 	quote := application.QuoteReservationRequest{
 		Products: []application.QuoteReservationProductRequest{
 			{
-				Id:     uuid.New(),
-				Amount: 10,
+				Id:       uuid.New(),
+				Quantity: 10,
 			},
 		},
 	}
@@ -247,7 +247,7 @@ func TestReservationControllerUpdateWhenErrOnHandler(t *testing.T) {
 	err := controller.update(ctx)
 
 	assert.NotNil(t, err)
-	assert.Equal(t, application.ErrInvalidPaymentInstallmentAmount, err)
+	assert.Equal(t, application.ErrReservationPaymentInstallmentAmount, err)
 }
 
 func TestReservationControllerUpdate(t *testing.T) {

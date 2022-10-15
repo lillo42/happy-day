@@ -27,8 +27,8 @@ var ProvideSet = wire.NewSet(
 
 // Reservation
 
-func ProvideGetAllReservationHandler(repository infrastructure.ReservationRepository) GetAllReservationHandler {
-	return GetAllReservationHandler{repository: repository}
+func ProvideGetAllReservationHandler(repository infrastructure.ReservationRepository) GetAllReservationsHandler {
+	return GetAllReservationsHandler{repository: repository}
 }
 
 func ProvideGetReservationByIdHandler(repository infrastructure.ReservationRepository) GetReservationByIdHandler {

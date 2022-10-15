@@ -130,8 +130,8 @@ func TestCreateOrChangeProductWhenProductAmountIsLessOrEqualThanZero(t *testing.
 				Price: 10,
 				Products: []product.Product{
 					{
-						Id:     uuid.New(),
-						Amount: -1,
+						Id:       uuid.New(),
+						Quantity: -1,
 					},
 				},
 			},
@@ -143,8 +143,8 @@ func TestCreateOrChangeProductWhenProductAmountIsLessOrEqualThanZero(t *testing.
 				Price: 10,
 				Products: []product.Product{
 					{
-						Id:     uuid.New(),
-						Amount: 0,
+						Id:       uuid.New(),
+						Quantity: 0,
 					},
 				},
 			},
@@ -152,7 +152,7 @@ func TestCreateOrChangeProductWhenProductAmountIsLessOrEqualThanZero(t *testing.
 	}
 
 	for _, req := range reqs {
-		t.Run("With Amount "+strconv.FormatInt(req.Products[0].Amount, 10), func(t *testing.T) {
+		t.Run("With Quantity "+strconv.FormatInt(req.Products[0].Quantity, 10), func(t *testing.T) {
 			repo := &infrastructure.MockProductRepository{}
 			repo.
 				On("Exists", mock.Anything, mock.Anything).
@@ -178,8 +178,8 @@ func TestCreateOrChangeProduct(t *testing.T) {
 				Price: 10,
 				Products: []product.Product{
 					{
-						Id:     uuid.New(),
-						Amount: 10,
+						Id:       uuid.New(),
+						Quantity: 10,
 					},
 				},
 			},
@@ -191,8 +191,8 @@ func TestCreateOrChangeProduct(t *testing.T) {
 				Price: 10,
 				Products: []product.Product{
 					{
-						Id:     uuid.New(),
-						Amount: 20,
+						Id:       uuid.New(),
+						Quantity: 20,
 					},
 				},
 			},

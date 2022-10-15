@@ -19,8 +19,8 @@ type (
 	}
 
 	CreateReservationProductRequest struct {
-		Id     uuid.UUID `json:"id"`
-		Amount int64     `json:"amount"`
+		Id       uuid.UUID `json:"id"`
+		Quantity int64     `json:"quantity"`
 	}
 
 	CreateReservationHandler struct {
@@ -48,7 +48,6 @@ func (handler CreateReservationHandler) Handle(ctx context.Context, req CreateRe
 	}
 
 	state = reservation.State{
-		Id:         uuid.New(),
 		Discount:   req.Discount,
 		Price:      req.Price,
 		FinalPrice: req.Price - req.Discount,
@@ -61,7 +60,7 @@ func (handler CreateReservationHandler) Handle(ctx context.Context, req CreateRe
 			return reservation.Product{
 				Id:     item.Id,
 				Price:  item.Price,
-				Amount: p.Amount,
+				Amount: p.Quantity,
 			}
 		}),
 	}

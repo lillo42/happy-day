@@ -17,12 +17,12 @@ func TestQuoteReservationWhenErrToGetComposed(t *testing.T) {
 	req := QuoteReservationRequest{
 		Products: []QuoteReservationProductRequest{
 			{
-				Id:     uuid.New(),
-				Amount: 120,
+				Id:       uuid.New(),
+				Quantity: 120,
 			},
 			{
-				Id:     uuid.New(),
-				Amount: 10,
+				Id:       uuid.New(),
+				Quantity: 10,
 			},
 		},
 	}
@@ -45,12 +45,12 @@ func TestQuoteReservationWhenErrToGetProducts(t *testing.T) {
 	req := QuoteReservationRequest{
 		Products: []QuoteReservationProductRequest{
 			{
-				Id:     uuid.New(),
-				Amount: 120,
+				Id:       uuid.New(),
+				Quantity: 120,
 			},
 			{
-				Id:     uuid.New(),
-				Amount: 10,
+				Id:       uuid.New(),
+				Quantity: 10,
 			},
 		},
 	}
@@ -89,16 +89,16 @@ func TestQuoteReservation(t *testing.T) {
 			name: "All product in one box",
 			arg: arg{
 				products: []QuoteReservationProductRequest{
-					{Id: uuid.MustParse("1fd49fff-e5c6-4878-9c42-f2fa77bdc2fe"), Amount: 40},
-					{Id: uuid.MustParse("4491c392-4b6e-4a6e-aa64-c2897a258451"), Amount: 10},
+					{Id: uuid.MustParse("1fd49fff-e5c6-4878-9c42-f2fa77bdc2fe"), Quantity: 40},
+					{Id: uuid.MustParse("4491c392-4b6e-4a6e-aa64-c2897a258451"), Quantity: 10},
 				},
 				boxes: []product.State{
 					{
 						Id:    uuid.New(),
 						Price: 2.5,
 						Products: []product.Product{
-							{Id: uuid.MustParse("1fd49fff-e5c6-4878-9c42-f2fa77bdc2fe"), Amount: 4},
-							{Id: uuid.MustParse("4491c392-4b6e-4a6e-aa64-c2897a258451"), Amount: 1},
+							{Id: uuid.MustParse("1fd49fff-e5c6-4878-9c42-f2fa77bdc2fe"), Quantity: 4},
+							{Id: uuid.MustParse("4491c392-4b6e-4a6e-aa64-c2897a258451"), Quantity: 1},
 						},
 					},
 				},
@@ -110,17 +110,17 @@ func TestQuoteReservation(t *testing.T) {
 			name: "All product not in the box",
 			arg: arg{
 				products: []QuoteReservationProductRequest{
-					{Id: uuid.MustParse("1fd49fff-e5c6-4878-9c42-f2fa77bdc2fe"), Amount: 40},
-					{Id: uuid.MustParse("4491c392-4b6e-4a6e-aa64-c2897a258451"), Amount: 10},
+					{Id: uuid.MustParse("1fd49fff-e5c6-4878-9c42-f2fa77bdc2fe"), Quantity: 40},
+					{Id: uuid.MustParse("4491c392-4b6e-4a6e-aa64-c2897a258451"), Quantity: 10},
 				},
 				boxes: []product.State{
 					{
 						Id:    uuid.New(),
 						Price: 2.5,
 						Products: []product.Product{
-							{Id: uuid.MustParse("1fd49fff-e5c6-4878-9c42-f2fa77bdc2fe"), Amount: 4},
-							{Id: uuid.MustParse("4491c392-4b6e-4a6e-aa64-c2897a258451"), Amount: 1},
-							{Id: uuid.MustParse("b387b182-e12a-4757-99c8-31b6596d102d"), Amount: 1},
+							{Id: uuid.MustParse("1fd49fff-e5c6-4878-9c42-f2fa77bdc2fe"), Quantity: 4},
+							{Id: uuid.MustParse("4491c392-4b6e-4a6e-aa64-c2897a258451"), Quantity: 1},
+							{Id: uuid.MustParse("b387b182-e12a-4757-99c8-31b6596d102d"), Quantity: 1},
 						},
 					},
 				},
@@ -135,17 +135,17 @@ func TestQuoteReservation(t *testing.T) {
 			name: "mixes",
 			arg: arg{
 				products: []QuoteReservationProductRequest{
-					{Id: uuid.MustParse("1fd49fff-e5c6-4878-9c42-f2fa77bdc2fe"), Amount: 45},
-					{Id: uuid.MustParse("4491c392-4b6e-4a6e-aa64-c2897a258451"), Amount: 10},
-					{Id: uuid.MustParse("b387b182-e12a-4757-99c8-31b6596d102d"), Amount: 3},
+					{Id: uuid.MustParse("1fd49fff-e5c6-4878-9c42-f2fa77bdc2fe"), Quantity: 45},
+					{Id: uuid.MustParse("4491c392-4b6e-4a6e-aa64-c2897a258451"), Quantity: 10},
+					{Id: uuid.MustParse("b387b182-e12a-4757-99c8-31b6596d102d"), Quantity: 3},
 				},
 				boxes: []product.State{
 					{
 						Id:    uuid.New(),
 						Price: 2.5,
 						Products: []product.Product{
-							{Id: uuid.MustParse("1fd49fff-e5c6-4878-9c42-f2fa77bdc2fe"), Amount: 4},
-							{Id: uuid.MustParse("4491c392-4b6e-4a6e-aa64-c2897a258451"), Amount: 1},
+							{Id: uuid.MustParse("1fd49fff-e5c6-4878-9c42-f2fa77bdc2fe"), Quantity: 4},
+							{Id: uuid.MustParse("4491c392-4b6e-4a6e-aa64-c2897a258451"), Quantity: 1},
 						},
 					},
 				},

@@ -15,12 +15,20 @@ var ProvideSet = wire.NewSet(
 )
 
 func ProvideReservationController(
+	getAllHandler application.GetAllReservationsHandler,
+	getByIdHandler application.GetReservationByIdHandler,
 	createHandler application.CreateReservationHandler,
+	changeHandler application.ChangeReservationHandler,
+	deleteHandler application.DeleteReservationHandler,
 	quoteHandler application.QuoteReservationHandler,
 ) ReservationController {
 	return ReservationController{
-		createHandler: createHandler,
-		quoteHandler:  quoteHandler,
+		getAllHandler:  getAllHandler,
+		getByIdHandler: getByIdHandler,
+		createHandler:  createHandler,
+		changeHandler:  changeHandler,
+		deleteHandler:  deleteHandler,
+		quoteHandler:   quoteHandler,
 	}
 }
 

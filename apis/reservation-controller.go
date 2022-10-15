@@ -11,7 +11,7 @@ import (
 )
 
 type ReservationController struct {
-	getAllHandler  application.GetAllReservationHandler
+	getAllHandler  application.GetAllReservationsHandler
 	getByIdHandler application.GetReservationByIdHandler
 	createHandler  application.CreateReservationHandler
 	changeHandler  application.ChangeReservationHandler

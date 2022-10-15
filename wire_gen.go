@@ -26,11 +26,15 @@ import (
 
 func initializeReservationController() apis.ReservationController {
 	clientOptions := ProvideMongoDbOptions()
-	mongoDbProductRepository := infrastructure.ProvideProductRepository(clientOptions)
 	mongoDbReservationRepository := infrastructure.ProvideReservationRepository(clientOptions)
+	getAllReservationsHandler := application.ProvideGetAllReservationHandler(mongoDbReservationRepository)
+	getReservationByIdHandler := application.ProvideGetReservationByIdHandler(mongoDbReservationRepository)
+	mongoDbProductRepository := infrastructure.ProvideProductRepository(clientOptions)
 	createReservationHandler := application.ProvideCreateReservationHandler(mongoDbProductRepository, mongoDbReservationRepository)
+	changeReservationHandler := application.ProvideChangeReservationHandler(mongoDbReservationRepository)
+	deleteReservationHandler := application.ProvideDeleteReservationHandler(mongoDbReservationRepository)
 	quoteReservationHandler := application.ProvideQuoteReservationHandler(mongoDbProductRepository)
-	reservationController := apis.ProvideReservationController(createReservationHandler, quoteReservationHandler)
+	reservationController := apis.ProvideReservationController(getAllReservationsHandler, getReservationByIdHandler, createReservationHandler, changeReservationHandler, deleteReservationHandler, quoteReservationHandler)
 	return reservationController
 }
 

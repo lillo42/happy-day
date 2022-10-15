@@ -17,7 +17,7 @@ type (
 	}
 
 	Product struct {
-		Id     uuid.UUID `bson:"id" json:"id"`
-		Amount int64     `bson:"amount" json:"amount"`
+		Id       uuid.UUID `bson:"id" json:"id"`
+		Quantity int64     `bson:"quantity" json:"quantity"`
 	}
 )

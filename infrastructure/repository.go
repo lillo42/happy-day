@@ -14,9 +14,3 @@ type MongoDbRepository struct {
 func (repository MongoDbRepository) CreateClient(ctx context.Context) (*mongo.Client, error) {
 	return mongo.Connect(ctx, repository.options)
 }
-
-func NewMongoDbRepository(options *options.ClientOptions) MongoDbRepository {
-	return MongoDbRepository{
-		options: options,
-	}
-}

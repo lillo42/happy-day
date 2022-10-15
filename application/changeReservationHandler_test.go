@@ -30,7 +30,7 @@ func TestChangeReservationHandlerWhenPaymentInstallHasAmountLessThanZero(t *test
 	_, err := handler.Handle(context.Background(), req)
 
 	assert.NotNil(t, err)
-	assert.Equal(t, ErrInvalidPaymentInstallmentAmount, err)
+	assert.Equal(t, ErrReservationPaymentInstallmentAmount, err)
 }
 
 func TestChangeReservationHandlerWhenCustomerIsInvalid(t *testing.T) {
@@ -67,7 +67,7 @@ func TestChangeReservationHandlerWhenAddressCityIsEmpty(t *testing.T) {
 	_, err := handler.Handle(context.Background(), req)
 
 	assert.NotNil(t, err)
-	assert.Equal(t, ErrInvalidAddressCity, err)
+	assert.Equal(t, ErrReservationAddressCityIsEmpty, err)
 }
 
 func TestChangeReservationHandlerWhenAddressStreetIsEmpty(t *testing.T) {
@@ -91,7 +91,7 @@ func TestChangeReservationHandlerWhenAddressStreetIsEmpty(t *testing.T) {
 	_, err := handler.Handle(context.Background(), req)
 
 	assert.NotNil(t, err)
-	assert.Equal(t, ErrInvalidAddressStreet, err)
+	assert.Equal(t, ErrReservationAddressStreetIsEmpty, err)
 }
 
 func TestChangeReservationHandlerWhenAddressNumberIsEmpty(t *testing.T) {
@@ -116,7 +116,7 @@ func TestChangeReservationHandlerWhenAddressNumberIsEmpty(t *testing.T) {
 	_, err := handler.Handle(context.Background(), req)
 
 	assert.NotNil(t, err)
-	assert.Equal(t, ErrInvalidAddressNumber, err)
+	assert.Equal(t, ErrReservationAddressNumberIsInvalid, err)
 }
 
 func TestChangeReservationHandlerWhenAddressPostalCodeIsEmpty(t *testing.T) {
@@ -142,7 +142,7 @@ func TestChangeReservationHandlerWhenAddressPostalCodeIsEmpty(t *testing.T) {
 	_, err := handler.Handle(context.Background(), req)
 
 	assert.NotNil(t, err)
-	assert.Equal(t, ErrInvalidAddressPostalCode, err)
+	assert.Equal(t, ErrReservationAddressPostalCodeIsEmpty, err)
 }
 
 func TestChangeReservationHandlerWhenGetById(t *testing.T) {

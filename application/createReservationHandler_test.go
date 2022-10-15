@@ -33,8 +33,8 @@ func TestCreateReservationHandlerWhenErrToGetByProducts(t *testing.T) {
 	_, err := handler.Handle(context.Background(), CreateReservationRequest{
 		Products: []CreateReservationProductRequest{
 			{
-				Id:     uuid.New(),
-				Amount: 2,
+				Id:       uuid.New(),
+				Quantity: 2,
 			},
 		},
 	})
@@ -47,12 +47,12 @@ func TestCreateReservationHandler(t *testing.T) {
 	req := CreateReservationRequest{
 		Products: []CreateReservationProductRequest{
 			{
-				Id:     uuid.New(),
-				Amount: 4,
+				Id:       uuid.New(),
+				Quantity: 4,
 			},
 			{
-				Id:     uuid.New(),
-				Amount: 1,
+				Id:       uuid.New(),
+				Quantity: 1,
 			},
 		},
 	}
@@ -63,7 +63,7 @@ func TestCreateReservationHandler(t *testing.T) {
 		Return(common.Map(req.Products, func(item CreateReservationProductRequest) product.State {
 			return product.State{
 				Id:    item.Id,
-				Price: float64(item.Amount) * 1.5,
+				Price: float64(item.Quantity) * 1.5,
 			}
 		}), nil)
 

@@ -127,5 +127,23 @@ var (
 			Message: infrastructure.ErrOneProductNotFound.Error(),
 			Status:  http.StatusUnprocessableEntity,
 		},
+		application.ErrReservationAddressNumberIsInvalid: {
+			Type:    "/api/v1/reservations/invalid-address-number",
+			Title:   "RSV002",
+			Message: application.ErrReservationAddressNumberIsInvalid.Error(),
+			Status:  http.StatusUnprocessableEntity,
+		},
+		application.ErrReservationAddressStreetIsEmpty: {
+			Type:    "/api/v1/reservations/address-street-is-empty",
+			Title:   "RSV003",
+			Message: application.ErrReservationAddressStreetIsEmpty.Error(),
+			Status:  http.StatusBadRequest,
+		},
+		application.ErrReservationAddressPostalCodeIsEmpty: {
+			Type:    "/api/v1/reservations/address-postal-code-is-empty",
+			Title:   "RSV004",
+			Message: application.ErrReservationAddressPostalCodeIsEmpty.Error(),
+			Status:  http.StatusBadRequest,
+		},
 	}
 )

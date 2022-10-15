@@ -23,7 +23,7 @@ func TestGetAllReservations(t *testing.T) {
 		On("GetAll", mock.Anything, mock.Anything).
 		Return(infrastructure.Page[reservation.State]{}, nil)
 
-	handler := GetAllReservationHandler{
+	handler := GetAllReservationsHandler{
 		repository: repo,
 	}
 

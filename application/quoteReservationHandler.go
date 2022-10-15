@@ -15,8 +15,8 @@ type (
 	}
 
 	QuoteReservationProductRequest struct {
-		Id     uuid.UUID `json:"id"`
-		Amount int64     `json:"amount"`
+		Id       uuid.UUID `json:"id"`
+		Quantity int64     `json:"quantity"`
 	}
 
 	QuoteReservationProductResponse struct {
@@ -40,19 +40,23 @@ func (handler QuoteReservationHandler) Handler(ctx context.Context, req QuoteRes
 
 	productAmount := map[uuid.UUID]int64{}
 	for _, product := range req.Products {
-		productAmount[product.Id] = product.Amount
+		productAmount[product.Id] = product.Quantity
 	}
 
 	var price float64
 	for _, box := range composed {
 		min := math.MaxFloat64
 		for _, product := range box.Products {
+			if product.Quantity == 0 {
+				break
+			}
+
 			amount, exists := productAmount[product.Id]
 			if !exists {
 				min = 0
 				break
 			}
-			min = math.Min(min, math.Floor(float64(amount/product.Amount)))
+			min = math.Min(min, math.Floor(float64(amount/product.Quantity)))
 		}
 
 		if min == 0 || min == math.MaxFloat64 {
@@ -61,7 +65,7 @@ func (handler QuoteReservationHandler) Handler(ctx context.Context, req QuoteRes
 
 		price += min * box.Price
 		for _, product := range box.Products {
-			productAmount[product.Id] -= product.Amount * int64(min)
+			productAmount[product.Id] -= product.Quantity * int64(min)
 		}
 	}
 

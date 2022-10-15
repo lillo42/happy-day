@@ -44,7 +44,7 @@ func (handler CreateOrChangeProductHandler) Handle(ctx context.Context, req Crea
 			return req.State, infrastructure.ErrProductNotFound
 		}
 
-		if product.Amount <= 0 {
+		if product.Quantity <= 0 {
 			return req.State, ErrProductAmountIsInvalid
 		}
 	}

@@ -124,7 +124,7 @@ func (repository MongoDbReservationRepository) GetById(ctx context.Context, id u
 
 	defer client.Disconnect(ctx)
 	decode := client.Database(Database).
-		Collection(ProductCollection).
+		Collection(ReservationCollection).
 		FindOne(ctx, query)
 
 	err = decode.Err()
@@ -148,7 +148,7 @@ func (repository MongoDbReservationRepository) Save(ctx context.Context, state r
 
 	defer client.Disconnect(ctx)
 	collection := client.Database(Database).
-		Collection(ProductCollection)
+		Collection(ReservationCollection)
 
 	if state.Id == uuid.Nil {
 		state.Id = uuid.New()

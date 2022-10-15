@@ -27,17 +27,17 @@ type (
 )
 
 var (
-	ErrInvalidPaymentInstallmentAmount = errors.New("payment installment amount cannot be less or equal to zero")
-	ErrInvalidAddressCity              = errors.New("address city cannot be empty")
-	ErrInvalidAddressStreet            = errors.New("address street cannot be empty")
-	ErrInvalidAddressNumber            = errors.New("address number cannot be empty")
-	ErrInvalidAddressPostalCode        = errors.New("address postal code cannot be empty")
+	ErrReservationPaymentInstallmentAmount = errors.New("payment installment amount cannot be less or equal to zero")
+	ErrReservationAddressCityIsEmpty       = errors.New("address city cannot be empty")
+	ErrReservationAddressStreetIsEmpty     = errors.New("address street cannot be empty")
+	ErrReservationAddressNumberIsInvalid   = errors.New("address number cannot be empty")
+	ErrReservationAddressPostalCodeIsEmpty = errors.New("address postal code cannot be empty")
 )
 
 func (handler ChangeReservationHandler) Handle(ctx context.Context, req ChangeReservationRequest) (reservation.State, error) {
 	for _, item := range req.PaymentInstallments {
 		if item.Amount <= 0 {
-			return reservation.State{}, ErrInvalidPaymentInstallmentAmount
+			return reservation.State{}, ErrReservationPaymentInstallmentAmount
 		}
 	}
 
@@ -60,6 +60,7 @@ func (handler ChangeReservationHandler) Handle(ctx context.Context, req ChangeRe
 	state.PickUp = req.PickUp
 	state.PaymentInstallments = req.PaymentInstallments
 	state.Comment = req.Comment
+	state.Customer = req.Customer
 	state.Address = req.Address
 	state.Discount = req.Discount
 	state.FinalPrice = state.Price - state.Discount
@@ -69,19 +70,19 @@ func (handler ChangeReservationHandler) Handle(ctx context.Context, req ChangeRe
 
 func validateAddress(state reservation.Address) error {
 	if len(state.City) == 0 {
-		return ErrInvalidAddressCity
+		return ErrReservationAddressCityIsEmpty
 	}
 
 	if len(state.Street) == 0 {
-		return ErrInvalidAddressStreet
+		return ErrReservationAddressStreetIsEmpty
 	}
 
 	if len(state.Number) == 0 {
-		return ErrInvalidAddressNumber
+		return ErrReservationAddressNumberIsInvalid
 	}
 
 	if len(state.PostalCode) == 0 {
-		return ErrInvalidAddressPostalCode
+		return ErrReservationAddressPostalCodeIsEmpty
 	}
 
 	return nil
