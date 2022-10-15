@@ -5,14 +5,10 @@ package main
 
 import (
 	"fmt"
+	"happy_day/apis"
+	"happy_day/application"
+	"happy_day/infrastructure"
 	"reflect"
-
-	customerApis "happyday/customer/apis"
-	customerApplication "happyday/customer/applications"
-	customerInfrastructure "happyday/customer/infrastructure"
-	productApis "happyday/product/apis"
-	productApplication "happyday/product/applications"
-	productInfrastructure "happyday/product/infrastructure"
 
 	"github.com/google/uuid"
 	"github.com/google/wire"
@@ -28,20 +24,16 @@ var (
 	uuidType    = reflect.TypeOf(uuid.UUID{})
 	uuidSubtype = byte(0x04)
 
-	ProviderSet = wire.NewSet(
-		ProviderMongoDbOptions,
+	ProvideSet = wire.NewSet(
+		ProvideMongoDbOptions,
 
-		customerApis.ProviderSet,
-		customerApplication.ProviderSet,
-		customerInfrastructure.ProviderSet,
-
-		productApis.ProviderSet,
-		productApplication.ProviderSet,
-		productInfrastructure.ProviderSet,
+		apis.ProvideSet,
+		application.ProvideSet,
+		infrastructure.ProvideSet,
 	)
 )
 
-func ProviderMongoDbOptions() *options.ClientOptions {
+func ProvideMongoDbOptions() *options.ClientOptions {
 	connectionString := viper.GetString("connectingStrings.mongo")
 
 	return options.Client().
@@ -50,6 +42,7 @@ func ProviderMongoDbOptions() *options.ClientOptions {
 			RegisterTypeEncoder(uuidType, bsoncodec.ValueEncoderFunc(uuidEncodeValue)).
 			RegisterTypeDecoder(uuidType, bsoncodec.ValueDecoderFunc(uuidDecodeValue)).
 			Build())
+
 }
 
 func uuidEncodeValue(_ bsoncodec.EncodeContext, writer bsonrw.ValueWriter, value reflect.Value) error {
@@ -90,6 +83,7 @@ func uuidDecodeValue(_ bsoncodec.DecodeContext, reader bsonrw.ValueReader, value
 		err = reader.ReadUndefined()
 	default:
 		return fmt.Errorf("cannot decode %v into a UUID", valueType)
+
 	}
 
 	if err != nil {
@@ -105,12 +99,17 @@ func uuidDecodeValue(_ bsoncodec.DecodeContext, reader bsonrw.ValueReader, value
 	return nil
 }
 
-func initializeCustomerController() customerApis.Controller {
-	wire.Build(ProviderSet)
-	return customerApis.Controller{}
+func initializeReservationController() apis.ReservationController {
+	wire.Build(ProvideSet)
+	return apis.ReservationController{}
 }
 
-func initializeProductController() productApis.Controller {
-	wire.Build(ProviderSet)
-	return productApis.Controller{}
+func initializeProductController() apis.ProductController {
+	wire.Build(ProvideSet)
+	return apis.ProductController{}
+}
+
+func initializeCustomerController() apis.CustomerController {
+	wire.Build(ProvideSet)
+	return apis.CustomerController{}
 }

@@ -16,35 +16,48 @@ import (
 	"go.mongodb.org/mongo-driver/bson/bsonrw"
 	"go.mongodb.org/mongo-driver/bson/bsontype"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"happyday/customer/apis"
-	"happyday/customer/applications"
-	"happyday/customer/infrastructure"
-	apis2 "happyday/product/apis"
-	applications2 "happyday/product/applications"
-	infrastructure2 "happyday/product/infrastructure"
+	"happy_day/apis"
+	"happy_day/application"
+	"happy_day/infrastructure"
 	"reflect"
 )
 
 // Injectors from wire.go:
 
-func initializeCustomerController() apis.Controller {
-	clientOptions := ProviderMongoDbOptions()
-	mongoDbRepository := infrastructure.ProviderMongoDbRepository(clientOptions)
-	createOperation := applications.ProvideCreateOperation(mongoDbRepository)
-	changeOperation := applications.ProvideChangeOperation(mongoDbRepository)
-	deleteOperation := applications.ProvideDeleteOperation(mongoDbRepository)
-	controller := apis.ProviderController(createOperation, changeOperation, deleteOperation, mongoDbRepository)
-	return controller
+func initializeReservationController() apis.ReservationController {
+	clientOptions := ProvideMongoDbOptions()
+	mongoDbReservationRepository := infrastructure.ProvideReservationRepository(clientOptions)
+	getAllReservationsHandler := application.ProvideGetAllReservationHandler(mongoDbReservationRepository)
+	getReservationByIdHandler := application.ProvideGetReservationByIdHandler(mongoDbReservationRepository)
+	mongoDbProductRepository := infrastructure.ProvideProductRepository(clientOptions)
+	createReservationHandler := application.ProvideCreateReservationHandler(mongoDbProductRepository, mongoDbReservationRepository)
+	changeReservationHandler := application.ProvideChangeReservationHandler(mongoDbReservationRepository)
+	deleteReservationHandler := application.ProvideDeleteReservationHandler(mongoDbReservationRepository)
+	quoteReservationHandler := application.ProvideQuoteReservationHandler(mongoDbProductRepository)
+	reservationController := apis.ProvideReservationController(getAllReservationsHandler, getReservationByIdHandler, createReservationHandler, changeReservationHandler, deleteReservationHandler, quoteReservationHandler)
+	return reservationController
 }
 
-func initializeProductController() apis2.Controller {
-	clientOptions := ProviderMongoDbOptions()
-	mongoDbRepository := infrastructure2.ProviderMongoDbRepository(clientOptions)
-	createOperation := applications2.ProviderCreateOperation(mongoDbRepository, mongoDbRepository)
-	changeOperation := applications2.ProviderChangeOperation(mongoDbRepository, mongoDbRepository)
-	deleteOperation := applications2.ProviderDeleteOperation(mongoDbRepository)
-	controller := apis2.ProviderProductController(createOperation, changeOperation, deleteOperation, mongoDbRepository)
-	return controller
+func initializeProductController() apis.ProductController {
+	clientOptions := ProvideMongoDbOptions()
+	mongoDbProductRepository := infrastructure.ProvideProductRepository(clientOptions)
+	getAllProductsHandler := application.ProvideGetAllProductsHandler(mongoDbProductRepository)
+	getProductByIdHandler := application.ProvideGetProductByIdHandler(mongoDbProductRepository)
+	createOrChangeProductHandler := application.ProvideCreateOrChangeProductHandler(mongoDbProductRepository)
+	deleteProductHandler := application.ProvideDeleteProductHandler(mongoDbProductRepository)
+	productController := apis.ProvideProductController(getAllProductsHandler, getProductByIdHandler, createOrChangeProductHandler, deleteProductHandler)
+	return productController
+}
+
+func initializeCustomerController() apis.CustomerController {
+	clientOptions := ProvideMongoDbOptions()
+	mongoDbCustomerRepository := infrastructure.ProviderCustomerRepository(clientOptions)
+	getAllCustomersHandler := application.ProvideGetAllCustomersHandler(mongoDbCustomerRepository)
+	getCustomerByIdHandler := application.ProvideGetCustomerByIdHandler(mongoDbCustomerRepository)
+	createOrChangeCustomerHandler := application.ProvideCreateOrChangeCustomerHandler(mongoDbCustomerRepository)
+	deleteCustomerHandler := application.ProvideDeleteCustomerHandler(mongoDbCustomerRepository)
+	customerController := apis.ProvideCustomerController(getAllCustomersHandler, getCustomerByIdHandler, createOrChangeCustomerHandler, deleteCustomerHandler)
+	return customerController
 }
 
 // wire.go:
@@ -53,12 +66,12 @@ var (
 	uuidType    = reflect.TypeOf(uuid.UUID{})
 	uuidSubtype = byte(0x04)
 
-	ProviderSet = wire.NewSet(
-		ProviderMongoDbOptions, apis.ProviderSet, applications.ProviderSet, infrastructure.ProviderSet, apis2.ProviderSet, applications2.ProviderSet, infrastructure2.ProviderSet,
+	ProvideSet = wire.NewSet(
+		ProvideMongoDbOptions, apis.ProvideSet, application.ProvideSet, infrastructure.ProvideSet,
 	)
 )
 
-func ProviderMongoDbOptions() *options.ClientOptions {
+func ProvideMongoDbOptions() *options.ClientOptions {
 	connectionString := viper.GetString("connectingStrings.mongo")
 
 	return options.Client().
@@ -67,6 +80,7 @@ func ProviderMongoDbOptions() *options.ClientOptions {
 			RegisterTypeEncoder(uuidType, bsoncodec.ValueEncoderFunc(uuidEncodeValue)).
 			RegisterTypeDecoder(uuidType, bsoncodec.ValueDecoderFunc(uuidDecodeValue)).
 			Build())
+
 }
 
 func uuidEncodeValue(_ bsoncodec.EncodeContext, writer bsonrw.ValueWriter, value reflect.Value) error {
@@ -107,6 +121,7 @@ func uuidDecodeValue(_ bsoncodec.DecodeContext, reader bsonrw.ValueReader, value
 		err = reader.ReadUndefined()
 	default:
 		return fmt.Errorf("cannot decode %v into a UUID", valueType)
+
 	}
 
 	if err != nil {

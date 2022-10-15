@@ -1,50 +1,28 @@
 package main
 
 import (
-	"time"
+	"happy_day/middlewares"
 
-	"happyday/middlewares"
-
-	ginzap "github.com/gin-contrib/zap"
-	"github.com/gin-gonic/gin"
-	"github.com/mattn/go-colorable"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/spf13/viper"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 )
 
 func main() {
-	initializeConfiguration()
-	logger := initializeLogger()
-	middlewares.Logger = logger
+	initConfiguration()
 
-	engine := gin.New()
+	e := echo.New()
 
-	if isDebug() {
-		gin.ForceConsoleColor()
-	} else {
-		gin.SetMode(gin.ReleaseMode)
-	}
+	e.Use(middleware.LoggerWithConfig(middleware.DefaultLoggerConfig))
+	e.Use(middlewares.ErrorMiddleware)
+	initializeReservationController().Routes(e)
+	initializeProductController().Routes(e)
+	initializeCustomerController().Routes(e)
 
-	engine.Use(ginzap.Ginzap(logger, time.RFC3339, true))
-	engine.Use(ginzap.RecoveryWithZap(logger, true))
-
-	customerController := initializeCustomerController()
-	customerController.MapEndpoints(engine)
-	middlewares.AddErrors(customerController.ErrorMapping())
-
-	productController := initializeProductController()
-	productController.MapEndpoint(engine)
-	middlewares.AddErrors(productController.ErrorMapping())
-
-	engine.Run()
+	e.Logger.Fatal(e.Start(":5100"))
 }
 
-func isDebug() bool {
-	return viper.GetBool("isDebug")
-}
-
-func initializeConfiguration() {
+func initConfiguration() {
 	viper.SetConfigName("config") // name of config file (without extension)
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")
@@ -56,35 +34,3 @@ func initializeConfiguration() {
 		panic(err)
 	}
 }
-
-func initializeLogger() *zap.Logger {
-	fields := zap.Fields(
-		zap.String("Application", "Happy Day"),
-		zap.String("Version", Version),
-	)
-
-	var logger *zap.Logger
-	var err error
-
-	if isDebug() {
-		encoderConfig := zap.NewDevelopmentEncoderConfig()
-		encoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
-		logger = zap.New(zapcore.NewCore(
-			zapcore.NewConsoleEncoder(encoderConfig),
-			zapcore.AddSync(colorable.NewColorableStdout()),
-			zapcore.DebugLevel)).
-			WithOptions(fields)
-	} else {
-		logger, err = zap.NewProduction(fields)
-	}
-
-	if err != nil {
-		panic(err)
-	}
-
-	return logger
-}
-
-var (
-	Version = "0.0.0"
-)
