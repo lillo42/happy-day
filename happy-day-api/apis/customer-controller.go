@@ -29,8 +29,8 @@ func (controller CustomerController) Routes(e *echo.Echo) {
 func (controller CustomerController) getAll(ctx echo.Context) error {
 	var filter infrastructure.CustomerFilter
 	filter.Text = ctx.QueryParam("text")
-	filter.Size, _ = strconv.ParseInt(ctx.Param("size"), 10, 64)
-	filter.Page, _ = strconv.ParseInt(ctx.Param("page"), 10, 64)
+	filter.Size, _ = strconv.ParseInt(ctx.QueryParam("size"), 10, 64)
+	filter.Page, _ = strconv.ParseInt(ctx.QueryParam("page"), 10, 64)
 	filter.SortBy = infrastructure.CustomerNameAsc
 
 	params := ctx.QueryParams()

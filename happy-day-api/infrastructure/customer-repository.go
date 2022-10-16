@@ -17,10 +17,12 @@ import (
 const (
 	CustomersCollection = "customers"
 
-	CustomerIdAsc    CustomerSortBy = "id_asc"
-	CustomerIdDesc   CustomerSortBy = "id_desc"
-	CustomerNameAsc  CustomerSortBy = "name_asc"
-	CustomerNameDesc CustomerSortBy = "name_desc"
+	CustomerIdAsc       CustomerSortBy = "id_asc"
+	CustomerIdDesc      CustomerSortBy = "id_desc"
+	CustomerNameAsc     CustomerSortBy = "name_asc"
+	CustomerNameDesc    CustomerSortBy = "name_desc"
+	CustomerCommentAsc  CustomerSortBy = "comment_asc"
+	CustomerCommentDesc CustomerSortBy = "comment_desc"
 )
 
 var (
@@ -90,6 +92,10 @@ func (repository MongoDbCustomerRepository) GetAll(ctx context.Context, filter C
 		opt.SetSort(bson.D{{"name", 1}})
 	} else if filter.SortBy == CustomerNameDesc {
 		opt.SetSort(bson.D{{"name", -1}})
+	} else if filter.SortBy == CustomerCommentAsc {
+		opt.SetSort(bson.D{{"comment", 1}})
+	} else if filter.SortBy == CustomerCommentDesc {
+		opt.SetSort(bson.D{{"comment", -1}})
 	}
 
 	query := bson.M{}
