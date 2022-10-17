@@ -18,23 +18,35 @@
       <input matInput formControlName="id" readonly="true" />
     </mat-form-field>
 
-    <mat-form-field appearance="outline" >
+    <mat-form-field appearance="outline">
       <mat-label>Name</mat-label>
       <input matInput formControlName="name" [readonly]="isDeleteMode()" />
-<!--      <mat-error></mat-error>-->
+      <mat-error *ngIf="formGroup.get('name')!.hasError('required')">Nome obrigatório</mat-error>
     </mat-form-field>
 
-    <mat-form-field appearance="outline" >
+    <mat-form-field appearance="outline">
       <mat-label>Comentario</mat-label>
       <textarea matInput formControlName="comment" [readonly]="isDeleteMode()"></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" *ngIf="!isCreateMode()">
+      <mat-label>Criado em</mat-label>
+      <input matInput formControlName="createAt" readonly=true />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" *ngIf="!isCreateMode()">
+      <mat-label>Modificado em</mat-label>
+      <input matInput formControlName="modifyAt" readonly=true />
     </mat-form-field>
 
     <ng-container formArrayName="phones">
       <ng-container *ngFor="let phone of phones.controls; let i = index">
         <div class="container row content-center phone" [formGroupName]="i">
           <mat-form-field appearance="outline">
-            <mat-label>Number</mat-label>
+            <mat-label>Número</mat-label>
             <input matInput  placeholder="123456789" formControlName="number" [readonly]="isDeleteMode()" />
+            <mat-error *ngIf="phone.get('number')!.hasError('required')">Número obrigatório</mat-error>
+            <mat-error *ngIf="phone.get('number')!.hasError('pattern')">Número inválido</mat-error>
           </mat-form-field>
 
           <button mat-mini-fab color="warn" (click)="deletePhone(i)" *ngIf="!isDeleteMode()">
@@ -51,7 +63,7 @@
     </div>
 
     <div class="container row content-center actions-buttons">
-      <button mat-raised-button matTooltip="Salvar" color="primary" *ngIf="!isDeleteMode()" (click)="save()"><mat-icon>done</mat-icon></button>
+      <button mat-raised-button matTooltip="Salvar" color="primary" *ngIf="!isDeleteMode()" (click)="save()" type="submit"><mat-icon>done</mat-icon></button>
       <button mat-raised-button matTooltip="Deletar" color="warn" *ngIf="isDeleteMode()" (click)="delete()"><mat-icon>delete</mat-icon></button>
       <button mat-raised-button matTooltip="Cancelar" (click)="cancel()"><mat-icon>cancel</mat-icon></button>
     </div>

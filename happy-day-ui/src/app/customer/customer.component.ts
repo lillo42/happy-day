@@ -1,15 +1,16 @@
-import {Component, Inject, OnInit} from '@angular/core';
-import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
-import {Form, FormArray, FormBuilder, FormControl, FormGroup, Validator, Validators} from "@angular/forms";
-import {CustomerService} from "../http-clients/customer.service";
-import {Observable, tap} from "rxjs";
-import {createUrlTreeFromSnapshot} from "@angular/router";
-import {Customer, Phone} from "../models/customer";
+import { Component, Inject, OnInit } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
+import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validator, Validators } from "@angular/forms";
+import { CustomerService } from "../http-clients/customer.service";
+import { Observable, tap } from "rxjs";
+import { Customer, Phone } from "../models/customer";
+import {DatePipe} from "@angular/common";
 
 @Component({
   selector: 'app-customer',
   templateUrl: './customer.component.html',
-  styleUrls: ['./customer.component.scss']
+  styleUrls: ['./customer.component.scss'],
+  providers: [DatePipe]
 })
 export class CustomerComponent implements OnInit {
 
@@ -22,17 +23,21 @@ export class CustomerComponent implements OnInit {
   constructor(private dialogRef: MatDialogRef<CustomerComponent>,
               @Inject(MAT_DIALOG_DATA)private data: CustomerData,
               private builder: FormBuilder,
-              private customerService: CustomerService) {
+              private customerService: CustomerService,
+              private datePipe: DatePipe) {
     this.formGroup = builder.group({
       id: [{value: null, disabled: true}],
       name: [null, [Validators.required]],
       comment: [null, null],
-      phones: builder.array([])
+      phones: builder.array([]),
+      createAt: [{value: null, disabled: true}],
+      modifyAt: [{value: null, disabled: true}],
     })
   }
 
   ngOnInit(): void {
     if(this.data.behavior === CustomerBehavior.Create){
+      this.addPhone();
       return;
     }
 
@@ -40,9 +45,11 @@ export class CustomerComponent implements OnInit {
       .pipe(
         tap(customer => {
           for(let i = 0; i < customer.phones.length; i++) {
-            this.phones.push(this.createPhone(customer.phones[i]));
+            this.addPhone(customer.phones[i]);
           }
           this.formGroup.patchValue({...customer});
+          this.formGroup.get("createAt")!.setValue(this.datePipe.transform(customer.createAt, 'dd/MM/yyyy HH:mm:ss'));
+          this.formGroup.get("modifyAt")!.setValue(this.datePipe.transform(customer.modifyAt, 'dd/MM/yyyy HH:mm:ss'));
         })
       )
       .subscribe();
@@ -65,17 +72,16 @@ export class CustomerComponent implements OnInit {
   }
 
   deletePhone(index: number): void {
-    this.phones.removeAt(index)
+    this.phones.removeAt(index);
+    if(this.phones.length == 0) {
+      this.addPhone();
+    }
   }
 
-  addPhone(): void {
-    this.phones.push(this.createPhone());
-  }
-
-  createPhone(phone: Phone | null = null): FormGroup {
-    return this.builder.group({
+  addPhone(phone: Phone | null = null): void {
+    this.phones.push(this.builder.group({
       number: [{value: phone?.number, disabled: this.isDeleteMode() }, [Validators.required, Validators.pattern('[- +()0-9]+')]]
-    });
+    }));
   }
 
   cancel(): void {
@@ -89,8 +95,15 @@ export class CustomerComponent implements OnInit {
   }
 
   save(): void {
+    this.formGroup.markAllAsTouched();
+    this.formGroup.markAsDirty();
+
+    if (!this.formGroup.valid) {
+      return;
+    }
+
     let customer = <Customer>{...this.formGroup.value};
-    let observable: Observable<Customer> | null = null;
+    let observable: Observable<Customer> | null;
     if(this.data.behavior == CustomerBehavior.Create) {
       observable = this.customerService.create(customer);
     } else {
@@ -110,6 +123,5 @@ export enum CustomerBehavior {
 
 export interface CustomerData {
   behavior: CustomerBehavior;
-
   id: string;
 }

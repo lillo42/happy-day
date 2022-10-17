@@ -1,8 +1,19 @@
-import {AfterViewInit, Component, ElementRef, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {MatSort, Sort} from "@angular/material/sort";
 import {MatPaginator} from "@angular/material/paginator";
 import {CollectionViewer, DataSource} from "@angular/cdk/collections";
-import {BehaviorSubject, catchError, finalize, Observable, of, tap} from "rxjs";
+import {
+  BehaviorSubject,
+  catchError,
+  debounce,
+  debounceTime,
+  distinctUntilChanged,
+  finalize,
+  Observable,
+  of,
+  Subject,
+  tap
+} from "rxjs";
 import {CustomerSort} from "../models/customer";
 import {CustomerService} from "../http-clients/customer.service";
 import {MatDialog} from "@angular/material/dialog";
@@ -13,13 +24,14 @@ import {CustomerBehavior, CustomerComponent, CustomerData} from "../customer/cus
   templateUrl: './customer-lists.component.html',
   styleUrls: ['./customer-lists.component.scss']
 })
-export class CustomerListsComponent implements AfterViewInit {
-
+export class CustomerListsComponent implements OnInit, AfterViewInit {
   displayedColumns = ["name",  "comment", "phones", "actions"]
   dataSource: CustomerDataSource;
 
   private sortBy = CustomerSort.NameAsc;
   private waitToApplyFilter: ReturnType<typeof setTimeout> | null= null ;
+
+  private textChanged = new Subject<string>();
 
   @ViewChild("filter") filter: ElementRef | null = null;
   @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
@@ -30,6 +42,12 @@ export class CustomerListsComponent implements AfterViewInit {
     customerService: CustomerService
   ) {
     this.dataSource = new CustomerDataSource(customerService);
+  }
+
+  ngOnInit(): void {
+    this.textChanged
+      .pipe(debounceTime(1000))
+      .subscribe(() => this.reload());
   }
 
   ngAfterViewInit(): void {
@@ -72,12 +90,8 @@ export class CustomerListsComponent implements AfterViewInit {
       .subscribe();
   }
 
-  applyFilter(): void {
-    if(this.waitToApplyFilter !== null) {
-      clearTimeout(this.waitToApplyFilter);
-    }
-
-    this.waitToApplyFilter = setTimeout(() => this.reload(), 3 * 1000);
+  applyFilter(key: string): void {
+    this.textChanged.next(key);
   }
 
   sortChange(sort: Sort): void {

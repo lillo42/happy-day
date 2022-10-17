@@ -4,7 +4,7 @@
     <div class="container row actions">
       <mat-form-field appearance="standard" class="filter">
         <mat-label>Filtro</mat-label>
-        <input matInput placeholder="Ex. Douglas" (keyup)="applyFilter()" #filter>
+        <input matInput placeholder="Ex. Douglas" (keyup)="applyFilter($event.key)" #filter>
       </mat-form-field>
 
       <button mat-raised-button mat-icon-button matTooltip="Adicionar novo cliente" color="primary" (click)="createOrUpdate('')">
