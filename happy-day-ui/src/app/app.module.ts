@@ -3,6 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { ReactiveFormsModule } from "@angular/forms";
 import { HttpClientModule } from "@angular/common/http";
 
+import { MatAutocompleteModule } from "@angular/material/autocomplete";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDialogModule } from "@angular/material/dialog";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -20,13 +21,17 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NavBarComponent } from './nav-bar/nav-bar.component';
 import { CustomerListsComponent } from './customer-lists/customer-lists.component';
 import { CustomerComponent } from './customer/customer.component';
+import { ProductListComponent } from './product-list/product-list.component';
+import { ProductComponent } from './product/product.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     NavBarComponent,
     CustomerListsComponent,
-    CustomerComponent
+    CustomerComponent,
+    ProductListComponent,
+    ProductComponent
   ],
   imports: [
     BrowserModule,
@@ -35,6 +40,7 @@ import { CustomerComponent } from './customer/customer.component';
     ReactiveFormsModule,
     HttpClientModule,
 
+    MatAutocompleteModule,
     MatButtonModule,
     MatDialogModule,
     MatFormFieldModule,

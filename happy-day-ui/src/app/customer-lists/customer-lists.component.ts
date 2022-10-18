@@ -5,9 +5,7 @@ import {CollectionViewer, DataSource} from "@angular/cdk/collections";
 import {
   BehaviorSubject,
   catchError,
-  debounce,
   debounceTime,
-  distinctUntilChanged,
   finalize,
   Observable,
   of,
@@ -29,8 +27,6 @@ export class CustomerListsComponent implements OnInit, AfterViewInit {
   dataSource: CustomerDataSource;
 
   private sortBy = CustomerSort.NameAsc;
-  private waitToApplyFilter: ReturnType<typeof setTimeout> | null= null ;
-
   private textChanged = new Subject<string>();
 
   @ViewChild("filter") filter: ElementRef | null = null;
@@ -166,7 +162,7 @@ class CustomerDataSource implements DataSource<CustomerViewModel> {
               name: customer.name,
               comment: customer.comment,
               phones: customer.phones.map(x => x.number).join("\n")
-            }))
+            }));
         }),
         catchError(() => of([])),
         finalize(() => this.isLoading.next(false))

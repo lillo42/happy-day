@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
-import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validator, Validators } from "@angular/forms";
+import { MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
+import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { CustomerService } from "../http-clients/customer.service";
 import { Observable, tap } from "rxjs";
 import { Customer, Phone } from "../models/customer";
@@ -85,7 +85,7 @@ export class CustomerComponent implements OnInit {
   }
 
   cancel(): void {
-    this.dialogRef.close()
+    this.dialogRef.close();
   }
 
   delete(): void {

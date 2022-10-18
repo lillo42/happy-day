@@ -15,29 +15,29 @@ export class CustomerService {
   getAll(page: number, size: number, text: string, sort: CustomerSort | null): Observable<Page<Customer>> {
     let query = `page=${page}&size=${size}`;
     if(sort === null) {
-      query += `&sort=${sort}`
+      query += `&sort=${sort}`;
     }
 
     if(text !== "") {
-      query += `&text=${text}`
+      query += `&text=${text}`;
     }
 
-    return this.httpClient.get<Page<Customer>>(`${environment.api}/api/v1/customers?${query}`)
+    return this.httpClient.get<Page<Customer>>(`${environment.api}/api/v1/customers?${query}`);
   }
 
   get(id: string): Observable<Customer> {
-    return this.httpClient.get<Customer>(`${environment.api}/api/v1/customers/${id}`)
+    return this.httpClient.get<Customer>(`${environment.api}/api/v1/customers/${id}`);
   }
 
   create(customer: Customer): Observable<Customer> {
-    return this.httpClient.post<Customer>(`${environment.api}/api/v1/customers`, customer)
+    return this.httpClient.post<Customer>(`${environment.api}/api/v1/customers`, customer);
   }
 
   update(id: string, customer: Customer): Observable<Customer> {
-    return this.httpClient.put<Customer>(`${environment.api}/api/v1/customers/${id}`, customer)
+    return this.httpClient.put<Customer>(`${environment.api}/api/v1/customers/${id}`, customer);
   }
 
   delete(id: string): Observable<any> {
-    return this.httpClient.delete<any>(`${environment.api}/api/v1/customers/${id}`)
+    return this.httpClient.delete<any>(`${environment.api}/api/v1/customers/${id}`);
   }
 }
