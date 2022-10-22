@@ -152,14 +152,14 @@ func (repository MongoDbReservationRepository) Save(ctx context.Context, state r
 
 	if state.Id == uuid.Nil {
 		state.Id = uuid.New()
-		state.CreateAt = time.Now().UTC()
-		state.ModifyAt = time.Now().UTC()
+		state.CreatedAt = time.Now().UTC()
+		state.ModifiedAt = time.Now().UTC()
 		_, err = collection.InsertOne(ctx, state)
 		return state, err
 	}
 
-	lastChange := state.ModifyAt
-	state.ModifyAt = time.Now().UTC()
+	lastChange := state.ModifiedAt
+	state.ModifiedAt = time.Now().UTC()
 
 	res, err := collection.ReplaceOne(ctx, bson.M{"id": state.Id, "modifyAt": lastChange}, state)
 	if res.ModifiedCount == 0 {

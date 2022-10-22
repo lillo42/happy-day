@@ -10,7 +10,7 @@ import (
 const (
 	Pix          PaymentMethod = "pix"
 	BankTransfer PaymentMethod = "bankTransfer"
-	Money        PaymentMethod = "money"
+	Cash         PaymentMethod = "cash"
 )
 
 type (
@@ -26,14 +26,14 @@ type (
 		Comment             string               `bson:"comment" json:"comment,omitempty"`
 		Customer            Customer             `bson:"customer" json:"customer"`
 		Address             Address              `bson:"address" json:"address"`
-		CreateAt            time.Time            `bson:"createAt" json:"createAt"`
-		ModifyAt            time.Time            `bson:"modifyAt" json:"modifyAt"`
+		CreatedAt           time.Time            `bson:"createdAt" json:"createdAt"`
+		ModifiedAt          time.Time            `bson:"modifiedAt" json:"modifiedAt"`
 	}
 
 	Product struct {
-		Id     uuid.UUID `bson:"id" json:"id"`
-		Price  float64   `bson:"price" json:"price"`
-		Amount int64     `bson:"amount" json:"amount"`
+		Id       uuid.UUID `bson:"id" json:"id"`
+		Price    float64   `bson:"price" json:"price"`
+		Quantity int64     `bson:"quantity" json:"quantity"`
 	}
 
 	DeliveryOrPickUp struct {

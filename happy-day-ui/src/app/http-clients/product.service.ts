@@ -15,7 +15,7 @@ export class ProductService {
 
   getAll(page: number, size: number, text: string, sort: ProductSort | null): Observable<Page<Product>> {
     let query = `page=${page}&size=${size}`;
-    if(sort === null) {
+    if(sort !== null) {
       query += `&sort=${sort}`
     }
 

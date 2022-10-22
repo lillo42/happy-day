@@ -14,7 +14,6 @@ import {ProductBehavior, ProductComponent, ProductData} from "../product/product
   styleUrls: ['./product-list.component.scss']
 })
 export class ProductListComponent implements OnInit, AfterViewInit {
-
   displayedColumns = ["id",  "name", "price", "actions"];
   dataSource: ProductDataSource;
 
@@ -71,26 +70,23 @@ export class ProductListComponent implements OnInit, AfterViewInit {
       this.paginator.pageIndex = 0;
     }
 
-    if (sort.active == "id") {
-      if (sort.direction == "asc") {
+    if(sort.direction === "asc") {
+      if(sort.active === "id") {
         this.sortBy = ProductSort.IdAsc;
-      } else {
-        this.sortBy = ProductSort.IdDesc;
-      }
-    } else if (sort.active == "name") {
-      if (sort.direction == "asc") {
+      } else if(sort.active === "name") {
         this.sortBy = ProductSort.NameAsc;
-      } else {
-        this.sortBy = ProductSort.NameDesc;
-      }
-    } else if (sort.active == "price") {
-      if (sort.direction == "asc") {
+      } else if(sort.active === "price") {
         this.sortBy = ProductSort.PriceAsc;
-      } else {
+      }
+    } else {
+      if(sort.active === "id") {
+        this.sortBy = ProductSort.IdDesc;
+      } else if(sort.active === "name") {
+        this.sortBy = ProductSort.NameDesc;
+      } else if(sort.active === "price") {
         this.sortBy = ProductSort.PriceDesc;
       }
     }
-
     this.reload();
   }
 
@@ -114,7 +110,7 @@ class ProductDataSource implements DataSource<ProductViewModel> {
   private isLoading = new BehaviorSubject<boolean>(false);
 
   public totalElements$ = this.totalElements.asObservable();
-  constructor(private customerService: ProductService) { }
+  constructor(private productService: ProductService) { }
 
   connect(): Observable<ProductViewModel[]> {
     return this.items.asObservable();
@@ -128,7 +124,7 @@ class ProductDataSource implements DataSource<ProductViewModel> {
 
   get(page: number, size: number, text: string, sort: ProductSort | null): void {
     this.isLoading.next(true);
-    this.customerService.getAll(page, size, text, sort)
+    this.productService.getAll(page, size, text, sort)
       .pipe(
         tap(page => {
           this.totalElements.next(page.totalElements);

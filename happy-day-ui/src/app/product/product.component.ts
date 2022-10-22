@@ -1,9 +1,9 @@
+import {DatePipe} from "@angular/common";
 import {Component, Inject, OnInit} from '@angular/core';
 import {FormArray, FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
-import {ProductService} from "../http-clients/product.service";
-import {DatePipe} from "@angular/common";
 import {BehaviorSubject, debounceTime, Observable, switchMap, tap} from "rxjs";
+import {ProductService} from "../http-clients/product.service";
 import {InnerProduct, Product, ProductSort} from "../models/product";
 
 @Component({
@@ -39,7 +39,7 @@ export class ProductComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if(this.data.behavior == ProductBehavior.Create){
+    if(this.data.behavior === ProductBehavior.Create){
       return;
     }
 

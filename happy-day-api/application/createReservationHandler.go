@@ -58,9 +58,9 @@ func (handler CreateReservationHandler) Handle(ctx context.Context, req CreateRe
 				},
 				CreateReservationProductRequest{})
 			return reservation.Product{
-				Id:     item.Id,
-				Price:  item.Price,
-				Amount: p.Quantity,
+				Id:       item.Id,
+				Price:    item.Price,
+				Quantity: p.Quantity,
 			}
 		}),
 	}

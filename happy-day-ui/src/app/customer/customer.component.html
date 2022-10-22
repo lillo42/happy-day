@@ -29,16 +29,6 @@
       <textarea matInput formControlName="comment" [readonly]="isDeleteMode()"></textarea>
     </mat-form-field>
 
-    <mat-form-field appearance="outline" *ngIf="!isCreateMode()">
-      <mat-label>Criado em</mat-label>
-      <input matInput formControlName="createAt" readonly=true />
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" *ngIf="!isCreateMode()">
-      <mat-label>Modificado em</mat-label>
-      <input matInput formControlName="modifyAt" readonly=true />
-    </mat-form-field>
-
     <ng-container formArrayName="phones">
       <ng-container *ngFor="let phone of phones.controls; let i = index">
         <div class="container row content-center phone" [formGroupName]="i">
@@ -61,6 +51,17 @@
         <mat-icon>add</mat-icon>
       </button>
     </div>
+
+    <mat-form-field appearance="outline" *ngIf="!isCreateMode()">
+      <mat-label>Criado em</mat-label>
+      <input matInput formControlName="createAt" readonly=true />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" *ngIf="!isCreateMode()">
+      <mat-label>Modificado em</mat-label>
+      <input matInput formControlName="modifyAt" readonly=true />
+    </mat-form-field>
+
 
     <div class="container row content-center actions-buttons">
       <button mat-raised-button matTooltip="Salvar" color="primary" *ngIf="!isDeleteMode()" (click)="save()" type="submit"><mat-icon>done</mat-icon></button>
