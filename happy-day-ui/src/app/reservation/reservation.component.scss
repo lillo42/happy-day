@@ -1,4 +1,4 @@
-.products {
+.item-listing {
   gap: 12px;
 }
 
@@ -13,4 +13,24 @@
 
 .form-data {
   margin-bottom: 10px;
+}
+
+.street {
+  width: 80%;
+}
+
+.delivery-date {
+  margin-bottom: 20px;
+}
+
+.street-number { }
+
+.actions-buttons {
+  gap: 12px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.id {
+  min-width: 280px;
 }

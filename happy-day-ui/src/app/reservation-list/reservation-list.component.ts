@@ -11,7 +11,7 @@ import {ReservationBehavior, ReservationComponent, ReservationData} from "../res
 @Component({
   selector: 'app-reservation-list',
   templateUrl: './reservation-list.component.html',
-  styleUrls: ['./reservation-list.component.scss']
+  styleUrls: ['./reservation-list.component.scss'],
 })
 export class ReservationListComponent implements OnInit, AfterViewInit {
   displayedColumns = ["id", "customerName", "price", "deliveryAt", "pickUpAt", "actions"];
@@ -43,6 +43,8 @@ export class ReservationListComponent implements OnInit, AfterViewInit {
     this.paginator.page
       .pipe(tap(() => this.reload()))
       .subscribe();
+
+    this.reload();
   }
 
   applyFilter(key: string): void {

@@ -12,6 +12,7 @@
 
 <div mat-dialog-content>
   <form [formGroup]="formGroup" class="container">
+    <div class="container col max-width">
     <mat-accordion class="container col form-data align-center max-width" multi>
       <mat-expansion-panel class="max-width">
         <mat-expansion-panel-header>
@@ -20,64 +21,65 @@
           </mat-panel-title>
         </mat-expansion-panel-header>
 
-        <mat-form-field appearance="outline" *ngIf="!isCreateMode()">
+        <div class="container content-center space-between wrap">
+          <mat-form-field appearance="outline" *ngIf="!isCreateMode()" class="id">
           <mat-label>Id</mat-label>
           <input matInput formControlName="id" readonly="true">
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Datas</mat-label>
-          <mat-date-range-input [rangePicker]="picker" [required]="!isCreateMode()">
-            <input matStartDate placeholder="Data de início" formControlName="deliverAt">
-            <input matEndDate placeholder="Data de término" formControlName="pickUpAt">
+          <mat-form-field appearance="outline">
+          <mat-label>Data</mat-label>
+          <mat-date-range-input [rangePicker]="picker">
+            <input matStartDate placeholder="Data de início" formControlName="deliveryAt">
+            <input matEndDate placeholder="Data de retirada" formControlName="pickUpAt">
           </mat-date-range-input>
           <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
           <mat-date-range-picker #picker></mat-date-range-picker>
+          <mat-error *ngIf="formGroup.get('deliveryAt')!.hasError('required')">Data de início obrigatório</mat-error>
+          <mat-error *ngIf="formGroup.get('pickUpAt')!.hasError('required')">Data de retirada obrigatório</mat-error>
         </mat-form-field>
+        </div>
 
         <ng-container formArrayName="products">
           <ng-container *ngFor="let product of products.controls; let i = index">
-            <div class="container row content-center products" [formGroupName]="i">
-
-              <mat-form-field appearance="outline">
+            <div class="container row content-center item-listing wrap" [formGroupName]="i">
+              <mat-form-field appearance="outline" class="id">
                 <mat-label>Id</mat-label>
-                <input matInput formControlName="id"/>
+                <input matInput formControlName="id" readonly="true"/>
               </mat-form-field>
 
               <mat-form-field appearance="outline">
                 <mat-label>Nome</mat-label>
-                <input matInput formControlName="name" [readonly]="isDeleteMode()" [matAutocomplete]="auto"/>
+                <input matInput formControlName="name" [readonly]="!isCreateMode()" [matAutocomplete]="auto" />
                 <mat-autocomplete #auto="matAutocomplete">
-                  <mat-option *ngFor="let option of filterProducts$ | async" [value]="option.name"
-                              (onSelectionChange)="productSelected(option, i)">
+                  <mat-option *ngFor="let option of filteredProducts$ | async" [value]="option.name" (onSelectionChange)="productSelected(option, i)">
                     {{option.name}}
                   </mat-option>
                 </mat-autocomplete>
+                <mat-error *ngIf="product.get('name')!.hasError('required')">Nome obrigatório</mat-error>
               </mat-form-field>
 
               <mat-form-field appearance="outline">
                 <mat-label>Quantidade</mat-label>
-                <input matInput placeholder="123456789" formControlName="quantity" [readonly]="isDeleteMode()"
-                       type="number"/>
+                <input matInput placeholder="123456789" formControlName="quantity" [readonly]="isDeleteMode()" type="number"/>
                 <mat-error *ngIf="product.get('quantity')!.hasError('required')">Quantidade obrigatório</mat-error>
-                <mat-error *ngIf="product.get('quantity')!.hasError('min')">Quantidade precisa ser maior que 0
-                </mat-error>
+                <mat-error *ngIf="product.get('quantity')!.hasError('min')">Quantidade precisa ser maior que 0</mat-error>
               </mat-form-field>
 
-              <button mat-mini-fab color="warn" (click)="deleteProduct(i)" *ngIf="isCreateMode()">
+              <button mat-mini-fab color="warn" matTooltip="Remover produto por" (click)="deleteProduct(i)" *ngIf="isCreateMode()">
                 <mat-icon>delete_forever</mat-icon>
               </button>
             </div>
           </ng-container>
         </ng-container>
 
-        <div class="container row content-center products">
-          <button mat-mini-fab matTooltip="Adicionar novo produto" (click)="addProduct()" *ngIf="!isDeleteMode()">
+        <div class="container row content-center item-listing" *ngIf="isCreateMode()">
+          <button mat-mini-fab matTooltip="Adicionar novo produto" (click)="addProduct()">
             <mat-icon>add</mat-icon>
           </button>
         </div>
 
-        <div class="container row space-between">
+        <div class="container row space-between wrap" style="margin-bottom: 10px">
           <mat-form-field appearance="outline" style="width: 80%">
             <mat-label>Preço</mat-label>
             <input matInput formControlName="price" type="number" readonly="true">
@@ -88,7 +90,7 @@
           </button>
         </div>
 
-        <div class="container row space-between">
+        <div class="container row space-between wrap">
           <mat-form-field appearance="outline" class="half-size">
             <mat-label>Desconto</mat-label>
             <input matInput formControlName="discount" type="number" (change)="updateFinalPrice()">
@@ -106,23 +108,23 @@
         </mat-form-field>
 
         <ng-container formArrayName="deliveryBy">
-          <mat-label>Entrege por</mat-label>
+          <mat-label>Entregue por</mat-label>
           <ng-container *ngFor="let by of deliveryBy.controls; let i = index">
-            <div class="container row content-center products" [formGroupName]="i">
+            <div class="container row content-center wrap item-listing" [formGroupName]="i">
               <mat-form-field appearance="outline">
                 <mat-label>Nome</mat-label>
                 <input matInput formControlName="name" [readonly]="isDeleteMode()"/>
+                <mat-error *ngIf="by.get('name')!.hasError('required')">Nome obrigatório</mat-error>
+                <button mat-icon-button matSuffix matTooltip="Remover entregue por" (click)="deleteDeliveryBy(i)" *ngIf="!isDeleteMode()">
+                  <mat-icon>delete_forever</mat-icon>
+                </button>
               </mat-form-field>
-
-              <button mat-mini-fab color="warn" (click)="deleteDeliveryBy(i)" *ngIf="isCreateMode()">
-                <mat-icon>delete_forever</mat-icon>
-              </button>
             </div>
           </ng-container>
         </ng-container>
 
-        <div class="container row content-center products">
-          <button mat-mini-fab matTooltip="Adicionar novo entrege por" (click)="addDeliveryBy()"
+        <div class="container row content-center item-listing">
+          <button mat-mini-fab matTooltip="Adicionar novo entregue por" (click)="addDeliveryBy()"
                   *ngIf="!isDeleteMode()">
             <mat-icon>add</mat-icon>
           </button>
@@ -131,25 +133,24 @@
         <ng-container formArrayName="pickUpBy">
           <mat-label>Retirado por</mat-label>
           <ng-container *ngFor="let by of pickUpBy.controls; let i = index">
-            <div class="container row content-center products" [formGroupName]="i">
+            <div class="container row content-center item-listing" [formGroupName]="i">
               <mat-form-field appearance="outline">
                 <mat-label>Nome</mat-label>
                 <input matInput formControlName="name" [readonly]="isDeleteMode()"/>
+                <mat-error *ngIf="by.get('name')!.hasError('required')">Nome obrigatório</mat-error>
+                <button mat-icon-button matSuffix matTooltip="Remover retirado por" (click)="deletePickUpBy(i)" *ngIf="!isDeleteMode()">
+                  <mat-icon>delete_forever</mat-icon>
+                </button>
               </mat-form-field>
-
-              <button mat-mini-fab color="warn" (click)="deletePickUpBy(i)" *ngIf="isCreateMode()">
-                <mat-icon>delete_forever</mat-icon>
-              </button>
             </div>
           </ng-container>
         </ng-container>
 
-        <div class="container row content-center products">
+        <div class="container row content-center item-listing">
           <button mat-mini-fab matTooltip="Adicionar novo retirado por" (click)="addPickUpBy()" *ngIf="!isDeleteMode()">
             <mat-icon>add</mat-icon>
           </button>
         </div>
-
 
       </mat-expansion-panel>
 
@@ -158,33 +159,43 @@
           <mat-panel-title>Endereço</mat-panel-title>
         </mat-expansion-panel-header>
 
-        <div class="container row space-between">
-          <mat-form-field appearance="outline" style="width: 80%">
+        <div class="container row space-between wrap">
+          <mat-form-field appearance="outline" class="street">
             <mat-label>Endereço</mat-label>
             <input matInput formControlName="street"/>
+            <mat-error *ngIf="this.address.get('street')!.hasError('required')">Endereço obrigatório</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Numero</mat-label>
+            <mat-label>Número</mat-label>
             <input matInput formControlName="number"/>
+            <mat-error *ngIf="this.address.get('number')!.hasError('required')">Número obrigatório</mat-error>
           </mat-form-field>
         </div>
 
-        <div class="container row space-between">
-          <mat-form-field appearance="outline" class="half-size">
+        <div class="container row space-between wrap">
+          <mat-form-field appearance="outline">
             <mat-label>Complemento</mat-label>
             <input matInput formControlName="complement"/>
           </mat-form-field>
 
-          <mat-form-field appearance="outline" class="half-size">
+          <mat-form-field appearance="outline">
             <mat-label>Bairro</mat-label>
             <input matInput formControlName="neighborhood"/>
+            <mat-error *ngIf="this.address.get('neighborhood')!.hasError('required')">Bairro obrigatório</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Codigo Postal</mat-label>
+            <input matInput formControlName="postalCode"/>
+            <mat-error *ngIf="this.address.get('postalCode')!.hasError('required')">Codigo postal obrigatório</mat-error>
           </mat-form-field>
         </div>
 
         <mat-form-field appearance="outline">
           <mat-label>Cidade</mat-label>
           <input matInput formControlName="city"/>
+          <mat-error *ngIf="this.address.get('city')!.hasError('required')">Cidade obrigatória</mat-error>
         </mat-form-field>
       </mat-expansion-panel>
 
@@ -193,17 +204,22 @@
           <mat-panel-title>Cliente</mat-panel-title>
         </mat-expansion-panel-header>
 
-        <div class="container row space-between">
-          <mat-form-field appearance="outline">
+        <div class="container row space-between wrap">
+          <mat-form-field appearance="outline" class="id">
             <mat-label>Id</mat-label>
-            <input matInput formControlName="id"/>
+            <input matInput formControlName="id" readonly="true"/>
           </mat-form-field>
 
           <mat-form-field appearance="outline" style="width: 80%">
             <mat-label>Nome</mat-label>
-            <input matInput formControlName="name"/>
+            <input matInput formControlName="name" [matAutocomplete]="auto" />
+            <mat-autocomplete #auto="matAutocomplete">
+              <mat-option *ngFor="let customer of filteredCustomers$ | async" [value]="customer.name" (onSelectionChange)="customerSelected(customer)">
+                {{customer.name}}
+              </mat-option>
+            </mat-autocomplete>
+            <mat-error *ngIf="this.customer.get('name')!.hasError('required')">Nome obrigatório</mat-error>
           </mat-form-field>
-
         </div>
 
         <mat-form-field appearance="outline" class="max-width">
@@ -211,20 +227,21 @@
           <textarea matInput formControlName="comment" [readonly]="isDeleteMode()"></textarea>
         </mat-form-field>
 
+
+        <mat-label>Telefones</mat-label>
         <ng-container formArrayName="phones">
           <ng-container *ngFor="let phone of phones.controls; let i = index">
-            <div class="container row content-center phone" [formGroupName]="i">
+            <div class="container row content-center wrap item-listing" [formGroupName]="i">
 
               <mat-form-field appearance="outline">
                 <mat-label>Número</mat-label>
                 <input matInput formControlName="number" [readonly]="isDeleteMode()"/>
                 <mat-error *ngIf="phone.get('number')!.hasError('required')">Número obrigatório</mat-error>
                 <mat-error *ngIf="phone.get('number')!.hasError('pattern')">Número inválido</mat-error>
+                <button mat-icon-button matSuffix matTooltip="Remover telefone" (click)="deletePhone(i)" *ngIf="!isDeleteMode()">
+                  <mat-icon>delete_forever</mat-icon>
+                </button>
               </mat-form-field>
-
-              <button mat-mini-fab color="warn" (click)="deletePhone(i)" *ngIf="!isDeleteMode()">
-                <mat-icon>delete_forever</mat-icon>
-              </button>
             </div>
           </ng-container>
         </ng-container>
@@ -244,17 +261,20 @@
 
         <ng-container formArrayName="paymentInstallments">
           <ng-container *ngFor="let payment of paymentInstallments.controls; let i = index">
-            <div class="container row content-center phone" [formGroupName]="i">
+            <div class="container row content-center item-listing wrap" [formGroupName]="i">
               <mat-form-field appearance="outline">
                 <mat-label>Pago em</mat-label>
                 <input matInput [matDatepicker]="picker" formControlName="at"/>
                 <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
                 <mat-datepicker #picker></mat-datepicker>
+                <mat-error *ngIf="payment.get('at')!.hasError('required')">Data obrigatória</mat-error>
               </mat-form-field>
 
               <mat-form-field appearance="outline">
                 <mat-label>Valor</mat-label>
                 <input matInput formControlName="amount" type="number"/>
+                <mat-error *ngIf="payment.get('amount')!.hasError('required')">Valor obrigatório</mat-error>
+                <mat-error *ngIf="payment.get('amount')!.hasError('min')">Valor deve ser maior que zero</mat-error>
               </mat-form-field>
 
               <mat-form-field appearance="outline">
@@ -264,9 +284,10 @@
                   <mat-option value="bankTransfer">Transferencia bancaria</mat-option>
                   <mat-option value="cash">Dinheiro</mat-option>
                 </mat-select>
+                <mat-error *ngIf="payment.get('method')!.hasError('required')">Metodo obrigatório</mat-error>
               </mat-form-field>
 
-              <button mat-mini-fab color="warn" (click)="deletePaymentInstallment(i)" *ngIf="!isDeleteMode()">
+              <button mat-mini-fab color="warn" matTooltip="Remover pagamento" (click)="deletePaymentInstallment(i)" *ngIf="!isDeleteMode()">
                 <mat-icon>delete_forever</mat-icon>
               </button>
             </div>
@@ -280,5 +301,12 @@
         </div>
       </mat-expansion-panel>
     </mat-accordion>
+
+    <div class="container row content-center actions-buttons">
+      <button mat-raised-button matTooltip="Salvar" color="primary" *ngIf="!isDeleteMode()" (click)="save()" type="submit"><mat-icon>done</mat-icon></button>
+      <button mat-raised-button matTooltip="Deletar" color="warn" *ngIf="isDeleteMode()" (click)="delete()"><mat-icon>delete</mat-icon></button>
+      <button mat-raised-button matTooltip="Cancelar" (click)="cancel()"><mat-icon>cancel</mat-icon></button>
+    </div>
+    </div>
   </form>
 </div>

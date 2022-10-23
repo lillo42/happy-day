@@ -21,7 +21,7 @@
 
       <ng-container matColumnDef="customerName">
         <th mat-header-cell *matHeaderCellDef>Nome do Cliente</th>
-        <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+        <td mat-cell *matCellDef="let element"> {{element.customerName}} </td>
       </ng-container>
 
       <ng-container matColumnDef="price">
@@ -31,12 +31,12 @@
 
       <ng-container matColumnDef="deliveryAt">
         <th mat-header-cell *matHeaderCellDef>Entrega em</th>
-        <td mat-cell *matCellDef="let element"> {{element.deliveryAt}} </td>
+        <td mat-cell *matCellDef="let element"> {{element.deliveryAt | date: 'dd/MM/yyyy' }} </td>
       </ng-container>
 
       <ng-container matColumnDef="pickUpAt">
         <th mat-header-cell *matHeaderCellDef>Retirada em</th>
-        <td mat-cell *matCellDef="let element"> {{element.pickUpAt}} </td>
+        <td mat-cell *matCellDef="let element"> {{element.pickUpAt | date: 'dd/MM/yyyy'}} </td>
       </ng-container>
 
       <ng-container matColumnDef="actions">

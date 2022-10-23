@@ -1,14 +1,14 @@
 import {DatePipe} from "@angular/common";
 import {Component, Inject, OnInit} from '@angular/core';
-import {FormArray, FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {AbstractControl, FormArray, FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {BehaviorSubject, debounceTime, Observable, switchMap, tap} from "rxjs";
 import {Product, ProductSort} from "../models/product";
 import {ReservationService} from "../http-clients/reservation.service";
 import {ProductService} from "../http-clients/product.service";
 import {CustomerService} from "../http-clients/customer.service";
-import {PaymentInstallment, Product as RProduct, Quote} from "../models/reservation";
-import {Phone} from "../models/customer";
+import {DeliveryOrPickUp, PaymentInstallment, Product as RProduct, Quote, Reservation} from "../models/reservation";
+import {Customer, CustomerSort, Phone} from "../models/customer";
 
 @Component({
   selector: 'app-reservation',
@@ -22,39 +22,44 @@ export class ReservationComponent implements OnInit {
   DELETE_TITLE = "Remover um reserva";
 
   formGroup: FormGroup;
-  filterProducts = new BehaviorSubject<Product[]>([]);
-  filterProducts$: Observable<Product[]>;
+
+  filteredProducts = new BehaviorSubject<Product[]>([]);
+  filteredProducts$: Observable<Product[]>;
+
+  filteredCustomers = new BehaviorSubject<Customer[]>([]);
+  filteredCustomers$: Observable<Customer[]>;
 
   constructor(private dialogRef: MatDialogRef<ReservationComponent>,
               @Inject(MAT_DIALOG_DATA) private data: ReservationData,
               private builder: FormBuilder,
               private reservationService: ReservationService,
               private productService: ProductService,
-              private customerService: CustomerService,
-              private datePipe: DatePipe) {
-    this.filterProducts$ = this.filterProducts.asObservable();
-    this.formGroup = builder.group({
+              private customerService: CustomerService) {
+    this.filteredProducts$ = this.filteredProducts.asObservable();
+    this.filteredCustomers$ = this.filteredCustomers.asObservable();
+    this.formGroup = this.builder.group({
       id: [{value: null, disabled: true}],
-      products: builder.array([]),
+      products: this.builder.array([]),
       price: [{value: null, disabled: true}],
-      discount: [{value: 0}, []],
+      discount: [{value: 0, disabled: this.isDeleteMode()}, []],
       finalPrice: [{value: null, disabled: true}],
-      comment: [null, []],
-      deliveryAt: [null, [Validators.required]],
-      deliveryBy: builder.array([]),
-      pickupAt: [null, [Validators.required]],
-      pickUpBy: builder.array([]),
+      comment: [{value: null, disabled: this.isDeleteMode()}, []],
+      deliveryAt: [{value: null, disabled: this.isDeleteMode()}, [Validators.required]],
+      deliveryBy: this.builder.array([]),
+      pickUpAt: [{value: null, disabled: this.isDeleteMode()}, [Validators.required]],
+      pickUpBy: this.builder.array([]),
       address: this.builder.group({
-        street: [null, [Validators.required]],
-        number: [null, [Validators.required]],
-        complement: [null, []],
-        neighborhood: [null, [Validators.required]],
-        city: [null, [Validators.required]],
+        street: [{value: null, disabled: this.isDeleteMode()}, [Validators.required]],
+        number: [{value: null, disabled: this.isDeleteMode()}, [Validators.required]],
+        complement: [{value: null, disabled: this.isDeleteMode()}, []],
+        neighborhood: [{value: null, disabled: this.isDeleteMode()}, [Validators.required]],
+        postalCode: [{value: null, disabled: this.isDeleteMode()}, [Validators.required]],
+        city: [{value: null, disabled: this.isDeleteMode()}, [Validators.required]],
       }),
       customer: this.builder.group({
         id: [{value: null, disabled: true}, [Validators.required]],
-        name: [null, [Validators.required]],
-        comment: [null, []],
+        name: [{value: null, disabled: this.isDeleteMode()}, [Validators.required]],
+        comment: [{value: null, disabled: this.isDeleteMode()}, []],
         phones: this.builder.array([]),
       }),
       paymentInstallments: this.builder.array([]),
@@ -64,6 +69,14 @@ export class ReservationComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.formGroup.get("customer")!.get("name")!.valueChanges
+      .pipe(
+        debounceTime(1000),
+        switchMap(name => this.customerService.getAll(1, 1000, name, CustomerSort.NameAsc)),
+        tap(customers => this.filteredCustomers.next(customers.items))
+      )
+      .subscribe();
+
     if (this.data.behavior === ReservationBehavior.Create) {
       this.addProduct();
       this.formGroup.patchValue({
@@ -73,6 +86,24 @@ export class ReservationComponent implements OnInit {
       });
       return;
     }
+
+    this.reservationService.get(this.data.id)
+      .pipe(
+        tap(reservation => {
+          this.formGroup.patchValue(reservation);
+          this.formGroup.get("deliveryAt")!.setValue(new Date(reservation.delivery.at));
+          reservation.delivery.by.forEach(by => this.addDeliveryBy(by));
+
+          this.formGroup.get("pickUpAt")!.setValue(new Date(reservation.pickUp.at));
+          reservation.pickUp.by.forEach(by => this.addPickUpBy(by));
+
+          reservation.products.forEach(product => this.addProduct(product));
+
+          reservation.customer.phones.forEach(phone => this.addPhone(phone));
+
+        })
+      )
+      .subscribe();
   }
 
   isCreateMode(): boolean {
@@ -101,9 +132,9 @@ export class ReservationComponent implements OnInit {
 
   addProduct(product: RProduct | null = null): void {
     this.products.push(this.builder.group({
-      id: [{value: null, disabled: true}, []],
+      id: [{value: product?.id, disabled: true}, []],
       name: [{value: null, disabled: !this.isCreateMode()}, [Validators.required]],
-      quantity: [{value: null, disabled: !this.isCreateMode()}, [Validators.required, Validators.min(1)]],
+      quantity: [{value: product?.quantity, disabled: !this.isCreateMode()}, [Validators.required, Validators.min(1)]],
     }));
 
     let productControl = this.products.controls[this.products.length - 1];
@@ -117,7 +148,7 @@ export class ReservationComponent implements OnInit {
       .pipe(
         debounceTime(1000),
         switchMap(name => this.productService.getAll(1, 1000, name, ProductSort.NameAsc)),
-        tap(products => this.filterProducts.next(products.items))
+        tap(products => this.filteredProducts.next(products.items))
       )
       .subscribe();
   }
@@ -125,7 +156,7 @@ export class ReservationComponent implements OnInit {
   productSelected(product: Product, index: number): void {
     let productControl = this.products.controls[index];
     productControl.patchValue({id: product.id});
-    this.filterProducts.next([]);
+    this.filteredProducts.next([]);
   }
 
   // Price
@@ -219,6 +250,78 @@ export class ReservationComponent implements OnInit {
 
   deletePaymentInstallment(index: number): void {
     this.paymentInstallments.removeAt(index);
+  }
+
+  // Address
+  get address(): AbstractControl {
+    return this.formGroup.get("address")!;
+  }
+
+  // Customer
+  get customer(): AbstractControl {
+    return this.formGroup.get("customer")!;
+  }
+
+  customerSelected(customer: Customer): void {
+    this.customer.patchValue({id: customer.id, comment: customer.comment});
+    for(let i = 0; i < customer.phones.length; i++) {
+      this.addPhone(customer.phones[i]);
+    }
+
+    this.filteredCustomers.next([]);
+  }
+
+  save(): void {
+    this.formGroup.markAllAsTouched();
+    this.formGroup.markAsDirty();
+    if (this.formGroup.invalid) {
+      return;
+    }
+
+    let reservation = <Reservation>{};
+    reservation.id = this.data.id;
+    reservation.price = this.price;
+    reservation.discount = this.formGroup.get("discount")!.getRawValue();
+    reservation.finalPrice = this.formGroup.get("finalPrice")!.getRawValue();
+    reservation.comment = this.formGroup.get("comment")!.getRawValue();
+    reservation.customer = this.formGroup.get("customer")!.getRawValue();
+    reservation.address = this.formGroup.get("address")!.getRawValue();
+    reservation.products = this.products.getRawValue();
+    reservation.paymentInstallments = this.paymentInstallments.getRawValue();
+    reservation.delivery = <DeliveryOrPickUp>{
+      at: this.formGroup.get("deliveryAt")!.getRawValue(),
+      by: this.deliveryBy.getRawValue().map(x => x.name),
+    };
+
+    reservation.pickUp = <DeliveryOrPickUp>{
+      at: this.formGroup.get("pickUpAt")!.getRawValue(),
+      by: this.pickUpBy.getRawValue().map(x => x.name),
+    };
+
+    let obs: Observable<Reservation>;
+    if (this.isCreateMode()) {
+      obs = this.reservationService.create(reservation)
+        .pipe(
+          tap(r => reservation.id = r.id),
+          switchMap(() => this.reservationService.update(reservation.id!, reservation))
+        );
+    } else {
+      obs =this.reservationService.update(this.data.id, reservation);
+    }
+
+    obs
+      .pipe(tap(_ => this.dialogRef.close()))
+      .subscribe();
+  }
+
+  cancel(): void {
+    this.dialogRef.close();
+  }
+
+  delete(): void {
+    this.reservationService.delete(this.data.id)
+      .pipe(tap(() => this.dialogRef.close()))
+      .subscribe()
   }
 }
 
