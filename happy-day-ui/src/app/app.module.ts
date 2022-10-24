@@ -11,12 +11,14 @@ import { MatExpansionModule } from "@angular/material/expansion";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatIconModule } from "@angular/material/icon";
-import {MatNativeDateModule} from "@angular/material/core";
+import { MatPaginatorModule } from "@angular/material/paginator";
+import { MatNativeDateModule } from "@angular/material/core";
+import { MatSelectModule } from "@angular/material/select";
+import { MatSortModule } from "@angular/material/sort";
+import { MatSnackBarModule } from "@angular/material/snack-bar";
 import { MatTableModule } from "@angular/material/table";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { MatSortModule } from "@angular/material/sort";
-import { MatPaginatorModule } from "@angular/material/paginator";
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -28,13 +30,6 @@ import { ProductListComponent } from './product-list/product-list.component';
 import { ProductComponent } from './product/product.component';
 import { ReservationListComponent } from './reservation-list/reservation-list.component';
 import { ReservationComponent } from './reservation/reservation.component';
-import {
-  NgxMatDateAdapter,
-  NgxMatDatetimePickerModule,
-  NgxMatNativeDateModule, NgxMatTimepickerModule,
-  NgxNativeDateModule
-} from "@angular-material-components/datetime-picker";
-import {MatSelectModule} from "@angular/material/select";
 
 @NgModule({
   declarations: [
@@ -45,7 +40,7 @@ import {MatSelectModule} from "@angular/material/select";
     ProductListComponent,
     ProductComponent,
     ReservationListComponent,
-    ReservationComponent
+    ReservationComponent,
   ],
   imports: [
     BrowserModule,
@@ -65,17 +60,12 @@ import {MatSelectModule} from "@angular/material/select";
     MatInputModule,
     MatNativeDateModule,
     MatPaginatorModule,
+    MatSnackBarModule,
     MatSelectModule,
     MatSortModule,
     MatTableModule,
     MatToolbarModule,
     MatTooltipModule,
-
-   /* NgxMatNativeDateModule,
-    NgxMatDatetimePickerModule,
-    NgxMatTimepickerModule,
-    NgxNativeDateModule,
-    */
   ],
   providers: [
     MatDatepickerModule

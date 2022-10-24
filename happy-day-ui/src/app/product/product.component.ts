@@ -2,15 +2,18 @@ import {DatePipe} from "@angular/common";
 import {Component, Inject, OnInit} from '@angular/core';
 import {FormArray, FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
-import {BehaviorSubject, debounceTime, Observable, switchMap, tap} from "rxjs";
+import {BehaviorSubject, catchError, debounceTime, Observable, switchMap, tap} from "rxjs";
 import {ProductService} from "../http-clients/product.service";
 import {InnerProduct, Product, ProductSort} from "../models/product";
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 @Component({
   selector: 'app-product',
   templateUrl: './product.component.html',
   styleUrls: ['./product.component.scss'],
-  providers: [DatePipe]
+  providers: [
+    DatePipe,
+  ]
 })
 export class ProductComponent implements OnInit {
   CREATE_TITLE = "Criação de um produto";
@@ -24,6 +27,7 @@ export class ProductComponent implements OnInit {
   constructor(private dialogRef: MatDialogRef<ProductComponent>,
               @Inject(MAT_DIALOG_DATA)private data: ProductData,
               private builder: FormBuilder,
+              private snackBar: MatSnackBar,
               private productService: ProductService,
               private datePipe: DatePipe) {
     this.filterProducts$ = this.filterProducts.asObservable();
@@ -46,12 +50,16 @@ export class ProductComponent implements OnInit {
     this.productService.get(this.data.id)
       .pipe(
         tap(product => {
+          this.formGroup.patchValue({...product});
+          this.formGroup.get("createAt")!.setValue(this.datePipe.transform(product.createdAt, 'dd/MM/yyyy HH:mm:ss'));
+          this.formGroup.get("modifyAt")!.setValue(this.datePipe.transform(product.modifiedAt, 'dd/MM/yyyy HH:mm:ss'));
+          if(product.products === null) {
+            return;
+          }
+
           for(let i = 0; i < product.products.length; i++) {
             this.addProduct(product.products[i]);
           }
-          this.formGroup.patchValue({...product});
-          this.formGroup.get("createAt")!.setValue(this.datePipe.transform(product.createAt, 'dd/MM/yyyy HH:mm:ss'));
-          this.formGroup.get("modifyAt")!.setValue(this.datePipe.transform(product.modifyAt, 'dd/MM/yyyy HH:mm:ss'));
         })
       )
       .subscribe();
@@ -115,7 +123,14 @@ export class ProductComponent implements OnInit {
 
   delete(): void {
     this.productService.delete(this.data.id)
-      .pipe(tap(() => this.dialogRef.close()))
+      .pipe(
+        tap(() => this.dialogRef.close()),
+        catchError(err => {
+          console.log(err);
+          this.snackBar.open("Não foi possível remover o produto", "Ok", {duration: 5000});
+          return err;
+        }),
+      )
       .subscribe();
   }
 
@@ -136,7 +151,14 @@ export class ProductComponent implements OnInit {
       observable = this.productService.update(this.data.id, product);
     }
 
-    observable.pipe(tap(() => this.dialogRef.close()))
+    observable.pipe(
+      tap(() => this.dialogRef.close()),
+      catchError(err => {
+        console.log(err);
+        this.snackBar.open("Não foi possível remover o produto", "Ok", {duration: 5000});
+        return err;
+      }),
+    )
       .subscribe();
   }
 }

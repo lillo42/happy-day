@@ -26,14 +26,15 @@
 
     <mat-form-field appearance="outline">
       <mat-label>Preço</mat-label>
+      <span matPrefix>R$ &nbsp;</span>
       <input matInput formControlName="price" [readonly]="isDeleteMode()" type="number" />
       <mat-error *ngIf="formGroup.get('price')!.hasError('required')">Preço obrigatório</mat-error>
-      <mat-error *ngIf="formGroup.get('price')!.hasError('min')">Preço deve ser maioor que 0</mat-error>
+      <mat-error *ngIf="formGroup.get('price')!.hasError('min')">Preço deve ser maior que 0</mat-error>
     </mat-form-field>
 
     <ng-container formArrayName="products">
       <ng-container *ngFor="let product of products.controls; let i = index">
-        <div class="container row content-center products" [formGroupName]="i">
+        <div class="container row content-center item-listing wrap" [formGroupName]="i">
 
           <mat-form-field appearance="outline">
             <mat-label>Id</mat-label>
@@ -57,7 +58,7 @@
             <mat-error *ngIf="product.get('quantity')!.hasError('min')">Quantidade precisa ser maior que 0</mat-error>
           </mat-form-field>
 
-          <button mat-mini-fab color="warn" (click)="deleteProduct(i)" *ngIf="!isDeleteMode()">
+          <button mat-mini-fab matTooltip="Remove produto" (click)="deleteProduct(i)" *ngIf="!isDeleteMode()">
             <mat-icon>delete_forever</mat-icon>
           </button>
         </div>

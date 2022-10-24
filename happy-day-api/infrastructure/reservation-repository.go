@@ -161,7 +161,7 @@ func (repository MongoDbReservationRepository) Save(ctx context.Context, state r
 	lastChange := state.ModifiedAt
 	state.ModifiedAt = time.Now().UTC()
 
-	res, err := collection.ReplaceOne(ctx, bson.M{"id": state.Id, "modifyAt": lastChange}, state)
+	res, err := collection.ReplaceOne(ctx, bson.M{"id": state.Id, "modifiedAt": lastChange}, state)
 	if res.ModifiedCount == 0 {
 		return state, ErrReservationConcurrencyIssue
 	}

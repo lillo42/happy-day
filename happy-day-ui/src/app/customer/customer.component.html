@@ -37,11 +37,10 @@
             <input matInput  placeholder="123456789" formControlName="number" [readonly]="isDeleteMode()" />
             <mat-error *ngIf="phone.get('number')!.hasError('required')">Número obrigatório</mat-error>
             <mat-error *ngIf="phone.get('number')!.hasError('pattern')">Número inválido</mat-error>
+            <button mat-icon-button matSuffix matTooltip="Remove telefone" (click)="deletePhone(i)" *ngIf="!isDeleteMode()">
+              <mat-icon>delete_forever</mat-icon>
+            </button>
           </mat-form-field>
-
-          <button mat-mini-fab color="warn" (click)="deletePhone(i)" *ngIf="!isDeleteMode()">
-            <mat-icon>delete_forever</mat-icon>
-          </button>
         </div>
       </ng-container>
     </ng-container>

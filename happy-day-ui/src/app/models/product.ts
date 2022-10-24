@@ -3,8 +3,8 @@ export interface Product {
   name: string;
   price: number;
   products: InnerProduct[];
-  createAt: Date;
-  modifyAt: Date;
+  createdAt: Date;
+  modifiedAt: Date;
 }
 
 export interface InnerProduct {
