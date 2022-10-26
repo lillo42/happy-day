@@ -38,8 +38,8 @@ func (handler CreateOrChangeCustomerHandler) Handle(ctx context.Context, req Cre
 			return state, err
 		}
 
-		req.CreateAt = state.CreateAt
-		req.ModifyAt = state.ModifyAt
+		req.CreatedAt = state.CreatedAt
+		req.ModifiedAt = state.ModifiedAt
 	}
 
 	return handler.repository.Save(ctx, req.State)
