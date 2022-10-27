@@ -91,16 +91,18 @@ export class ReservationComponent implements OnInit {
       .pipe(
         tap(reservation => {
           this.formGroup.patchValue(reservation);
-          this.formGroup.get("deliveryAt")!.setValue(new Date(reservation.delivery.at));
+          this.formGroup.get("deliveryAt")!.setValue(reservation.delivery.at);
           reservation.delivery.by.forEach(by => this.addDeliveryBy(by));
 
-          this.formGroup.get("pickUpAt")!.setValue(new Date(reservation.pickUp.at));
+          this.formGroup.get("pickUpAt")!.setValue(reservation.pickUp.at);
+
           reservation.pickUp.by.forEach(by => this.addPickUpBy(by));
 
           reservation.products.forEach(product => this.addProduct(product));
 
           reservation.customer.phones.forEach(phone => this.addPhone(phone));
 
+          reservation.paymentInstallments.forEach(paymentInstallment => this.addPaymentInstallment(paymentInstallment));
         })
       )
       .subscribe();

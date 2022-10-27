@@ -3,8 +3,8 @@ export interface Customer {
   name: string;
   comment: string;
   phones: Phone[];
-  createAt: Date;
-  modifyAt: Date;
+  createdAt: Date;
+  modifiedAt: Date;
 }
 
 export interface Phone {

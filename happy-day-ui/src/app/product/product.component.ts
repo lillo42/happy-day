@@ -37,8 +37,8 @@ export class ProductComponent implements OnInit {
       name: [null, [Validators.required]],
       price: [null, [Validators.required, Validators.min(0)]],
       products: builder.array([]),
-      createAt: [{value: null, disabled: true}],
-      modifyAt: [{value: null, disabled: true}],
+      createdAt: [{value: null, disabled: true}],
+      modifiedAt: [{value: null, disabled: true}],
     });
   }
 

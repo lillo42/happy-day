@@ -30,8 +30,8 @@ export class CustomerComponent implements OnInit {
       name: [null, [Validators.required]],
       comment: [null, null],
       phones: builder.array([]),
-      createAt: [{value: null, disabled: true}],
-      modifyAt: [{value: null, disabled: true}],
+      createdAt: [{value: null, disabled: true}],
+      modifiedAt: [{value: null, disabled: true}],
     })
   }
 
@@ -48,8 +48,8 @@ export class CustomerComponent implements OnInit {
             this.addPhone(customer.phones[i]);
           }
           this.formGroup.patchValue({...customer});
-          this.formGroup.get("createAt")!.setValue(this.datePipe.transform(customer.createAt, 'dd/MM/yyyy HH:mm:ss'));
-          this.formGroup.get("modifyAt")!.setValue(this.datePipe.transform(customer.modifyAt, 'dd/MM/yyyy HH:mm:ss'));
+          this.formGroup.get("createdAt")!.setValue(this.datePipe.transform(customer.createdAt, 'dd/MM/yyyy HH:mm:ss'));
+          this.formGroup.get("modifiedAt")!.setValue(this.datePipe.transform(customer.modifiedAt, 'dd/MM/yyyy HH:mm:ss'));
         })
       )
       .subscribe();
