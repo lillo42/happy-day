@@ -3,9 +3,10 @@ package infrastructure
 import (
 	"context"
 	"errors"
-	"happy_day/domain/customer"
 	"math"
 	"time"
+
+	"happy_day/domain/customer"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
