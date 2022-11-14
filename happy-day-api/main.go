@@ -1,6 +1,7 @@
 package main
 
 import (
+	"happy_day/apis"
 	"happy_day/middlewares"
 
 	"github.com/labstack/echo/v4"
@@ -21,11 +22,11 @@ func main() {
 		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.OPTIONS},
 	}))
 
-	initializeReservationController().Routes(e)
-	initializeProductController().Routes(e)
-	initializeCustomerController().Routes(e)
+	apis.MapCustomerEndpoints(e)
+	apis.MapProductEndpoints(e)
+	apis.MapReservationEndpoints(e)
 
-	e.Logger.Fatal(e.Start(":5100"))
+	e.Logger.Info(e.Start(":5100"))
 }
 
 func initConfiguration() {

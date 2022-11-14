@@ -1,10 +1,10 @@
 package middlewares
 
 import (
-	"happy_day/apis"
-	"happy_day/application"
-	"happy_day/infrastructure"
 	"net/http"
+
+	"happy_day/apis"
+	"happy_day/infrastructure"
 
 	"github.com/labstack/echo/v4"
 )
@@ -62,22 +62,22 @@ var (
 			Message: infrastructure.ErrProductNotFound.Error(),
 			Status:  http.StatusNotFound,
 		},
-		application.ErrProductAmountIsInvalid: {
+		infrastructure.ErrProductAmountIsInvalid: {
 			Type:    "/api/v1/products/amount-is-invalid",
 			Title:   "PROD002",
-			Message: application.ErrProductAmountIsInvalid.Error(),
+			Message: infrastructure.ErrProductAmountIsInvalid.Error(),
 			Status:  http.StatusUnprocessableEntity,
 		},
-		application.ErrProductNameIsEmpty: {
+		infrastructure.ErrProductNameIsEmpty: {
 			Type:    "/api/v1/products/name-is-empty",
 			Title:   "PROD003",
-			Message: application.ErrProductNameIsEmpty.Error(),
+			Message: infrastructure.ErrProductNameIsEmpty.Error(),
 			Status:  http.StatusBadRequest,
 		},
-		application.ErrProductPriceIsLessThanZero: {
+		infrastructure.ErrProductPriceIsLessThanZero: {
 			Type:    "/api/v1/products/price-is-less-than-zero",
 			Title:   "PROD004",
-			Message: application.ErrProductPriceIsLessThanZero.Error(),
+			Message: infrastructure.ErrProductPriceIsLessThanZero.Error(),
 			Status:  http.StatusUnprocessableEntity,
 		},
 
@@ -94,30 +94,30 @@ var (
 			Message: infrastructure.ErrCustomerNotFound.Error(),
 			Status:  http.StatusNotFound,
 		},
-		application.ErrCustomerNameIsEmpty: {
+		infrastructure.ErrCustomerNameIsEmpty: {
 			Type:    "/api/v1/customers/name-is-empty",
 			Title:   "CUS002",
-			Message: application.ErrCustomerNameIsEmpty.Error(),
+			Message: infrastructure.ErrCustomerNameIsEmpty.Error(),
 			Status:  http.StatusBadRequest,
 		},
-		application.ErrCustomerPhonesIsEmpty: {
+		infrastructure.ErrCustomerPhonesIsEmpty: {
 			Type:    "/api/v1/customers/phones-is-empty",
 			Title:   "CUS003",
-			Message: application.ErrCustomerPhonesIsEmpty.Error(),
+			Message: infrastructure.ErrCustomerPhonesIsEmpty.Error(),
 			Status:  http.StatusBadRequest,
 		},
-		application.ErrCustomerPhoneIsInvalid: {
+		infrastructure.ErrCustomerPhoneIsInvalid: {
 			Type:    "/api/v1/customers/phone-is-invalid",
 			Title:   "CUS004",
-			Message: application.ErrCustomerPhoneIsInvalid.Error(),
+			Message: infrastructure.ErrCustomerPhoneIsInvalid.Error(),
 			Status:  http.StatusUnprocessableEntity,
 		},
 
 		// Reservations
-		application.ErrProductListIsEmpty: {
+		infrastructure.ErrProductListIsEmpty: {
 			Type:    "/api/v1/reservations/product-list-is-empty",
 			Title:   "RSV000",
-			Message: application.ErrProductListIsEmpty.Error(),
+			Message: infrastructure.ErrProductListIsEmpty.Error(),
 			Status:  http.StatusBadRequest,
 		},
 
@@ -127,22 +127,22 @@ var (
 			Message: infrastructure.ErrOneProductNotFound.Error(),
 			Status:  http.StatusUnprocessableEntity,
 		},
-		application.ErrReservationAddressNumberIsInvalid: {
+		infrastructure.ErrReservationAddressNumberIsInvalid: {
 			Type:    "/api/v1/reservations/invalid-address-number",
 			Title:   "RSV002",
-			Message: application.ErrReservationAddressNumberIsInvalid.Error(),
+			Message: infrastructure.ErrReservationAddressNumberIsInvalid.Error(),
 			Status:  http.StatusUnprocessableEntity,
 		},
-		application.ErrReservationAddressStreetIsEmpty: {
+		infrastructure.ErrReservationAddressStreetIsEmpty: {
 			Type:    "/api/v1/reservations/address-street-is-empty",
 			Title:   "RSV003",
-			Message: application.ErrReservationAddressStreetIsEmpty.Error(),
+			Message: infrastructure.ErrReservationAddressStreetIsEmpty.Error(),
 			Status:  http.StatusBadRequest,
 		},
-		application.ErrReservationAddressPostalCodeIsEmpty: {
+		infrastructure.ErrReservationAddressPostalCodeIsEmpty: {
 			Type:    "/api/v1/reservations/address-postal-code-is-empty",
 			Title:   "RSV004",
-			Message: application.ErrReservationAddressPostalCodeIsEmpty.Error(),
+			Message: infrastructure.ErrReservationAddressPostalCodeIsEmpty.Error(),
 			Status:  http.StatusBadRequest,
 		},
 	}
