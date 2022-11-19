@@ -13,8 +13,7 @@ func ErrorMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(ctx echo.Context) error {
 		err := next(ctx)
 		if err != nil {
-			problem, exist := errors[err]
-			if exist {
+			if problem, exist := errors[err]; exist {
 				return ctx.JSON(problem.Status, problem)
 			}
 

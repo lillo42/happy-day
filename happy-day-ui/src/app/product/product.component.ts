@@ -51,8 +51,8 @@ export class ProductComponent implements OnInit {
       .pipe(
         tap(product => {
           this.formGroup.patchValue({...product});
-          this.formGroup.get("createAt")!.setValue(this.datePipe.transform(product.createdAt, 'dd/MM/yyyy HH:mm:ss'));
-          this.formGroup.get("modifyAt")!.setValue(this.datePipe.transform(product.modifiedAt, 'dd/MM/yyyy HH:mm:ss'));
+          this.formGroup.get("createdAt")!.setValue(this.datePipe.transform(product.createdAt, 'dd/MM/yyyy HH:mm:ss'));
+          this.formGroup.get("modifiedAt")!.setValue(this.datePipe.transform(product.modifiedAt, 'dd/MM/yyyy HH:mm:ss'));
           if(product.products === null) {
             return;
           }

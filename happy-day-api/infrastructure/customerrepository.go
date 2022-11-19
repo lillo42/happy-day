@@ -189,7 +189,7 @@ func (repository MongoDbCustomerRepository) Save(ctx context.Context, state cust
 	lastChange := state.ModifiedAt
 	state.ModifiedAt = time.Now().UTC()
 
-	res, err := collection.ReplaceOne(ctx, bson.M{"id": state.Id, "modifyAt": lastChange}, state)
+	res, err := collection.ReplaceOne(ctx, bson.M{"id": state.Id, "modifiedAt": lastChange}, state)
 
 	if res.ModifiedCount == 0 {
 		return state, ErrCustomerConcurrencyIssue
