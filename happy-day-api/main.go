@@ -11,16 +11,18 @@ import (
 
 func main() {
 	initConfiguration()
-
 	e := echo.New()
 
+	if isDebug() {
+		e.Debug = true
+	}
+
 	e.Use(middleware.LoggerWithConfig(middleware.DefaultLoggerConfig))
+	e.Use(middleware.Recover())
+
 	e.Use(middlewares.ErrorMiddleware)
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"*"},
-		AllowHeaders: []string{"*"},
-		AllowMethods: []string{"*"},
-	}))
+
+	e.Use(middleware.CORSWithConfig(getCorsConfig()))
 
 	apis.MapCustomerEndpoints(e)
 	apis.MapProductEndpoints(e)
@@ -40,4 +42,16 @@ func initConfiguration() {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func getCorsConfig() middleware.CORSConfig {
+	var config middleware.CORSConfig
+	config.AllowOrigins = viper.GetStringSlice("cors.allow_origins")
+	config.AllowHeaders = viper.GetStringSlice("cors.allow_headers")
+	config.AllowMethods = viper.GetStringSlice("cors.allow_methods")
+	return config
+}
+
+func isDebug() bool {
+	return viper.GetBool("is_debug")
 }

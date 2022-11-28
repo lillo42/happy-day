@@ -87,7 +87,7 @@ func uuidDecodeValue(_ bsoncodec.DecodeContext, reader bsonrw.ValueReader, value
 }
 
 func ProvideMongoDbOptions() *options.ClientOptions {
-	connectionString := viper.GetString("connectingStrings.mongo")
+	connectionString := viper.GetString("connecting_strings.mongo")
 
 	return options.Client().
 		ApplyURI(connectionString).
