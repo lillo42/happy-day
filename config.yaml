@@ -1,9 +1,0 @@
-auth0:
-  authority: "https://unique-pet-dev.eu.auth0.com/"
-  audience: "api:unique-api-service"
-  domain: "unique-pet-dev.eu.auth0.com"
-  clientId: "BiZ0KtuUK5UylB7vZqn8PCrsa2HaTyLI"
-
-isDebug: true
-connectingStrings:
-  mongo: "mongodb://root:HappyDay%40123@localhost:27017"

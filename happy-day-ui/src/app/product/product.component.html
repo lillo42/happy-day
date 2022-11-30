@@ -1,0 +1,90 @@
+<div mat-dialog-title class="container align-center" *ngIf="isCreateMode()">
+  {{CREATE_TITLE}}
+</div>
+
+<div mat-dialog-title class="container align-center" *ngIf="isChangeMode()">
+  {{CHANGE_TITLE}}
+</div>
+
+<div mat-dialog-title class="container align-center" *ngIf="isDeleteMode()">
+  {{DELETE_TITLE}}
+</div>
+
+<div mat-dialog-content>
+  <form [formGroup]="formGroup" class="container col">
+
+    <mat-form-field appearance="outline" *ngIf="!isCreateMode()">
+      <mat-label>Id</mat-label>
+      <input matInput formControlName="id" readonly="true" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" [readonly]="isDeleteMode()" />
+      <mat-error *ngIf="formGroup.get('name')!.hasError('required')">Nome obrigatório</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Preço</mat-label>
+      <span matPrefix>R$ &nbsp;</span>
+      <input matInput formControlName="price" [readonly]="isDeleteMode()" type="number" />
+      <mat-error *ngIf="formGroup.get('price')!.hasError('required')">Preço obrigatório</mat-error>
+      <mat-error *ngIf="formGroup.get('price')!.hasError('min')">Preço deve ser maior que 0</mat-error>
+    </mat-form-field>
+
+    <ng-container formArrayName="products">
+      <ng-container *ngFor="let product of products.controls; let i = index">
+        <div class="container row content-center item-listing wrap" [formGroupName]="i">
+
+          <mat-form-field appearance="outline">
+            <mat-label>Id</mat-label>
+            <input matInput formControlName="id" readonly=true />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Nome</mat-label>
+            <input matInput formControlName="name" [readonly]="isDeleteMode()" [matAutocomplete]="auto"/>
+            <mat-autocomplete #auto="matAutocomplete">
+              <mat-option *ngFor="let option of filterProducts$ | async" [value]="option.name" (onSelectionChange)="productSelected(option, i)">
+                {{option.name}}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Quantidade</mat-label>
+            <input matInput  placeholder="123456789" formControlName="quantity" [readonly]="isDeleteMode()" type="number" />
+            <mat-error *ngIf="product.get('quantity')!.hasError('required')">Quantidade obrigatório</mat-error>
+            <mat-error *ngIf="product.get('quantity')!.hasError('min')">Quantidade precisa ser maior que 0</mat-error>
+          </mat-form-field>
+
+          <button mat-mini-fab matTooltip="Remove produto" (click)="deleteProduct(i)" *ngIf="!isDeleteMode()">
+            <mat-icon>delete_forever</mat-icon>
+          </button>
+        </div>
+      </ng-container>
+    </ng-container>
+
+    <div class="container row content-center">
+      <button mat-mini-fab matTooltip="Adicionar novo produto" (click)="addProduct()" *ngIf="!isDeleteMode()">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+
+    <mat-form-field appearance="outline" *ngIf="!isCreateMode()">
+      <mat-label>Criado em</mat-label>
+      <input matInput formControlName="createdAt" readonly=true />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" *ngIf="!isCreateMode()">
+      <mat-label>Modificado em</mat-label>
+      <input matInput formControlName="modifiedAt" readonly=true />
+    </mat-form-field>
+
+    <div class="container row content-center actions-buttons">
+      <button mat-raised-button matTooltip="Salvar" color="primary" *ngIf="!isDeleteMode()" (click)="save()" type="submit"><mat-icon>done</mat-icon></button>
+      <button mat-raised-button matTooltip="Deletar" color="warn" *ngIf="isDeleteMode()" (click)="delete()"><mat-icon>delete</mat-icon></button>
+      <button mat-raised-button matTooltip="Cancelar" (click)="cancel()"><mat-icon>cancel</mat-icon></button>
+    </div>
+  </form>
+</div>

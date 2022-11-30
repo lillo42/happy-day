@@ -16,3 +16,5 @@
 
 .idea/
 .fleet/
+bin/
+.DS_Store
