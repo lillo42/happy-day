@@ -9,7 +9,6 @@ import (
 	"happy_day/domain/customer"
 	"happy_day/infrastructure"
 
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -71,7 +70,7 @@ func TestCreateOrChangeCustomerHandlerWhenErrToGetById(t *testing.T) {
 	handler := ChangeOrCreateHandler{repository: repo}
 	_, err := handler.Handle(context.Background(), ChangeOrCreateRequest{
 		State: customer.State{
-			Id:   uuid.New(),
+			ID:   1,
 			Name: common.RandString(10),
 			Phones: []customer.Phone{
 				{

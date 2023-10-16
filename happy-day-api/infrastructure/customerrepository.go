@@ -3,32 +3,28 @@ package infrastructure
 import (
 	"context"
 	"errors"
+	"gorm.io/gorm"
 	"math"
 	"time"
 
 	"happy_day/domain/customer"
 
 	"github.com/google/uuid"
-	"github.com/stretchr/testify/mock"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const (
 	CustomersCollection = "customers"
 
-	CustomerIdAsc       CustomerSortBy = "id_asc"
-	CustomerIdDesc      CustomerSortBy = "id_desc"
-	CustomerNameAsc     CustomerSortBy = "name_asc"
-	CustomerNameDesc    CustomerSortBy = "name_desc"
-	CustomerCommentAsc  CustomerSortBy = "comment_asc"
-	CustomerCommentDesc CustomerSortBy = "comment_desc"
+	CustomerIdAsc       CustomerSortBy = "id"
+	CustomerIdDesc      CustomerSortBy = "id desc"
+	CustomerNameAsc     CustomerSortBy = "name"
+	CustomerNameDesc    CustomerSortBy = "name desc"
+	CustomerCommentAsc  CustomerSortBy = "comment"
+	CustomerCommentDesc CustomerSortBy = "comment desc"
 )
 
 var (
-	_ CustomerRepository = (*MockCustomerRepository)(nil)
-	_ CustomerRepository = (*MongoDbCustomerRepository)(nil)
+	_ CustomerRepository = (*GormCustomerRepository)(nil)
 
 	ErrCustomerConcurrencyIssue = errors.New("product concurrency issue")
 	ErrCustomerNotFound         = errors.New("product not found")
@@ -37,177 +33,191 @@ var (
 type (
 	CustomerSortBy string
 	CustomerFilter struct {
-		Text   string
-		Page   int64
-		Size   int64
-		SortBy CustomerSortBy
+		Name    string
+		Comment string
+		Page    int64
+		Size    int64
+		SortBy  CustomerSortBy
 	}
 
 	CustomerRepository interface {
-		GetById(ctx context.Context, id uuid.UUID) (customer.State, error)
+		GetById(ctx context.Context, id uint) (customer.State, error)
 		GetAll(ctx context.Context, filter CustomerFilter) (Page[customer.State], error)
 
 		Save(ctx context.Context, state customer.State) (customer.State, error)
-		Delete(ctx context.Context, id uuid.UUID) error
+		Delete(ctx context.Context, id uint) error
 	}
 
-	MongoDbCustomerRepository struct {
-		MongoDbRepository
-	}
-
-	MockCustomerRepository struct {
-		mock.Mock
+	GormCustomerRepository struct {
+		db *gorm.DB
 	}
 )
 
-func (repository *MockCustomerRepository) GetById(ctx context.Context, id uuid.UUID) (customer.State, error) {
-	args := repository.Called(ctx, id)
-	return args.Get(0).(customer.State), args.Error(1)
-}
+func (repository *GormCustomerRepository) GetById(ctx context.Context, id uint) (customer.State, error) {
+	var customerDB Customer
 
-func (repository *MockCustomerRepository) GetAll(ctx context.Context, filter CustomerFilter) (Page[customer.State], error) {
-	args := repository.Called(ctx, filter)
-	return args.Get(0).(Page[customer.State]), args.Error(1)
-}
+	db := repository.db.
+		WithContext(ctx).
+		First(&customerDB, id)
 
-func (repository *MockCustomerRepository) Save(ctx context.Context, state customer.State) (customer.State, error) {
-	args := repository.Called(ctx, state)
-	return args.Get(0).(customer.State), args.Error(1)
-}
+	if db.Error != nil {
+		err := db.Error
+		if errors.Is(db.Error, gorm.ErrRecordNotFound) {
+			err = ErrCustomerNotFound
+		}
 
-func (repository *MockCustomerRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	args := repository.Called(ctx, id)
-	return args.Error(0)
-}
-
-func (repository MongoDbCustomerRepository) GetAll(ctx context.Context, filter CustomerFilter) (Page[customer.State], error) {
-	opt := options.Find().
-		SetSkip((filter.Page - 1) * filter.Size).
-		SetLimit(filter.Size)
-
-	if filter.SortBy == CustomerIdAsc {
-		opt.SetSort(bson.D{{"id", 1}})
-	} else if filter.SortBy == CustomerIdDesc {
-		opt.SetSort(bson.D{{"id", -1}})
-	} else if filter.SortBy == CustomerNameAsc {
-		opt.SetSort(bson.D{{"name", 1}})
-	} else if filter.SortBy == CustomerNameDesc {
-		opt.SetSort(bson.D{{"name", -1}})
-	} else if filter.SortBy == CustomerCommentAsc {
-		opt.SetSort(bson.D{{"comment", 1}})
-	} else if filter.SortBy == CustomerCommentDesc {
-		opt.SetSort(bson.D{{"comment", -1}})
+		return customer.State{}, err
 	}
 
-	query := bson.M{}
-	if len(filter.Text) > 0 {
-		query["$or"] = []interface{}{
-			bson.M{"id": bson.M{"$regex": filter.Text, "$options": "im"}},
-			bson.M{"name": bson.M{"$regex": filter.Text, "$options": "im"}},
-			bson.M{"comment": bson.M{"$regex": filter.Text, "$options": "im"}},
-			bson.M{"phones": bson.M{"$elemMatch": bson.M{"number": bson.M{"$regex": filter.Text, "$options": "im"}}}},
+	state := customer.State{
+		ID:        customerDB.ID,
+		Name:      customerDB.Name,
+		Comment:   customerDB.Comment,
+		Phones:    make([]customer.Phone, len(customerDB.Phones)),
+		CreatedAt: customerDB.CreatedAt,
+		UpdateAt:  customerDB.UpdatedAt,
+	}
+
+	for phoneIndex, phone := range customerDB.Phones {
+		state.Phones[phoneIndex] = customer.Phone{
+			Number: phone.Number,
 		}
 	}
 
-	client, err := repository.CreateClient(ctx)
+	return state, nil
+}
+
+func (repository *GormCustomerRepository) GetAll(ctx context.Context, filter CustomerFilter) (Page[customer.State], error) {
+	db := repository.db.WithContext(ctx)
+
+	if len(filter.Name) > 0 {
+		db.Where("name LIKE ?", "%"+filter.Name+"%")
+	}
+
+	if len(filter.Comment) > 0 {
+		db.Where("comment LIKE ?", "%"+filter.Comment+"%")
+	}
+
+	var counter *int64
+	db.Count(counter)
+
 	var page Page[customer.State]
-	if err != nil {
-		return page, err
+	if db.Error != nil {
+		return page, db.Error
 	}
 
-	defer client.Disconnect(ctx)
-	collection := client.
-		Database(Database).
-		Collection(CustomersCollection)
+	var customers []Customer
+	db.
+		Limit(int(filter.Size)).
+		Offset(int((filter.Page - 1) * filter.Size)).
+		Order(filter.SortBy).
+		Preload("Phones").
+		Find(&customers)
 
-	totalElements, err := collection.CountDocuments(ctx, query)
-	if err != nil {
-		return page, err
+	if db.Error != nil {
+		return page, db.Error
 	}
 
-	page.Items = make([]customer.State, 0)
-	page.TotalElements = totalElements
-	if totalElements > 0 {
-		tmp := float64(totalElements) / float64(filter.Size)
+	total := *counter
+	page.TotalPages = page.TotalElements
+	page.Items = make([]customer.State, len(customers))
+	page.TotalElements = total
+	if total > 0 {
+		tmp := float64(total) / float64(filter.Size)
 		tmp = math.Ceil(tmp)
 		page.TotalPages = int64(tmp)
 	}
 
-	cursor, err := collection.Find(ctx, query, opt)
-	if err != nil {
-		return page, err
+	for index, customerDB := range customers {
+		state := customer.State{
+			ID:        customerDB.ID,
+			Name:      customerDB.Name,
+			Comment:   customerDB.Comment,
+			Phones:    make([]customer.Phone, len(customerDB.Phones)),
+			CreatedAt: customerDB.CreatedAt,
+			UpdateAt:  customerDB.UpdatedAt,
+		}
+
+		for phoneIndex, phone := range customerDB.Phones {
+			state.Phones[phoneIndex] = customer.Phone{
+				Number: phone.Number,
+			}
+		}
+
+		page.Items[index] = state
 	}
 
-	err = cursor.All(ctx, &page.Items)
 	return page, nil
 }
 
-func (repository MongoDbCustomerRepository) GetById(ctx context.Context, id uuid.UUID) (customer.State, error) {
-	query := bson.M{"id": id}
-	client, err := repository.CreateClient(ctx)
+func (repository *GormCustomerRepository) Save(ctx context.Context, state customer.State) (customer.State, error) {
+	customerDB := &Customer{
+		ID:        state.ID,
+		Name:      state.Name,
+		Comment:   state.Comment,
+		CreatedAt: state.CreatedAt,
+		UpdatedAt: time.Now(),
+	}
+
+	err := repository.db.
+		WithContext(ctx).
+		Transaction(func(tx *gorm.DB) error {
+
+			tx.WithContext(ctx)
+
+			if customerDB.ID > 0 {
+				tx.Where("updateAt = ?", state.UpdateAt)
+			}
+
+			tx.Save(customerDB)
+
+			if tx.Error != nil {
+				return tx.Error
+			}
+
+			if tx.RowsAffected == 0 {
+				return ErrCustomerConcurrencyIssue
+			}
+
+			tx.
+				WithContext(ctx).
+				Where("customerID = ?", customerDB.ID).
+				Delete(&CustomerPhone{})
+
+			if tx.Error != nil {
+				return tx.Error
+			}
+
+			for _, phone := range state.Phones {
+				tx.Save(&CustomerPhone{
+					ID:         uuid.New(),
+					CustomerID: customerDB.ID,
+					Number:     phone.Number,
+				})
+
+				if tx.Error != nil {
+					return tx.Error
+				}
+			}
+
+			return nil
+		})
+
 	if err != nil {
 		return customer.State{}, err
 	}
 
-	defer client.Disconnect(ctx)
-	decode := client.Database(Database).
-		Collection(CustomersCollection).
-		FindOne(ctx, query)
-
-	err = decode.Err()
-	if err == mongo.ErrNoDocuments {
-		return customer.State{}, ErrCustomerNotFound
-	}
-
-	if err != nil {
-		return customer.State{}, err
-	}
-
-	var state customer.State
-	err = decode.Decode(&state)
-	return state, nil
+	return repository.GetById(ctx, customerDB.ID)
 }
 
-func (repository MongoDbCustomerRepository) Save(ctx context.Context, state customer.State) (customer.State, error) {
-	client, err := repository.CreateClient(ctx)
-	if err != nil {
-		return customer.State{}, err
+func (repository *GormCustomerRepository) Delete(ctx context.Context, id uint) error {
+	db := repository.db.
+		WithContext(ctx).
+		Delete(&Customer{}, id)
+
+	if errors.Is(db.Error, gorm.ErrRecordNotFound) {
+		return nil
 	}
 
-	defer client.Disconnect(ctx)
-	collection := client.Database(Database).
-		Collection(CustomersCollection)
-
-	if state.Id == uuid.Nil {
-		state.Id = uuid.New()
-		state.CreatedAt = time.Now().UTC()
-		state.ModifiedAt = time.Now().UTC()
-		_, err = collection.InsertOne(ctx, state)
-		return state, err
-	}
-
-	lastChange := state.ModifiedAt
-	state.ModifiedAt = time.Now().UTC()
-
-	res, err := collection.ReplaceOne(ctx, bson.M{"id": state.Id, "modifiedAt": lastChange}, state)
-
-	if res.ModifiedCount == 0 {
-		return state, ErrCustomerConcurrencyIssue
-	}
-
-	return state, err
-}
-
-func (repository MongoDbCustomerRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	query := bson.M{"id": id}
-	client, err := repository.CreateClient(ctx)
-	if err != nil {
-		return err
-	}
-
-	defer client.Disconnect(ctx)
-	_, err = client.Database(Database).
-		Collection(CustomersCollection).
-		DeleteOne(ctx, query)
-	return err
+	return db.Error
 }

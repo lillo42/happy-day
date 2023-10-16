@@ -1,20 +1,23 @@
 package infrastructure
 
 import (
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"time"
 )
 
 type Customer struct {
-	gorm.Model
+	ID          uint   `gorm:"primaryKey"`
 	Name        string `gorm:"size:255;not null;index"`
-	Comment     *string
+	Comment     string
 	Phones      []CustomerPhone
 	Reservation []Reservation
+	CreatedAt   time.Time `gorm:"not null"`
+	UpdatedAt   time.Time `gorm:"not null;index"`
 }
 
 type CustomerPhone struct {
-	ID         uint      `gorm:"primaryKey"`
+	ID         uuid.UUID `gorm:"primaryKey"`
 	CustomerID uint      `gorm:"not null;index"`
 	Number     string    `gorm:"size:20"`
 	Customer   *Customer `gorm:"foreignKey:CustomerID"`
@@ -34,7 +37,7 @@ type Reservation struct {
 	FinalPrice         float64 `gorm:"precision:19;scale:2;not null"`
 	Comment            *string
 	CustomerID         uint                `gorm:"not null"`
-	Customer           *Customer           `gorm:"foreignKey:CustomerId"`
+	Customer           *Customer           `gorm:"foreignKey:CustomerID"`
 	AddressID          uint                `gorm:"not null"`
 	Address            *ReservationAddress `gorm:"foreignKey:AddressID"`
 	Product            []ReservationProduct

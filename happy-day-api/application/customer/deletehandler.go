@@ -2,15 +2,12 @@ package customer
 
 import (
 	"context"
-
 	"happy_day/infrastructure"
-
-	"github.com/google/uuid"
 )
 
 type (
 	DeleteRequest struct {
-		Id uuid.UUID `json:"id"`
+		Id uint `json:"id"`
 	}
 
 	DeleteHandler struct {

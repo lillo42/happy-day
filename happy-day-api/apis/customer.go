@@ -1,14 +1,12 @@
 package apis
 
 import (
+	"github.com/labstack/echo/v4"
+	"happy_day/infrastructure"
 	"net/http"
 	"strconv"
 
 	"happy_day/application/customer"
-	"happy_day/infrastructure"
-
-	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
 )
 
 func MapCustomerEndpoints(e *echo.Echo) {
@@ -22,7 +20,8 @@ func MapCustomerEndpoints(e *echo.Echo) {
 
 func getAllCustomers(ctx echo.Context) error {
 	var filter infrastructure.CustomerFilter
-	filter.Text = ctx.QueryParam("text")
+	filter.Name = ctx.QueryParam("name")
+	filter.Comment = ctx.QueryParam("comment")
 	filter.Size, _ = strconv.ParseInt(ctx.QueryParam("size"), 10, 64)
 	filter.Page, _ = strconv.ParseInt(ctx.QueryParam("page"), 10, 64)
 	filter.SortBy = infrastructure.CustomerNameAsc
@@ -46,7 +45,7 @@ func createCustomer(ctx echo.Context) error {
 		return ErrInvalidBody
 	}
 
-	req.Id = uuid.Nil
+	req.ID = 0
 	res, err := initializeChangeOrCreateCustomerHandler().Handle(ctx.Request().Context(), req)
 	if err != nil {
 		return err
@@ -61,12 +60,12 @@ func updateCustomer(ctx echo.Context) error {
 		return ErrInvalidBody
 	}
 
-	id, err := uuid.Parse(ctx.Param("id"))
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
 	if err != nil {
 		return infrastructure.ErrCustomerNotFound
 	}
 
-	req.Id = id
+	req.ID = uint(id)
 	res, err := initializeChangeOrCreateCustomerHandler().Handle(ctx.Request().Context(), req)
 	if err != nil {
 		return err
@@ -76,12 +75,12 @@ func updateCustomer(ctx echo.Context) error {
 }
 
 func getCustomerById(ctx echo.Context) error {
-	id, err := uuid.Parse(ctx.Param("id"))
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
 	if err != nil {
 		return infrastructure.ErrCustomerNotFound
 	}
 
-	res, err := initializeGetCustomerByIdHandler().Handle(ctx.Request().Context(), id)
+	res, err := initializeGetCustomerByIdHandler().Handle(ctx.Request().Context(), uint(id))
 	if err != nil {
 		return err
 	}
@@ -90,12 +89,12 @@ func getCustomerById(ctx echo.Context) error {
 }
 
 func deleteCustomer(ctx echo.Context) error {
-	id, err := uuid.Parse(ctx.Param("id"))
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
 	if err != nil {
 		return infrastructure.ErrCustomerNotFound
 	}
 
-	req := customer.DeleteRequest{Id: id}
+	req := customer.DeleteRequest{Id: uint(id)}
 	err = initializeDeleteCustomerHandler().Handle(ctx.Request().Context(), req)
 	if err != nil {
 		return err

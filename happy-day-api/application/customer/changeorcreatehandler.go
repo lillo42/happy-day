@@ -6,7 +6,6 @@ import (
 	"happy_day/domain/customer"
 	"happy_day/infrastructure"
 
-	"github.com/google/uuid"
 	"golang.org/x/net/context"
 )
 
@@ -26,14 +25,14 @@ func (handler ChangeOrCreateHandler) Handle(ctx context.Context, req ChangeOrCre
 		return req.State, err
 	}
 
-	if req.Id != uuid.Nil {
-		state, err := handler.repository.GetById(ctx, req.Id)
+	if req.ID > 0 {
+		state, err := handler.repository.GetById(ctx, req.ID)
 		if err != nil {
 			return state, err
 		}
 
 		req.CreatedAt = state.CreatedAt
-		req.ModifiedAt = state.ModifiedAt
+		req.UpdateAt = state.UpdateAt
 	}
 
 	return handler.repository.Save(ctx, req.State)

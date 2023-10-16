@@ -14,9 +14,10 @@ import (
 
 func TestGetAllCustomers(t *testing.T) {
 	req := infrastructure.CustomerFilter{
-		Page: 0,
-		Size: 0,
-		Text: common.RandString(10),
+		Page:    0,
+		Size:    0,
+		Name:    common.RandString(10),
+		Comment: common.RandString(10),
 	}
 
 	repo := &infrastructure.MockCustomerRepository{}
