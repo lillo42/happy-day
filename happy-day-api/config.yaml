@@ -1,8 +1,0 @@
-is_debug: true
-connecting_strings:
-  mongo: "mongodb://root:HappyDay%40123@localhost:27017"
-
-cors:
-  allow_methods: [ "GET", "POST", "PUT", "DELETE", "OPTIONS" ]
-  allow_headers: [ "*" ]
-  allow_origins: [ "*" ]
