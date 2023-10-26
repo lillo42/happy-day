@@ -1,23 +1,22 @@
 package products
 
 import (
+	"context"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"go.uber.org/zap"
-	"gorm.io/gorm"
 	"happyday/infra"
+	"log/slog"
 	"net/http"
 	"strconv"
 )
 
 func Map(router *gin.RouterGroup) {
-	db := GormFactory()
-
-	db.AutoMigrate(&infra.Product{}, &infra.BoxProduct{})
 	r := router.Group("/products")
 
 	r.DELETE("/:id", func(context *gin.Context) {
+		logger := infra.ResolverLogger(context)
+
 		value := context.Param("id")
 		id, err := uuid.Parse(value)
 
@@ -26,32 +25,50 @@ func Map(router *gin.RouterGroup) {
 			return
 		}
 
-		command := createCommand()
+		command := createCommand(context)
+
+		logger.InfoContext(context, "going to delete product", slog.String("id", id.String()))
 		err = command.Delete(context, id)
 		if err != nil {
+			logger.WarnContext(context, "error during delete",
+				slog.String("id", id.String()),
+				slog.Any("err", err),
+			)
+
 			writeError(context, err)
-		} else {
-			context.Status(http.StatusNoContent)
+			return
 		}
+
+		logger.InfoContext(context, "delete product with success", slog.String("id", id.String()))
+		context.Status(http.StatusNoContent)
 	})
 
 	r.POST("", func(context *gin.Context) {
+		logger := infra.ResolverLogger(context)
+
 		var req CreateOrChange
 		if err := context.BindJSON(&req); err != nil {
+			slog.WarnContext(context, "error during json bind", slog.Any("err", err))
 			context.JSON(BadRequest.Status, &BadRequest)
 			return
 		}
 
-		command := createCommand()
+		command := createCommand(context)
+		logger.InfoContext(context, "going to create product")
 		product, err := command.CreateOrChange(context, req)
 		if err != nil {
+			logger.WarnContext(context, "error during product creating", slog.Any("err", err))
 			writeError(context, err)
-		} else {
-			context.JSON(http.StatusCreated, &product)
+			return
 		}
+
+		logger.InfoContext(context, "product created with success", slog.String("id", product.ID.String()))
+		context.JSON(http.StatusCreated, &product)
 	})
 
 	r.PUT("/:id", func(context *gin.Context) {
+		logger := infra.ResolverLogger(context)
+
 		val := context.Param("id")
 		id, err := uuid.Parse(val)
 
@@ -62,21 +79,32 @@ func Map(router *gin.RouterGroup) {
 
 		var req CreateOrChange
 		if err := context.BindJSON(&req); err != nil {
+			logger.WarnContext(context, "error during json bind",
+				slog.Any("err", err),
+				slog.String("id", id.String()),
+			)
 			context.JSON(BadRequest.Status, &BadRequest)
 			return
 		}
 
 		req.ID = id
-		command := createCommand()
+		command := createCommand(context)
+
+		logger.InfoContext(context, "going to change product", slog.String("id", id.String()))
 		product, err := command.CreateOrChange(context, req)
 		if err != nil {
+			logger.WarnContext(context, "error during change customer", slog.Any("err", err))
 			writeError(context, err)
-		} else {
-			context.JSON(http.StatusOK, &product)
+			return
 		}
+
+		logger.InfoContext(context, "product change with success", slog.String("id", id.String()))
+		context.JSON(http.StatusOK, &product)
 	})
 
 	r.GET("/:id", func(context *gin.Context) {
+		logger := infra.ResolverLogger(context)
+
 		val := context.Param("id")
 		id, err := uuid.Parse(val)
 
@@ -85,18 +113,27 @@ func Map(router *gin.RouterGroup) {
 			return
 		}
 
-		repo := createRepository()
+		repo := createRepository(context)
 		prod, err := repo.GetOrCreate(context, id)
 		if err != nil {
+			logger.WarnContext(context, "error during get product", slog.Any("err", err))
 			writeError(context, err)
-		} else if prod.Version == 0 {
-			context.JSON(NotFound.Status, &NotFound)
-		} else {
-			context.JSON(http.StatusOK, &prod)
+			return
 		}
+
+		if prod.Version == 0 {
+			logger.InfoContext(context, "product not found", slog.String("id", id.String()))
+			context.JSON(NotFound.Status, &NotFound)
+			return
+		}
+
+		logger.InfoContext(context, "product get with success", slog.String("id", id.String()))
+		context.JSON(http.StatusOK, &prod)
 	})
 
 	r.GET("", func(context *gin.Context) {
+		logger := infra.ResolverLogger(context)
+
 		val := context.Query("page")
 		page, _ := strconv.ParseUint(val, 10, 64)
 		if page > 0 {
@@ -115,23 +152,35 @@ func Map(router *gin.RouterGroup) {
 			Size: int(size),
 		}
 
-		repository := createRepository()
+		repository := createRepository(context)
+		logger.InfoContext(context, "going to get all product",
+			slog.String("name", filter.Name),
+			slog.Uint64("page", page),
+			slog.Uint64("size", size),
+		)
 		res, err := repository.GetAll(context, filter)
 
 		if err != nil {
+			logger.WarnContext(context, "error during get all customer", slog.Any("err", err),
+				slog.String("name", filter.Name),
+				slog.Uint64("page", page),
+				slog.Uint64("size", size),
+			)
 			writeError(context, err)
-		} else {
-			context.JSON(http.StatusOK, res)
+			return
 		}
+
+		logger.InfoContext(context, "get all product with success")
+		context.JSON(http.StatusOK, res)
 	})
 }
 
 func writeError(context *gin.Context, err error) {
-	problem := mapErrorToProblemDetails(err)
+	problem := mapErrorToProblemDetails(context, err)
 	context.JSON(problem.Status, problem)
 }
 
-func mapErrorToProblemDetails(err error) infra.ProblemDetails {
+func mapErrorToProblemDetails(context *gin.Context, err error) infra.ProblemDetails {
 	if errors.Is(err, ErrProductNotExists) {
 		return NotFound
 	}
@@ -152,29 +201,28 @@ func mapErrorToProblemDetails(err error) infra.ProblemDetails {
 		return BoxProductNotExists
 	}
 
-	Logger.Error("unmapped exception", zap.Error(err))
+	if errors.Is(err, ErrConcurrencyUpdate) {
+		return ConcurrencyIssue
+	}
+
+	logger := infra.ResolverLogger(context)
+	logger.ErrorContext(context, "unmapped exception", slog.Any("err", err))
 	return InternalErrorServer
 }
 
-func createCommand() *Command {
+func createCommand(ctx context.Context) *Command {
 	return &Command{
-		repository: &GormProductRepository{
-			db: GormFactory(),
-		},
+		repository: createRepository(ctx),
 	}
 }
 
-func createRepository() ProductRepository {
+func createRepository(ctx context.Context) ProductRepository {
 	return &GormProductRepository{
-		db: GormFactory(),
+		db: infra.GormFactory(ctx),
 	}
 }
 
 var (
-	GormFactory func() *gorm.DB
-
-	Logger *zap.Logger
-
 	InternalErrorServer = infra.ProblemDetails{
 		Status: http.StatusInternalServerError,
 		Type:   "internal-error-server",

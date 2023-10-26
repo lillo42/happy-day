@@ -157,9 +157,13 @@ func (g *GormProductRepository) Save(ctx context.Context, product Product) (Prod
 
 	err := g.db.WithContext(ctx).
 		Transaction(func(tx *gorm.DB) error {
-			result := tx.Save(&productDB)
+			result := tx.Where("version = ?", product.Version).Save(&productDB)
 			if result.Error != nil {
 				return result.Error
+			}
+
+			if result.RowsAffected == 0 {
+				return ErrConcurrencyUpdate
 			}
 
 			result = tx.Delete(&infra.BoxProduct{}, "parent_id = ?", productDB.ID)

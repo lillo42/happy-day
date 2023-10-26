@@ -1,15 +1,18 @@
 package products
 
 import (
+	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/sqlite"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 	"happyday/infra"
+	"log"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -18,16 +21,27 @@ import (
 var engine *gin.Engine
 
 func init() {
-	GormFactory = func() *gorm.DB {
-		db, err := gorm.Open(sqlite.Open("../integration-test.db"), &gorm.Config{})
-		if err != nil {
-			panic(err)
-		}
+	if infra.GormFactory != nil {
+		infra.GormFactory = func(ctx context.Context) *gorm.DB {
+			db, err := gorm.Open(sqlite.Open("../integration-test.db"), &gorm.Config{
+				Logger: logger.New(
+					log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
+					logger.Config{
+						LogLevel:                  logger.Silent,
+						IgnoreRecordNotFoundError: true,
+						Colorful:                  false,
+					}),
+			})
+			if err != nil {
+				panic(err)
+			}
 
-		return db
+			return db
+		}
 	}
 
-	Logger, _ = zap.NewDevelopment()
+	_ = infra.GormFactory(context.Background()).
+		AutoMigrate(&infra.Product{}, &infra.BoxProduct{})
 
 	gin.SetMode(gin.TestMode)
 	engine = gin.Default()
@@ -93,7 +107,7 @@ func TestHttpPutShouldResponse400WhenBodyIsEmpty(t *testing.T) {
 func TestHttpPutShouldResponse422WhenBodyIsInvalid(t *testing.T) {
 	id := uuid.New()
 
-	db := GormFactory()
+	db := infra.GormFactory(context.Background()).Session(&gorm.Session{})
 	db.Save(&infra.Product{
 		ExternalID: id,
 		Name:       "Lorem Ipsum",
@@ -111,7 +125,7 @@ func TestHttpPutShouldResponse422WhenBodyIsInvalid(t *testing.T) {
 func TestHttpPut(t *testing.T) {
 	id := uuid.New()
 
-	db := GormFactory()
+	db := infra.GormFactory(context.Background()).Session(&gorm.Session{})
 	db.Save(&infra.Product{
 		ExternalID: id,
 		Name:       "Lorem Ipsum",
@@ -145,7 +159,7 @@ func TestHttpGetShouldResponse404WhenProductNotExists(t *testing.T) {
 func TestHttpGetShouldResponse200(t *testing.T) {
 	id := uuid.New()
 
-	db := GormFactory()
+	db := infra.GormFactory(context.Background()).Session(&gorm.Session{})
 	db.Save(&infra.Product{
 		ExternalID: id,
 		Name:       "Lorem Ipsum",

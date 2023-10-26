@@ -1,0 +1,13 @@
+version: "3"
+volumes:
+  happy-day-postgres:
+services:
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_DB: happy_day
+      POSTGRES_PASSWORD: HappyDay$123
+    ports:
+      - "5432:5432"
+    volumes:
+      - "happy-day-postgres:/var/lib/postgresql/data"

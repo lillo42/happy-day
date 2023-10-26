@@ -1,23 +1,21 @@
 package customers
 
 import (
+	"context"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"go.uber.org/zap"
-	"gorm.io/gorm"
 	"happyday/infra"
+	"log/slog"
 	"net/http"
 	"strconv"
 )
 
 func Map(router *gin.RouterGroup) {
-	db := GormFactory()
-
-	db.AutoMigrate(&infra.Customer{})
-
 	r := router.Group("/customers")
 	r.GET("", func(context *gin.Context) {
+		logger := infra.ResolverLogger(context)
+
 		val := context.Query("page")
 		page, _ := strconv.ParseUint(val, 10, 64)
 		if page > 0 {
@@ -38,17 +36,37 @@ func Map(router *gin.RouterGroup) {
 			Size:    int(size),
 		}
 
-		repository := createRepository()
+		repository := createRepository(context)
+
+		logger.InfoContext(context, "going to get all customer",
+			slog.String("name", filter.Name),
+			slog.String("comment", filter.Comment),
+			slog.String("phone", filter.Phone),
+			slog.Uint64("page", page),
+			slog.Uint64("size", size),
+		)
+
 		res, err := repository.GetAll(context, filter)
 
 		if err != nil {
+			logger.WarnContext(context, "error during get all customer", slog.Any("err", err),
+				slog.String("name", filter.Name),
+				slog.String("comment", filter.Comment),
+				slog.String("phone", filter.Phone),
+				slog.Uint64("page", page),
+				slog.Uint64("size", size),
+			)
 			writeError(context, err)
-		} else {
-			context.JSON(http.StatusOK, res)
+			return
 		}
+
+		logger.InfoContext(context, "get all customer with success")
+		context.JSON(http.StatusOK, res)
 	})
 
 	r.GET("/:id", func(context *gin.Context) {
+		logger := infra.ResolverLogger(context)
+
 		value := context.Param("id")
 		id, err := uuid.Parse(value)
 
@@ -57,40 +75,54 @@ func Map(router *gin.RouterGroup) {
 			return
 		}
 
-		repo := createRepository()
+		repo := createRepository(context)
+
+		logger.InfoContext(context, "going to get customer", slog.String("id", id.String()))
 		customer, err := repo.GetOrCreate(context, id)
 		if err != nil {
+			logger.WarnContext(context, "error during get customer", slog.Any("err", err))
 			writeError(context, err)
 			return
 		}
 
 		if customer.Version == 0 {
+			logger.InfoContext(context, "customer not found", slog.String("id", id.String()))
 			context.JSON(NotFound.Status, &NotFound)
 			return
 		}
 
+		logger.InfoContext(context, "customer get with success", slog.String("id", id.String()))
 		context.JSON(http.StatusOK, customer)
 	})
 
 	r.POST("", func(context *gin.Context) {
+		logger := infra.ResolverLogger(context)
+
 		var req CreateOrChangeCustomer
 		if err := context.BindJSON(&req); err != nil {
+			logger.WarnContext(context, "error during json bind", slog.Any("err", err))
 			context.JSON(BadRequest.Status, BadRequest)
 			return
 		}
 
 		req.ID = uuid.New()
+		command := createCommand(context)
 
-		command := createCommand()
+		logger.InfoContext(context, "going to create customer")
 		customer, err := command.CreateOrChange(context, req)
 		if err != nil {
+			logger.WarnContext(context, "error during customer creating", slog.Any("err", err))
 			writeError(context, err)
-		} else {
-			context.JSON(http.StatusCreated, &customer)
+			return
 		}
+
+		logger.InfoContext(context, "customer create with success", slog.String("id", customer.ID.String()))
+		context.JSON(http.StatusCreated, &customer)
 	})
 
 	r.PUT("/:id", func(context *gin.Context) {
+		logger := infra.ResolverLogger(context)
+
 		value := context.Param("id")
 		id, err := uuid.Parse(value)
 
@@ -101,21 +133,32 @@ func Map(router *gin.RouterGroup) {
 
 		var req CreateOrChangeCustomer
 		if err := context.BindJSON(&req); err != nil {
+			logger.WarnContext(context, "error during json bind",
+				slog.Any("err", err),
+				slog.String("id", id.String()),
+			)
 			context.JSON(BadRequest.Status, BadRequest)
 			return
 		}
 
 		req.ID = id
-		command := createCommand()
+		command := createCommand(context)
+
+		logger.InfoContext(context, "going to change customer", slog.String("id", id.String()))
 		customer, err := command.CreateOrChange(context, req)
 		if err != nil {
+			logger.WarnContext(context, "error during change customer", slog.Any("err", err))
 			writeError(context, err)
-		} else {
-			context.JSON(http.StatusOK, &customer)
+			return
 		}
+
+		logger.InfoContext(context, "customer change with success", slog.String("id", id.String()))
+		context.JSON(http.StatusOK, &customer)
 	})
 
 	r.DELETE("/:id", func(context *gin.Context) {
+		logger := infra.ResolverLogger(context)
+
 		value := context.Param("id")
 		id, err := uuid.Parse(value)
 
@@ -124,21 +167,26 @@ func Map(router *gin.RouterGroup) {
 			return
 		}
 
-		command := createCommand()
+		command := createCommand(context)
+
+		logger.InfoContext(context, "going to delete customer", slog.String("id", id.String()))
 		err = command.Delete(context, id)
 		if err != nil {
+			logger.WarnContext(context, "error during delete",
+				slog.String("id", id.String()),
+				slog.Any("err", err),
+			)
+
 			writeError(context, err)
-		} else {
-			context.Status(http.StatusNoContent)
+			return
 		}
+
+		logger.InfoContext(context, "delete customer with success", slog.String("id", id.String()))
+		context.Status(http.StatusNoContent)
 	})
 }
 
 var (
-	GormFactory func() *gorm.DB
-
-	Logger *zap.Logger
-
 	NotFound = infra.ProblemDetails{
 		Status: http.StatusNotFound,
 		Type:   "customer-not-found",
@@ -188,21 +236,19 @@ var (
 	}
 )
 
-func createCommand() *Command {
+func createCommand(ctx context.Context) *Command {
 	return &Command{
-		repository: &GormCustomerRepository{
-			db: GormFactory(),
-		},
+		repository: createRepository(ctx),
 	}
 }
 
-func createRepository() CustomerRepository {
+func createRepository(ctx context.Context) CustomerRepository {
 	return &GormCustomerRepository{
-		db: GormFactory(),
+		db: infra.GormFactory(ctx),
 	}
 }
 
-func mapErrorToProblemDetails(err error) infra.ProblemDetails {
+func mapErrorToProblemDetails(context *gin.Context, err error) infra.ProblemDetails {
 	if errors.Is(err, ErrNotFound) {
 		return NotFound
 	}
@@ -227,12 +273,13 @@ func mapErrorToProblemDetails(err error) infra.ProblemDetails {
 		return PhoneNumberIsInvalid
 	}
 
-	Logger.Error("Unmapped exception", zap.Error(err))
+	logger := infra.ResolverLogger(context)
+	logger.ErrorContext(context, "Unmapped exception", slog.Any("err", err))
 
 	return InternalErrorServer
 }
 
 func writeError(context *gin.Context, err error) {
-	problem := mapErrorToProblemDetails(err)
+	problem := mapErrorToProblemDetails(context, err)
 	context.JSON(problem.Status, problem)
 }
