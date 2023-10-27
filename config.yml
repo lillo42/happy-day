@@ -1,4 +1,4 @@
 mode: debug
 connectionString: "user=postgres password=HappyDay$123 host=localhost port=5432 dbname=happy_day"
 logger:
-  type: text
+  mode: text

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/lmittmann/tint"
 	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -17,6 +18,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"os"
+	"runtime/debug"
 	"strings"
 	"time"
 )
@@ -42,7 +44,7 @@ func loadConfig() {
 func createLogger() *slog.Logger {
 	mode := viper.GetString("logger.mode")
 	if mode == "text" {
-		return slog.New(slog.NewTextHandler(os.Stdout, nil))
+		return slog.New(tint.NewHandler(os.Stdout, nil))
 	}
 
 	return slog.New(slog.NewJSONHandler(os.Stdout, nil))
@@ -80,10 +82,9 @@ func runDatabaseMigration() {
 }
 
 func runHttpServer() {
-	engine := gin.New()
-
 	gin.SetMode(viper.GetString("mode"))
 
+	engine := gin.New()
 	engine.Use(slogLogger)
 	engine.Use(slogRecovery)
 
@@ -161,6 +162,7 @@ func slogRecovery(context *gin.Context) {
 				slog.Group("recovery",
 					slog.Time("time", time.Now()),
 					slog.String("request_info", string(httpRequest)),
+					slog.String("stack", string(debug.Stack())),
 				),
 			)
 

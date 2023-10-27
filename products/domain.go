@@ -18,6 +18,7 @@ type (
 
 	BoxProduct struct {
 		ID       uuid.UUID `json:"id"`
+		Name     string    `json:"name"`
 		Quantity uint      `json:"quantity"`
 	}
 )

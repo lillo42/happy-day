@@ -93,7 +93,7 @@ func (s *SlogGorm) Trace(ctx context.Context, begin time.Time, fc func() (sql st
 	}
 
 	if s.LogLevel >= logger.Info {
-		s.Logger.WarnContext(ctx, "query executed",
+		s.Logger.InfoContext(ctx, "query executed",
 			slog.Duration("elapsed", elapsed),
 			slog.Int64("rows", rows),
 			slog.String("sql", sql),

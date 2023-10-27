@@ -54,11 +54,11 @@ func (g *GormCustomerRepository) GetAll(ctx context.Context, filter CustomerFilt
 		return infra.Page[Customer]{}, result.Error
 	}
 
-	var customerDBs []infra.Customer
+	var customersDB []infra.Customer
 	result = query.
 		Limit(filter.Size).
 		Offset(filter.Page * filter.Size).
-		Scan(&customerDBs)
+		Scan(&customersDB)
 	if result.Error != nil {
 		return infra.Page[Customer]{}, result.Error
 	}
@@ -68,19 +68,14 @@ func (g *GormCustomerRepository) GetAll(ctx context.Context, filter CustomerFilt
 		totalPage = counter / int64(filter.Size)
 	}
 
-	var page infra.Page[Customer]
-	page.TotalItems = counter
-	page.TotalPage = totalPage
+	page := infra.Page[Customer]{
+		Items:      make([]Customer, len(customersDB)),
+		TotalItems: counter,
+		TotalPage:  totalPage,
+	}
 
-	var items []Customer
-	for _, customerDB := range customerDBs {
-		customer, err := mapToCustomer(customerDB)
-
-		if err != nil {
-			return infra.Page[Customer]{}, err
-		}
-
-		items = append(items, customer)
+	for i, customerDB := range customersDB {
+		page.Items[i] = mapToCustomer(customerDB)
 	}
 
 	return page, nil
@@ -97,7 +92,7 @@ func (g *GormCustomerRepository) GetOrCreate(ctx context.Context, id uuid.UUID) 
 	}
 
 	customerDB.ExternalID = id
-	return mapToCustomer(customerDB)
+	return mapToCustomer(customerDB), nil
 }
 
 func (g *GormCustomerRepository) Save(ctx context.Context, customer Customer) (Customer, error) {
@@ -118,7 +113,6 @@ func (g *GormCustomerRepository) Save(ctx context.Context, customer Customer) (C
 	customerDB.Phones = string(phones)
 	customerDB.Pix = customer.Pix
 	customerDB.Version = customer.Version + 1
-	customerDB.CreateAt = customer.CreateAt
 	customerDB.UpdateAt = time.Now()
 
 	query := g.db.
@@ -138,9 +132,7 @@ func (g *GormCustomerRepository) Save(ctx context.Context, customer Customer) (C
 		return Customer{}, ErrConcurrencyUpdate
 	}
 
-	customer.UpdateAt = customerDB.UpdateAt
-	customer.Version = customerDB.Version
-	return customer, nil
+	return mapToCustomer(customerDB), nil
 
 }
 
@@ -156,7 +148,7 @@ func (g *GormCustomerRepository) Delete(ctx context.Context, id uuid.UUID) error
 	return result.Error
 }
 
-func mapToCustomer(customerDB infra.Customer) (Customer, error) {
+func mapToCustomer(customerDB infra.Customer) Customer {
 	var phones []string
 	if len(customerDB.Phones) > 0 {
 		_ = json.Unmarshal([]byte(customerDB.Phones), &phones)
@@ -170,5 +162,5 @@ func mapToCustomer(customerDB infra.Customer) (Customer, error) {
 		CreateAt: customerDB.CreateAt,
 		UpdateAt: customerDB.UpdateAt,
 		Version:  customerDB.Version,
-	}, nil
+	}
 }

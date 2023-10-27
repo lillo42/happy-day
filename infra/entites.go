@@ -9,7 +9,7 @@ type (
 	Customer struct {
 		ID         uint      `gorm:"primaryKey"`
 		ExternalID uuid.UUID `gorm:"uniqueIndex;not null"`
-		Name       string    `gorm:"size:255;not null'"`
+		Name       string    `gorm:"size:255;not null"`
 		Comment    string
 		Phones     string
 		Pix        string    `gorm:"size:50"`
@@ -22,7 +22,7 @@ type (
 		ID         uint         `gorm:"primaryKey"`
 		ExternalID uuid.UUID    `gorm:"uniqueIndex;not null"`
 		Name       string       `gorm:"size:255;not null"`
-		Price      float64      `gorm:"scale:10;precision:2;not null'"`
+		Price      float64      `gorm:"precision:10;scale:2;not null"`
 		Products   []BoxProduct `gorm:"foreignKey:ParentID"`
 		CreateAt   time.Time    `gorm:"not null"`
 		UpdateAt   time.Time    `gorm:"not null"`
@@ -30,7 +30,7 @@ type (
 	}
 
 	BoxProduct struct {
-		ID        uuid.UUID `gorm:"primaryKey;not null"`
+		ID        uuid.UUID `gorm:"size:36;primaryKey;not null;"`
 		ParentID  uint      `gorm:"index;not null"`
 		Parent    Product   `gorm:"foreignKey:ParentID"`
 		ProductID uint      `gorm:"index;not null"`
