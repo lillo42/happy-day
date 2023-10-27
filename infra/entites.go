@@ -30,11 +30,10 @@ type (
 	}
 
 	BoxProduct struct {
-		ID        uuid.UUID `gorm:"size:36;primaryKey;not null;"`
-		ParentID  uint      `gorm:"index;not null"`
-		Parent    Product   `gorm:"foreignKey:ParentID"`
-		ProductID uint      `gorm:"index;not null"`
-		Product   Product   `gorm:"foreignKey:ProductID"`
-		Quantity  uint      `gorm:"not null"`
+		ParentID  uint    `gorm:"primaryKey;autoIncrement:false;not null"`
+		Parent    Product `gorm:"foreignKey:ParentID"`
+		ProductID uint    `gorm:"primaryKey;autoIncrement:false;not null"`
+		Product   Product `gorm:"foreignKey:ProductID"`
+		Quantity  uint    `gorm:"not null"`
 	}
 )

@@ -205,7 +205,6 @@ func (g *GormProductRepository) Save(ctx context.Context, product Product) (Prod
 		}
 
 		productDB.Products[i] = infra.BoxProduct{
-			ID:        uuid.New(),
 			Quantity:  box.Quantity,
 			Product:   boxDB,
 			ProductID: boxDB.ID,
