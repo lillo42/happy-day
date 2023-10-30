@@ -73,31 +73,6 @@ func TestCreateOrChangeShouldReturnErrPriceIsInvalid(t *testing.T) {
 	assert.Equal(t, ErrPriceIsInvalid, err)
 }
 
-func TestCreateOrChangeShouldReturnErrBoxProductNotExists(t *testing.T) {
-	boxID := uuid.New()
-	repository := new(MockProductRepository)
-	repository.
-		On("GetOrCreate", mock.Anything, mock.Anything).
-		Return(Product{}, nil)
-
-	repository.
-		On("Exists", mock.Anything, boxID).
-		Return(false, nil)
-
-	command := &Command{repository: repository}
-	_, err := command.CreateOrChange(context.Background(), CreateOrChange{
-		ID:    uuid.Nil,
-		Name:  "Lorem ipsum",
-		Price: 10,
-		Products: []BoxProduct{
-			{ID: boxID, Quantity: 10},
-		},
-	})
-
-	assert.NotNil(t, err)
-	assert.Equal(t, ErrBoxProductNotExists, err)
-}
-
 func TestCreateOrChange(t *testing.T) {
 	repository := new(MockProductRepository)
 	repository.
@@ -117,9 +92,6 @@ func TestCreateOrChange(t *testing.T) {
 		ID:    uuid.Nil,
 		Name:  "Lorem ipsum",
 		Price: 10,
-		Products: []BoxProduct{
-			{ID: uuid.New(), Quantity: 10},
-		},
 	})
 
 	assert.Nil(t, err)

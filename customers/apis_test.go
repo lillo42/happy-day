@@ -2,7 +2,7 @@ package customers
 
 import (
 	"bytes"
-	context "context"
+	"context"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/sqlite"
@@ -23,7 +23,7 @@ import (
 var engine *gin.Engine
 
 func init() {
-	if infra.GormFactory != nil {
+	if infra.GormFactory == nil {
 		infra.GormFactory = func(ctx context.Context) *gorm.DB {
 			db, err := gorm.Open(sqlite.Open("../integration-test.db"), &gorm.Config{
 				Logger: logger.New(

@@ -21,7 +21,7 @@ import (
 var engine *gin.Engine
 
 func init() {
-	if infra.GormFactory != nil {
+	if infra.GormFactory == nil {
 		infra.GormFactory = func(ctx context.Context) *gorm.DB {
 			db, err := gorm.Open(sqlite.Open("../integration-test.db"), &gorm.Config{
 				Logger: logger.New(
@@ -41,7 +41,7 @@ func init() {
 	}
 
 	_ = infra.GormFactory(context.Background()).
-		AutoMigrate(&infra.Product{}, &infra.BoxProduct{})
+		AutoMigrate(&infra.Product{})
 
 	gin.SetMode(gin.TestMode)
 	engine = gin.Default()

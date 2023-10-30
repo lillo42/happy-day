@@ -1,4 +1,4 @@
-package products
+package discounts
 
 import (
 	"context"
@@ -8,11 +8,10 @@ import (
 	"happyday/infra"
 	"log/slog"
 	"net/http"
-	"strconv"
 )
 
 func Map(router *gin.RouterGroup) {
-	r := router.Group("/products")
+	r := router.Group("/discounts")
 
 	r.DELETE("/:id", func(context *gin.Context) {
 		logger := infra.ResolverLogger(context)
@@ -25,11 +24,9 @@ func Map(router *gin.RouterGroup) {
 			return
 		}
 
-		command := CreateCommand(context)
-
-		logger.InfoContext(context, "going to delete product", slog.String("id", id.String()))
-		err = command.Delete(context, id)
-		if err != nil {
+		command := createCommand(context)
+		logger.InfoContext(context, "going to delete discount", slog.String("id", id.String()))
+		if err = command.Delete(context, id); err != nil {
 			logger.WarnContext(context, "error during delete",
 				slog.String("id", id.String()),
 				slog.Any("err", err),
@@ -39,7 +36,7 @@ func Map(router *gin.RouterGroup) {
 			return
 		}
 
-		logger.InfoContext(context, "delete product with success", slog.String("id", id.String()))
+		logger.InfoContext(context, "delete discount with success", slog.String("id", id.String()))
 		context.Status(http.StatusNoContent)
 	})
 
@@ -53,17 +50,18 @@ func Map(router *gin.RouterGroup) {
 			return
 		}
 
-		command := CreateCommand(context)
-		logger.InfoContext(context, "going to create product")
-		product, err := command.CreateOrChange(context, req)
+		command := createCommand(context)
+		logger.InfoContext(context, "going to create discount")
+		discount, err := command.CreateOrChange(context, req)
 		if err != nil {
-			logger.WarnContext(context, "error during product creating", slog.Any("err", err))
+			logger.WarnContext(context, "error during discount creating", slog.Any("err", err))
 			writeError(context, err)
 			return
 		}
 
-		logger.InfoContext(context, "product created with success", slog.String("id", product.ID.String()))
-		context.JSON(http.StatusCreated, &product)
+		logger.InfoContext(context, "discount created with success", slog.String("id", discount.ID.String()))
+		context.JSON(http.StatusCreated, &discount)
+
 	})
 
 	r.PUT("/:id", func(context *gin.Context) {
@@ -88,17 +86,17 @@ func Map(router *gin.RouterGroup) {
 		}
 
 		req.ID = id
-		command := CreateCommand(context)
+		command := createCommand(context)
 
-		logger.InfoContext(context, "going to change product", slog.String("id", id.String()))
+		logger.InfoContext(context, "going to change discount", slog.String("id", id.String()))
 		product, err := command.CreateOrChange(context, req)
 		if err != nil {
-			logger.WarnContext(context, "error during change product", slog.Any("err", err))
+			logger.WarnContext(context, "error during change discount", slog.Any("err", err))
 			writeError(context, err)
 			return
 		}
 
-		logger.InfoContext(context, "product change with success", slog.String("id", id.String()))
+		logger.InfoContext(context, "discount change with success", slog.String("id", id.String()))
 		context.JSON(http.StatusOK, &product)
 	})
 
@@ -116,62 +114,23 @@ func Map(router *gin.RouterGroup) {
 		repo := createRepository(context)
 		prod, err := repo.GetOrCreate(context, id)
 		if err != nil {
-			logger.WarnContext(context, "error during get product", slog.Any("err", err))
+			logger.WarnContext(context, "error during get discount", slog.Any("err", err))
 			writeError(context, err)
 			return
 		}
 
 		if prod.Version == 0 {
-			logger.InfoContext(context, "product not found", slog.String("id", id.String()))
+			logger.InfoContext(context, "discount not found", slog.String("id", id.String()))
 			context.JSON(NotFound.Status, &NotFound)
 			return
 		}
 
-		logger.InfoContext(context, "product get with success", slog.String("id", id.String()))
+		logger.InfoContext(context, "discount get with success", slog.String("id", id.String()))
 		context.JSON(http.StatusOK, &prod)
 	})
 
 	r.GET("", func(context *gin.Context) {
-		logger := infra.ResolverLogger(context)
 
-		val := context.Query("page")
-		page, _ := strconv.ParseUint(val, 10, 64)
-		if page > 0 {
-			page = page - 1
-		}
-
-		val = context.Query("size")
-		size, _ := strconv.ParseUint(val, 10, 64)
-		if size == 0 {
-			size = 50
-		}
-
-		filter := ProductFilter{
-			Name: context.Query("name"),
-			Page: int(page),
-			Size: int(size),
-		}
-
-		repository := createRepository(context)
-		logger.InfoContext(context, "going to get all product",
-			slog.String("name", filter.Name),
-			slog.Uint64("page", page),
-			slog.Uint64("size", size),
-		)
-		res, err := repository.GetAll(context, filter)
-
-		if err != nil {
-			logger.WarnContext(context, "error during get all customer", slog.Any("err", err),
-				slog.String("name", filter.Name),
-				slog.Uint64("page", page),
-				slog.Uint64("size", size),
-			)
-			writeError(context, err)
-			return
-		}
-
-		logger.InfoContext(context, "get all product with success")
-		context.JSON(http.StatusOK, res)
 	})
 }
 
@@ -181,7 +140,7 @@ func writeError(context *gin.Context, err error) {
 }
 
 func mapErrorToProblemDetails(context *gin.Context, err error) infra.ProblemDetails {
-	if errors.Is(err, ErrProductNotExists) {
+	if errors.Is(err, ErrDiscountNotFound) {
 		return NotFound
 	}
 
@@ -189,12 +148,20 @@ func mapErrorToProblemDetails(context *gin.Context, err error) infra.ProblemDeta
 		return NameIsEmpty
 	}
 
-	if errors.Is(err, ErrNameTooLarge) {
+	if errors.Is(err, ErrNameIsTooLarge) {
 		return NameIsTooLarge
 	}
 
 	if errors.Is(err, ErrPriceIsInvalid) {
 		return PriceIsInvalid
+	}
+
+	if errors.Is(err, ErrProductsIsMissing) {
+		return ProductsIsMissing
+	}
+
+	if errors.Is(err, ErrProductNotFound) {
+		return ProductNotFound
 	}
 
 	if errors.Is(err, ErrConcurrencyUpdate) {
@@ -206,19 +173,22 @@ func mapErrorToProblemDetails(context *gin.Context, err error) infra.ProblemDeta
 	return InternalErrorServer
 }
 
-func CreateCommand(ctx context.Context) *Command {
+func createCommand(ctx context.Context) *Command {
 	return &Command{
-		repository: createRepository(ctx),
+		productService: ProductServiceFactory(ctx),
+		repository:     createRepository(ctx),
 	}
 }
 
-func createRepository(ctx context.Context) ProductRepository {
-	return &GormProductRepository{
+func createRepository(ctx context.Context) DiscountRepository {
+	return &GormDiscountRepository{
 		db: infra.GormFactory(ctx),
 	}
 }
 
 var (
+	ProductServiceFactory func(ctx context.Context) ProductService
+
 	InternalErrorServer = infra.ProblemDetails{
 		Status: http.StatusInternalServerError,
 		Type:   "internal-error-server",
@@ -233,31 +203,43 @@ var (
 
 	NotFound = infra.ProblemDetails{
 		Status: http.StatusNotFound,
-		Type:   "product-not-found",
-		Title:  "Products not found",
+		Type:   "discount-not-found",
+		Title:  "Discount not found",
 	}
 
 	ConcurrencyIssue = infra.ProblemDetails{
 		Status: http.StatusConflict,
-		Type:   "product-conflict",
-		Title:  "Products update conflict",
+		Type:   "discount-conflict",
+		Title:  "Discount update conflict",
 	}
 
 	NameIsEmpty = infra.ProblemDetails{
 		Status: http.StatusUnprocessableEntity,
-		Type:   "product-name-is-empty",
-		Title:  "Products name is empty",
+		Type:   "discount-name-is-empty",
+		Title:  "Discount name is empty",
 	}
 
 	NameIsTooLarge = infra.ProblemDetails{
 		Status: http.StatusUnprocessableEntity,
-		Type:   "product-name-is-too-large",
-		Title:  "Products name is too large",
+		Type:   "discount-name-is-too-large",
+		Title:  "Discount name is too large",
 	}
 
 	PriceIsInvalid = infra.ProblemDetails{
 		Status: http.StatusUnprocessableEntity,
-		Type:   "product-price-is-invalid",
-		Title:  "Products price is invalid",
+		Type:   "discount-price-is-invalid",
+		Title:  "Discount price is invalid",
+	}
+
+	ProductsIsMissing = infra.ProblemDetails{
+		Status: http.StatusUnprocessableEntity,
+		Type:   "discount-products-is-missing",
+		Title:  "Discount products list is missing",
+	}
+
+	ProductNotFound = infra.ProblemDetails{
+		Status: http.StatusUnprocessableEntity,
+		Type:   "discount-product-not-found",
+		Title:  "Discount product not found",
 	}
 )

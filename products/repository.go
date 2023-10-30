@@ -15,10 +15,10 @@ type (
 		Page int
 		Size int
 	}
+
 	ProductRepository interface {
 		GetAll(ctx context.Context, filter ProductFilter) (infra.Page[Product], error)
 		GetOrCreate(ctx context.Context, id uuid.UUID) (Product, error)
-		Exists(ctx context.Context, id uuid.UUID) (bool, error)
 
 		Save(ctx context.Context, product Product) (Product, error)
 		Delete(ctx context.Context, id uuid.UUID) error
@@ -60,44 +60,13 @@ func (g *GormProductRepository) GetAll(ctx context.Context, filter ProductFilter
 	}
 
 	page := infra.Page[Product]{
-		Items:      make([]Product, 0),
+		Items:      make([]Product, len(productsDB)),
 		TotalItems: counter,
 		TotalPage:  totalPage,
 	}
 
-	for _, prodDB := range productsDB {
-		var boxes []infra.BoxProduct
-		result := g.db.
-			WithContext(ctx).
-			Table("box_products").
-			Where("parent_id = ?", prodDB.ID).
-			Scan(&boxes)
-
-		if result.Error != nil {
-			return infra.Page[Product]{}, result.Error
-		}
-
-		if boxes != nil {
-			for i, box := range boxes {
-				var tmp infra.Product
-				result := g.db.
-					WithContext(ctx).
-					First(&tmp, box.ProductID)
-
-				if result.Error != nil {
-					return infra.Page[Product]{}, result.Error
-				}
-
-				boxes[i].Product = tmp
-			}
-		}
-
-		if boxes == nil {
-			boxes = make([]infra.BoxProduct, 0)
-		}
-
-		prodDB.Products = boxes
-		page.Items = append(page.Items, mapToProduct(prodDB))
+	for i, prodDB := range productsDB {
+		page.Items[i] = mapToProduct(prodDB)
 	}
 
 	return page, nil
@@ -117,131 +86,46 @@ func (g *GormProductRepository) GetOrCreate(ctx context.Context, id uuid.UUID) (
 		return Product{}, result.Error
 	}
 
-	var boxes []infra.BoxProduct
-	result = g.db.
-		WithContext(ctx).
-		Table("box_products").
-		Where("parent_id = ?", productDB.ID).
-		Scan(&boxes)
-
-	if result.Error != nil {
-		return Product{}, result.Error
-	}
-
-	if boxes != nil {
-		for i, box := range boxes {
-			var tmp infra.Product
-			result := g.db.
-				WithContext(ctx).
-				First(&tmp, box.ProductID)
-
-			if result.Error != nil {
-				return Product{}, result.Error
-			}
-
-			boxes[i].Product = tmp
-		}
-	}
-
-	if boxes == nil {
-		boxes = make([]infra.BoxProduct, 0)
-	}
-
-	productDB.Products = boxes
 	return mapToProduct(productDB), nil
-}
-
-func (g *GormProductRepository) Exists(ctx context.Context, id uuid.UUID) (bool, error) {
-	var productDB infra.Product
-	result := g.db.
-		WithContext(ctx).
-		First(&productDB, "external_id = ?", id)
-
-	if result.Error != nil && !errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return false, result.Error
-	}
-
-	return !errors.Is(result.Error, gorm.ErrRecordNotFound), nil
 }
 
 func (g *GormProductRepository) Save(ctx context.Context, product Product) (Product, error) {
 	var productDB infra.Product
-	if product.Version > 0 {
+	if product.Version == 0 {
+		productDB.ExternalID = product.ID
+		productDB.CreateAt = time.Now()
+	} else {
 		result := g.db.
 			WithContext(ctx).
 			First(&productDB, "external_id = ?", product.ID)
 
 		if result.Error != nil {
-			if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
-				return Product{}, result.Error
-			} else {
+			if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 				return Product{}, ErrProductNotExists
 			}
+			return Product{}, result.Error
 		}
-
-	} else {
-		productDB.ExternalID = product.ID
-		productDB.CreateAt = time.Now()
 	}
 
 	productDB.Name = product.Name
 	productDB.Price = product.Price
-	productDB.Products = make([]infra.BoxProduct, len(product.Products))
 	productDB.Version = product.Version + 1
 	productDB.UpdateAt = time.Now()
 
-	for i, box := range product.Products {
-		var boxDB infra.Product
-		result := g.db.
+	var result *gorm.DB
+	if product.Version > 1 {
+		result = g.db.
 			WithContext(ctx).
-			First(&boxDB, "external_id = ?", box.ID)
-
-		if result.Error != nil {
-			if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-				return Product{}, ErrProductNotExists
-			} else {
-				return Product{}, result.Error
-			}
-		}
-
-		productDB.Products[i] = infra.BoxProduct{
-			Quantity:  box.Quantity,
-			Product:   boxDB,
-			ProductID: boxDB.ID,
-		}
+			Where("version = ?", product.Version).
+			Save(&productDB)
+	} else {
+		result = g.db.
+			WithContext(ctx).
+			Save(&productDB)
 	}
 
-	err := g.db.WithContext(ctx).
-		Transaction(func(tx *gorm.DB) error {
-			result := tx.Where("version = ?", product.Version).Save(&productDB)
-			if result.Error != nil {
-				return result.Error
-			}
-
-			if result.RowsAffected == 0 {
-				return ErrConcurrencyUpdate
-			}
-
-			result = tx.Delete(&infra.BoxProduct{}, "parent_id = ?", productDB.ID)
-			if result.Error != nil {
-				return result.Error
-			}
-
-			for _, box := range productDB.Products {
-				box.Parent = productDB
-				box.ParentID = productDB.ID
-
-				result = tx.Save(&box)
-				if result.Error != nil {
-					return result.Error
-				}
-			}
-
-			return nil
-		})
-
-	if err != nil {
-		return Product{}, err
+	if result.Error != nil {
+		return Product{}, result.Error
 	}
 
 	return mapToProduct(productDB), nil
@@ -251,58 +135,18 @@ func (g *GormProductRepository) Delete(ctx context.Context, id uuid.UUID) error 
 	var productDB infra.Product
 	result := g.db.
 		WithContext(ctx).
-		First(&productDB, "external_id = ?", id)
+		Delete(&productDB, "external_id = ?", id)
 
-	if result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil
-		}
-
-		return result.Error
-	}
-
-	return g.db.
-		WithContext(ctx).
-		Transaction(func(tx *gorm.DB) error {
-			result := tx.Delete(&infra.BoxProduct{}, "parent_id = ?", productDB.ID)
-			if result.Error != nil {
-				return result.Error
-			}
-
-			result = tx.Delete(&infra.BoxProduct{}, "product_id = ?", productDB.ID)
-			if result.Error != nil {
-				return result.Error
-			}
-
-			result = tx.Delete(&infra.Product{}, "id = ?", productDB.ID)
-
-			if result.Error != nil {
-				return result.Error
-			}
-
-			return nil
-		})
+	return result.Error
 }
 
 func mapToProduct(productDB infra.Product) Product {
-	product := Product{
+	return Product{
 		ID:       productDB.ExternalID,
 		Name:     productDB.Name,
 		Price:    productDB.Price,
 		CreateAt: productDB.CreateAt,
 		UpdateAt: productDB.UpdateAt,
 		Version:  productDB.Version,
-		Products: make([]BoxProduct, len(productDB.Products)),
 	}
-
-	for i, box := range productDB.Products {
-		product.Products[i] = BoxProduct{
-			ID:       box.Product.ExternalID,
-			Name:     box.Product.Name,
-			Quantity: box.Quantity,
-		}
-	}
-
-	return product
-
 }

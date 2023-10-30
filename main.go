@@ -11,6 +11,7 @@ import (
 	"gorm.io/gorm"
 	gormlogger "gorm.io/gorm/logger"
 	"happyday/customers"
+	"happyday/discounts"
 	"happyday/infra"
 	"happyday/products"
 	"log/slog"
@@ -73,7 +74,8 @@ func runDatabaseMigration() {
 	db := infra.GormFactory(context.Background())
 
 	err := db.AutoMigrate(&infra.Customer{},
-		&infra.Product{}, &infra.BoxProduct{})
+		&infra.Product{},
+		&infra.Discount{}, &infra.DiscountProducts{})
 
 	if err != nil {
 		slog.Error("fatal error run database migration", slog.Any("err", err))
@@ -91,6 +93,11 @@ func runHttpServer() {
 	apiRouter := engine.Group("/api")
 	customers.Map(apiRouter)
 	products.Map(apiRouter)
+	discounts.Map(apiRouter)
+
+	discounts.ProductServiceFactory = func(ctx context.Context) discounts.ProductService {
+		return products.CreateCommand(ctx)
+	}
 
 	if err := engine.Run(); err != nil {
 		slog.Error("fatal error to run HTTP Server", slog.Any("err", err))
