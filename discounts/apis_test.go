@@ -81,7 +81,7 @@ func TestHttpDeleteShouldResponse204WhenNotExists(t *testing.T) {
 
 func TestDeleteShouldResponse204WheExists(t *testing.T) {
 	discountID := uuid.New()
-	db := infra.GormFactory(context.Background()).Session(&gorm.Session{})
+	db := infra.GormFactory(context.Background())
 	result := db.Save(&infra.Discount{
 		ExternalID: discountID,
 		Name:       "test",
@@ -224,7 +224,7 @@ func TestHttpGetShouldResponse404WhenIdIsNotUuid(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, res.Code)
 }
 
-func TestHttpGetShouldResponse404WhenProductNotExists(t *testing.T) {
+func TestHttpGetShouldResponse404WhenNotExists(t *testing.T) {
 	res := httptest.NewRecorder()
 	req, _ := http.NewRequest(http.MethodGet, "/api/discounts/"+uuid.NewString(), nil)
 	engine.ServeHTTP(res, req)

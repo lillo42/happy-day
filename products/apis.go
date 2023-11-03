@@ -113,7 +113,7 @@ func Map(router *gin.RouterGroup) {
 			return
 		}
 
-		repo := createRepository(context)
+		repo := CreateRepository(context)
 		prod, err := repo.GetOrCreate(context, id)
 		if err != nil {
 			logger.WarnContext(context, "error during get product", slog.Any("err", err))
@@ -152,7 +152,7 @@ func Map(router *gin.RouterGroup) {
 			Size: int(size),
 		}
 
-		repository := createRepository(context)
+		repository := CreateRepository(context)
 		logger.InfoContext(context, "going to get all product",
 			slog.String("name", filter.Name),
 			slog.Uint64("page", page),
@@ -208,11 +208,11 @@ func mapErrorToProblemDetails(context *gin.Context, err error) infra.ProblemDeta
 
 func CreateCommand(ctx context.Context) *Command {
 	return &Command{
-		repository: createRepository(ctx),
+		repository: CreateRepository(ctx),
 	}
 }
 
-func createRepository(ctx context.Context) ProductRepository {
+func CreateRepository(ctx context.Context) ProductRepository {
 	return &GormProductRepository{
 		db: infra.GormFactory(ctx),
 	}

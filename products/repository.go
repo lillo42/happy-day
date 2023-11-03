@@ -46,6 +46,7 @@ func (g *GormProductRepository) GetAll(ctx context.Context, filter ProductFilter
 
 	var productsDB []infra.Product
 	result = query.
+		Order("id").
 		Limit(filter.Size).
 		Offset(filter.Page * filter.Size).
 		Scan(&productsDB)
@@ -92,7 +93,7 @@ func (g *GormProductRepository) GetOrCreate(ctx context.Context, id uuid.UUID) (
 func (g *GormProductRepository) Save(ctx context.Context, product Product) (Product, error) {
 	var productDB infra.Product
 	if product.Version == 0 {
-		productDB.ExternalID = product.ID
+		productDB.ExternalID = uuid.New()
 		productDB.CreateAt = time.Now()
 	} else {
 		result := g.db.

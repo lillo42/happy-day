@@ -36,7 +36,7 @@ func Map(router *gin.RouterGroup) {
 			Size:    int(size),
 		}
 
-		repository := createRepository(context)
+		repository := CreateRepository(context)
 
 		logger.InfoContext(context, "going to get all customer",
 			slog.String("name", filter.Name),
@@ -75,7 +75,7 @@ func Map(router *gin.RouterGroup) {
 			return
 		}
 
-		repo := createRepository(context)
+		repo := CreateRepository(context)
 
 		logger.InfoContext(context, "going to get customer", slog.String("id", id.String()))
 		customer, err := repo.GetOrCreate(context, id)
@@ -238,11 +238,11 @@ var (
 
 func createCommand(ctx context.Context) *Command {
 	return &Command{
-		repository: createRepository(ctx),
+		repository: CreateRepository(ctx),
 	}
 }
 
-func createRepository(ctx context.Context) CustomerRepository {
+func CreateRepository(ctx context.Context) CustomerRepository {
 	return &GormCustomerRepository{
 		db: infra.GormFactory(ctx),
 	}

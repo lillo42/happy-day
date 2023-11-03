@@ -13,6 +13,7 @@ import (
 	"happyday/customers"
 	"happyday/discounts"
 	"happyday/infra"
+	"happyday/orders"
 	"happyday/products"
 	"log/slog"
 	"net"
@@ -75,7 +76,8 @@ func runDatabaseMigration() {
 
 	err := db.AutoMigrate(&infra.Customer{},
 		&infra.Product{},
-		&infra.Discount{}, &infra.DiscountProducts{})
+		&infra.Discount{}, &infra.DiscountProducts{},
+		&infra.Order{}, &infra.OrderPayment{}, &infra.OrderProduct{})
 
 	if err != nil {
 		slog.Error("fatal error run database migration", slog.Any("err", err))
@@ -94,9 +96,24 @@ func runHttpServer() {
 	customers.Map(apiRouter)
 	products.Map(apiRouter)
 	discounts.Map(apiRouter)
+	orders.Map(apiRouter)
 
 	discounts.ProductServiceFactory = func(ctx context.Context) discounts.ProductService {
-		return products.CreateCommand(ctx)
+		return &GlobalProductService{
+			repository: products.CreateRepository(ctx),
+		}
+	}
+
+	orders.ProductServiceFactory = func(ctx context.Context) orders.ProductService {
+		return &GlobalProductService{
+			repository: products.CreateRepository(ctx),
+		}
+	}
+
+	orders.CustomerServiceFactory = func(ctx context.Context) orders.CustomerService {
+		return &GlobalCustomerService{
+			repository: customers.CreateRepository(ctx),
+		}
 	}
 
 	if err := engine.Run(); err != nil {

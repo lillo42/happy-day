@@ -28,10 +28,6 @@ func (c *Command) CreateOrChange(ctx context.Context, req CreateOrChange) (Produ
 		return Product{}, ErrProductNotExists
 	}
 
-	if req.ID == uuid.Nil {
-		prod.ID = uuid.New()
-	}
-
 	if len(req.Name) == 0 {
 		return Product{}, ErrNameIsEmpty
 	}
