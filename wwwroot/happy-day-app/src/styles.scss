@@ -2,3 +2,57 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.container {
+  display: flex;
+}
+
+.container-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.container-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.align-items {
+  align-items: center;
+}
+
+.width-100 {
+  width: 100%;
+}
+
+.width-80 {
+  width: 80%;
+}
+
+.width-90 {
+  width: 90%;
+}
+
+
+.default-margin-top {
+  margin-top: 30px;
+}
+
+
+.default-container-margin {
+  margin-left: 5%;
+  margin-right: 5%;
+}
+
+.default-container-padding {
+  padding: 30px;
+}
+
+.justify-at-start {
+  justify-content: flex-start;
+}
+

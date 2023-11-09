@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/lmittmann/tint"
@@ -91,6 +92,11 @@ func runHttpServer() {
 	engine := gin.New()
 	engine.Use(slogLogger)
 	engine.Use(slogRecovery)
+	engine.Use(cors.New(cors.Config{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{"*"},
+		AllowHeaders: []string{"*"},
+	}))
 
 	apiRouter := engine.Group("/api")
 	customers.Map(apiRouter)
