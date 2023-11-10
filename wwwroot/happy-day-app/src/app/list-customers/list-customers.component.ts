@@ -5,6 +5,7 @@ import {CustomersService} from "../customers.service";
 import {MatSelect} from "@angular/material/select";
 import {MatInput} from "@angular/material/input";
 import {debounce, debounceTime, merge, mergeAll} from "rxjs";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-list-customers',
@@ -19,18 +20,21 @@ export class ListCustomersComponent implements AfterViewInit {
   @ViewChild('selectField') field: MatSelect | null = null;
   @ViewChild('inputFilter') filter: ElementRef | null = null;
 
-  constructor(private customersService: CustomersService) {
+  constructor(private customersService: CustomersService,
+              private router: Router) {
     this.dataSource = new MatTableDataSource<CustomerElement>([]);
   }
 
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
+    this.loadCustomers();
   }
 
   delete(id: string): void {
   }
 
-  edit(id: string): void {
+  edit(id: string): Promise<boolean> {
+    return this.router.navigateByUrl(`/customers/${id}`);
   }
 
   add(): void {
@@ -64,21 +68,22 @@ export class ListCustomersComponent implements AfterViewInit {
         }
 
         this.dataSource.data = page.items.map(customer => {
-          return {
+          return <CustomerElement>{
             id: customer.id,
             name: customer.name,
             comment: customer.comment,
+            pix: customer.pix,
             phones: customer.phones.join(', ')
           }
         });
       });
   }
-
 }
 
 export interface CustomerElement {
   id: string;
   name: string;
   comment: string;
+  pix: string;
   phones: string;
 }

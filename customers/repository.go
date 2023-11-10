@@ -158,6 +158,7 @@ func mapToCustomer(customerDB infra.Customer) Customer {
 		ID:       customerDB.ExternalID,
 		Name:     customerDB.Name,
 		Comment:  customerDB.Comment,
+		Pix:      customerDB.Pix,
 		Phones:   phones,
 		CreateAt: customerDB.CreateAt,
 		UpdateAt: customerDB.UpdateAt,

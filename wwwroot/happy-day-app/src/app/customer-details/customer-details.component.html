@@ -1,0 +1,59 @@
+<div class="container-col width-100 default-container-margin default-margin-top">
+  <h1>Customer Details</h1>
+  <form [formGroup]="form" class="container-col width-90 default-margin-top">
+    <mat-form-field appearance="outline">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" placeholder="Name"/>
+      <mat-error *ngIf="form.get('name')!.hasError('required')">Name is mandatory</mat-error>
+      <mat-error *ngIf="form.get('name')!.hasError('maxlength')">Name must be less than 255</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Pix</mat-label>
+      <input matInput formControlName="pix" placeholder="pix"/>
+      <mat-error *ngIf="form.get('pix')!.hasError('maxlength')">Pix must be less than 255</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Comment</mat-label>
+      <textarea matInput formControlName="comment" placeholder="...."></textarea>
+    </mat-form-field>
+
+    <ng-container formArrayName="phones">
+      <ng-container *ngFor="let phone of phones.controls; let i = index">
+          <mat-form-field appearance="outline">
+            <mat-label>Phone</mat-label>
+            <input matInput mask="(00) 0000-0000" [formControlName]="i" placeholder="123456789"/>
+            <mat-error *ngIf="phone.hasError('required')">Phone number is required</mat-error>
+            <mat-error *ngIf="phone.hasError('minlength')">Phone number must be large than 8</mat-error>
+            <mat-error *ngIf="phone.hasError('maxlength')">Phone number must be less than 11</mat-error>
+            <mat-error *ngIf="phone.hasError('pattern')">Phone number is invalid</mat-error>
+            <button mat-icon-button matSuffix matTooltip="delete phone" (click)="deletePhone(i)">
+              <mat-icon>delete_forever</mat-icon>
+            </button>
+          </mat-form-field>
+      </ng-container>
+    </ng-container>
+
+    <div class="container-row default-margin-bottom">
+      <button mat-mini-fab matTooltip="Add new phone" (click)="addPhone()">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+
+    <mat-form-field appearance="outline" *ngIf="!isNew">
+      <mat-label>Create At</mat-label>
+      <input matInput formControlName="createAt" readonly="true"/>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" *ngIf="!isNew">
+      <mat-label>Update At</mat-label>
+      <input matInput formControlName="updateAt" readonly="true"/>
+    </mat-form-field>
+
+    <div class="container-row" style="gap: 10px">
+      <button mat-raised-button color="primary" (click)="save()">Save</button>
+      <button mat-raised-button (click)="cancel()">Cancel</button>
+    </div>
+  </form>
+</div>
