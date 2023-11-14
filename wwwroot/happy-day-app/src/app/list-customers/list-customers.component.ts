@@ -1,11 +1,16 @@
-import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import { MatTableDataSource } from "@angular/material/table";
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { Router } from "@angular/router";
+
+import { MatDialog } from "@angular/material/dialog";
 import { MatPaginator } from "@angular/material/paginator";
-import {CustomersService} from "../customers.service";
-import {MatSelect} from "@angular/material/select";
-import {MatInput} from "@angular/material/input";
-import {debounce, debounceTime, merge, mergeAll} from "rxjs";
-import {Router} from "@angular/router";
+import { MatSelect } from "@angular/material/select";
+import { MatSnackBar } from "@angular/material/snack-bar";
+import { MatTableDataSource } from "@angular/material/table";
+
+import { debounceTime } from "rxjs";
+
+import { CustomersService } from "../customers.service";
+import { CustomerDeleteComponent } from "../customer-delete/customer-delete.component";
 
 @Component({
   selector: 'app-list-customers',
@@ -21,7 +26,9 @@ export class ListCustomersComponent implements AfterViewInit {
   @ViewChild('inputFilter') filter: ElementRef | null = null;
 
   constructor(private customersService: CustomersService,
-              private router: Router) {
+              private router: Router,
+              private snack: MatSnackBar,
+              private dialog: MatDialog) {
     this.dataSource = new MatTableDataSource<CustomerElement>([]);
   }
 
@@ -31,6 +38,9 @@ export class ListCustomersComponent implements AfterViewInit {
   }
 
   delete(id: string): void {
+    this.dialog.open(CustomerDeleteComponent, {data: { id: id }})
+      .afterClosed()
+      .subscribe(() => this.loadCustomers());
   }
 
   edit(id: string): Promise<boolean> {
@@ -58,20 +68,24 @@ export class ListCustomersComponent implements AfterViewInit {
 
     this.customersService.get(name, phone, comment, page, size)
       .pipe(debounceTime(1000))
-      .subscribe((page) => {
-        if(page.items === null || page.items.length == 0) {
-          return;
-        }
-
-        this.dataSource.data = page.items.map(customer => {
-          return <CustomerElement>{
-            id: customer.id,
-            name: customer.name,
-            comment: customer.comment,
-            pix: customer.pix,
-            phones: customer.phones.join(', ')
+      .subscribe({
+        next: page => {
+          if (page.items === null) {
+            this.dataSource.data = [];
+            return;
           }
-        });
+
+          this.dataSource.data = page.items.map(customer => {
+            return <CustomerElement>{
+              id: customer.id,
+              name: customer.name,
+              comment: customer.comment,
+              pix: customer.pix,
+              phones: customer.phones.join(', ')
+            }
+          });
+        },
+        error: err => this.snack.open(err.message, 'OK')
       });
   }
 }

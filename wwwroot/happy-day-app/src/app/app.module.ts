@@ -7,6 +7,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatButtonModule } from "@angular/material/button";
 import { MatDatepickerModule } from "@angular/material/datepicker";
+import { MatDialogModule } from "@angular/material/dialog";
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
@@ -23,12 +24,14 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ListCustomersComponent } from './list-customers/list-customers.component';
 import { CustomerDetailsComponent } from './customer-details/customer-details.component';
+import { CustomerDeleteComponent } from './customer-delete/customer-delete.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ListCustomersComponent,
     CustomerDetailsComponent,
+    CustomerDeleteComponent,
   ],
   imports: [
     AppRoutingModule,
@@ -41,6 +44,7 @@ import { CustomerDetailsComponent } from './customer-details/customer-details.co
 
     MatButtonModule,
     MatDatepickerModule,
+    MatDialogModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
