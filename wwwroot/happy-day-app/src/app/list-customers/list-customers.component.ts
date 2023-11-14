@@ -37,10 +37,6 @@ export class ListCustomersComponent implements AfterViewInit {
     return this.router.navigateByUrl(`/customers/${id}`);
   }
 
-  add(): void {
-
-  }
-
   loadCustomers(): void {
     const field = this.field?.value || '';
     const value = this.filter?.nativeElement.value || '';

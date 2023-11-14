@@ -1,11 +1,12 @@
-import {DatePipe} from "@angular/common";
-import {Component, OnInit} from '@angular/core';
-import {FormArray, FormBuilder, FormGroup, Validators} from "@angular/forms";
-import {ActivatedRoute, Router} from "@angular/router";
-import {catchError, of, switchMap} from "rxjs";
-import {Customer, CustomersService} from "../customers.service";
-import {HttpErrorResponse} from "@angular/common/http";
-import {ProblemDetails} from "../common";
+import { DatePipe } from "@angular/common";
+import { Component, OnInit } from '@angular/core';
+import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { ActivatedRoute, Router } from "@angular/router";
+import { of, switchMap } from "rxjs";
+import { Customer, CustomersService } from "../customers.service";
+import { HttpErrorResponse } from "@angular/common/http";
+import { ProblemDetails } from "../common";
+import { MatSnackBar } from "@angular/material/snack-bar";
 
 @Component({
   selector: 'app-customer-details',
@@ -16,12 +17,14 @@ export class CustomerDetailsComponent implements OnInit {
   form: FormGroup;
   id: string | null = null;
   isNew: boolean = true;
+  hasFound: boolean = true;
 
   constructor(private activatedRoute: ActivatedRoute,
               private datePipe: DatePipe,
               private builder: FormBuilder,
               private router: Router,
-              private customersService: CustomersService) {
+              private customersService: CustomersService,
+              private snackBar: MatSnackBar) {
     this.form = this.builder.group({
       name: [null, [Validators.required, Validators.maxLength(255)]],
       comment: [null, null],
@@ -53,7 +56,22 @@ export class CustomerDetailsComponent implements OnInit {
           return of(empty);
         }
       }))
-      .subscribe(customer => this.updateForm(customer));
+      .subscribe({
+        next: customer => this.updateForm(customer),
+        error: error => {
+          if (error instanceof HttpErrorResponse) {
+            if (error.status == 404) {
+              this.hasFound = false;
+            } else {
+              const problemDetails: ProblemDetails = JSON.parse(error.message);
+              this.snackBar.open(`an unexpected error happen: ${problemDetails.message}`, 'OK', {duration: 10000});
+            }
+            return;
+          }
+
+          this.snackBar.open(`an unexpected error happen: ${error.toString()}`, 'OK', {duration: 10000});
+        }
+      });
   }
 
   get phones(): FormArray {
@@ -92,14 +110,14 @@ export class CustomerDetailsComponent implements OnInit {
             this.updateForm(customer);
             this.isNew = false;
           },
-          error: this.handlerError
+          error: error => this.handlerError(error)
         });
     } else {
       this.customersService
         .update(this.id!, customer)
         .subscribe({
           next: customer => this.updateForm(customer),
-          error: this.handlerError
+          error: error => this.handlerError(error)
         });
     }
   }
@@ -119,10 +137,30 @@ export class CustomerDetailsComponent implements OnInit {
   }
 
   private handlerError(error: HttpErrorResponse) {
-    if (error.status >= 500) {
+    if(error.status === 400) {
+      this.form.markAllAsTouched();
+      this.form.markAsDirty();
       return;
     }
 
-    const err: ProblemDetails = JSON.parse(error.message);
+    if(error.status == 0) {
+      this.snackBar.open(`an unexpected error happen: ${error.message}`, 'OK', {duration: 10000});
+      return;
+    }
+
+    const problemDetails: ProblemDetails = error.error;
+    if (problemDetails.type === 'customer-name-is-empty') {
+      this.form.get('name')!.setErrors({required: true});
+    } else if (problemDetails.type === 'customer-name-is-too-large') {
+      this.form.get('name')!.setErrors({maxlength: true});
+    } else if (problemDetails.type === 'customer-pix-is-too-large') {
+      this.form.get('pix')!.setErrors({maxlength: true});
+    } else if (problemDetails.type === 'customer-phone-number-is-invalid') {
+      this.phones.controls.forEach(control => control.setErrors({pattern: true}));
+    } else if (problemDetails.type === 'customer-conflict') {
+      this.snackBar.open('customer update conflict, please reload the page', 'OK', {duration: 10000});
+    } else {
+      this.snackBar.open(`an unexpected error happen: ${problemDetails.message}`, 'OK', {duration: 10000});
+    }
   }
 }

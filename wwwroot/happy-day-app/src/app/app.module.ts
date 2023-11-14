@@ -17,7 +17,7 @@ import { MatTableModule } from "@angular/material/table";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatTooltipModule } from "@angular/material/tooltip";
 
-import {NgxMaskDirective, provideNgxMask} from "ngx-mask";
+import { NgxMaskDirective, provideNgxMask } from "ngx-mask";
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
