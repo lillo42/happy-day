@@ -106,6 +106,15 @@
             "scripts": []
           }
         }
+      },
+      "i18n": {
+        "sourceLocale": "en-GB",
+        "locales": {
+          "pt": {
+            "translation": "src/locale/messages.pt.xlf",
+            "baseHref": ""
+          }
+        }
       }
     }
   },
