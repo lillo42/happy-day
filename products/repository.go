@@ -58,6 +58,7 @@ func (g *GormProductRepository) GetAll(ctx context.Context, filter ProductFilter
 	var totalPage int64
 	if counter > 0 {
 		totalPage = counter / int64(filter.Size)
+		totalPage = totalPage + 1
 	}
 
 	page := infra.Page[Product]{
