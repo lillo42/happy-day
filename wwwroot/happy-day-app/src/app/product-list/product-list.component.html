@@ -5,19 +5,17 @@
       <mat-label i18n>Field</mat-label>
       <mat-select (valueChange)="load()" #selectField>
         <mat-option value="name" i18n>Name</mat-option>
-        <mat-option value="comment" i18n>Comment</mat-option>
-        <mat-option value="phone" i18n>Phone</mat-option>
       </mat-select>
     </mat-form-field>
 
     <mat-form-field class="filter-input">
       <mat-label i18n>Filter</mat-label>
-      <input matInput (keyup)="load()" placeholder="Douglas" #inputFilter>
+      <input matInput (keyup)="load()" placeholder="chairs" #inputFilter>
     </mat-form-field>
   </div>
 
   <div class="container-row justify-at-start">
-    <a mat-raised-button routerLink="/customers/new" i18n>Add customer</a>
+    <a mat-raised-button routerLink="/products/new" i18n>Add product</a>
   </div>
   <div class="mat-elevation-z8 container-col width-90 default-margin-top">
     <table mat-table [dataSource]="dataSource">
@@ -31,20 +29,11 @@
         <td mat-cell *matCellDef="let element">{{ element.name }}</td>
       </ng-container>
 
-      <ng-container matColumnDef="pix">
-        <th mat-header-cell *matHeaderCellDef>Pix</th>
-        <td mat-cell *matCellDef="let element">{{ element.pix }}</td>
+      <ng-container matColumnDef="price">
+        <th mat-header-cell *matHeaderCellDef>Price</th>
+        <td mat-cell *matCellDef="let element">{{ element.price | currency }}</td>
       </ng-container>
 
-      <ng-container matColumnDef="phones">
-        <th mat-header-cell *matHeaderCellDef i18n>Phone</th>
-        <td mat-cell *matCellDef="let element">{{ element.phones }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="comment">
-        <th mat-header-cell *matHeaderCellDef i18n>Comment</th>
-        <td mat-cell *matCellDef="let element">{{ element.comment }}</td>
-      </ng-container>
 
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef i18n>Actions</th>
@@ -62,9 +51,10 @@
       <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
     </table>
     <mat-paginator
+      (page)="load()"
       [length]="dataSourceLength"
-      [showFirstLastButtons]="true"
       [pageSize]="50"
-      [pageSizeOptions]="[5, 10, 25, 50]"></mat-paginator>
+      [pageSizeOptions]="[5, 10, 25, 50]"
+      [showFirstLastButtons]="true"></mat-paginator>
   </div>
 </div>

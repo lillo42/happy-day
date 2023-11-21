@@ -25,6 +25,9 @@ import { AppComponent } from './app.component';
 import { ListCustomersComponent } from './list-customers/list-customers.component';
 import { CustomerDetailsComponent } from './customer-details/customer-details.component';
 import { CustomerDeleteComponent } from './customer-delete/customer-delete.component';
+import { ProductDetailsComponent } from './product-details/product-details.component';
+import { ProductListComponent } from './product-list/product-list.component';
+import { ProductDeleteComponent } from './product-delete/product-delete.component';
 
 @NgModule({
   declarations: [
@@ -32,6 +35,9 @@ import { CustomerDeleteComponent } from './customer-delete/customer-delete.compo
     ListCustomersComponent,
     CustomerDetailsComponent,
     CustomerDeleteComponent,
+    ProductDetailsComponent,
+    ProductListComponent,
+    ProductDeleteComponent,
   ],
   imports: [
     AppRoutingModule,

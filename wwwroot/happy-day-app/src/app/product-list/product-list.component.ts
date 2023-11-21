@@ -9,28 +9,28 @@ import { MatTableDataSource } from "@angular/material/table";
 
 import { debounceTime } from "rxjs";
 
-import { CustomersService } from "../customers.service";
-import { CustomerDeleteComponent } from "../customer-delete/customer-delete.component";
+import { ProductsService } from "../products.service";
+import { ProductDeleteComponent } from "../product-delete/product-delete.component";
 
 @Component({
-  selector: 'app-list-customers',
-  templateUrl: './list-customers.component.html',
-  styleUrls: ['./list-customers.component.scss']
+  selector: 'app-product-list',
+  templateUrl: './product-list.component.html',
+  styleUrls: ['./product-list.component.scss']
 })
-export class ListCustomersComponent implements AfterViewInit {
+export class ProductListComponent implements AfterViewInit {
   dataSourceLength = 0;
-  displayedColumns: string[] = ['id', 'name', 'comment', 'phones', 'pix', 'actions'];
-  dataSource: MatTableDataSource<CustomerElement>;
+  displayedColumns: string[] = ['id', 'name', 'price', 'actions'];
+  dataSource: MatTableDataSource<ProductElement>;
 
   @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
   @ViewChild('selectField') field: MatSelect | null = null;
   @ViewChild('inputFilter') filter: ElementRef | null = null;
 
-  constructor(private customersService: CustomersService,
+  constructor(private productsService: ProductsService,
               private router: Router,
               private snack: MatSnackBar,
               private dialog: MatDialog) {
-    this.dataSource = new MatTableDataSource<CustomerElement>([]);
+    this.dataSource = new MatTableDataSource<ProductElement>([]);
   }
 
   ngAfterViewInit(): void {
@@ -39,7 +39,7 @@ export class ListCustomersComponent implements AfterViewInit {
   }
 
   delete(id: string): void {
-    this.dialog.open(CustomerDeleteComponent, {data: { id: id }})
+    this.dialog.open(ProductDeleteComponent, {data: {id: id}})
       .afterClosed()
       .subscribe(() => this.load());
   }
@@ -53,21 +53,15 @@ export class ListCustomersComponent implements AfterViewInit {
     const value = this.filter?.nativeElement.value || '';
 
     let name = null;
-    let phone = null;
-    let comment = null;
 
     if (field === 'name') {
       name = value;
-    } else if (field === 'phone') {
-      phone = value;
-    } else if (field === 'comment') {
-      comment = value;
     }
 
     const page = this.paginator?.pageIndex || 0;
     const size = this.paginator?.pageSize || 50;
 
-    this.customersService.get(name, phone, comment, page, size)
+    this.productsService.get(name, page, size)
       .pipe(debounceTime(1000))
       .subscribe({
         next: page => {
@@ -76,26 +70,23 @@ export class ListCustomersComponent implements AfterViewInit {
             return;
           }
 
-          this.dataSourceLength = page.totalPages;
-          this.dataSource.data = page.items.map(customer => {
-            return <CustomerElement>{
-              id: customer.id,
-              name: customer.name,
-              comment: customer.comment,
-              pix: customer.pix,
-              phones: customer.phones.join(', ')
+          this.dataSource.data = page.items.map(product => {
+            return <ProductElement>{
+              id: product.id,
+              name: product.name,
+              price: product.price,
             }
           });
+
+          this.dataSourceLength = page.totalPages;
         },
         error: err => this.snack.open(err.message, 'OK')
       });
   }
 }
 
-export interface CustomerElement {
+export interface ProductElement {
   id: string;
   name: string;
-  comment: string;
-  pix: string;
-  phones: string;
+  price: number;
 }
