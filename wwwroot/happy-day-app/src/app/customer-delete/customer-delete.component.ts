@@ -1,7 +1,9 @@
-import {Component, Inject} from '@angular/core';
-import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
-import {CustomersService} from "../customers.service";
-import {HttpErrorResponse} from "@angular/common/http";
+import { Component, Inject } from '@angular/core';
+import { HttpErrorResponse } from "@angular/common/http";
+
+import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+
+import { CustomersService } from "../customers.service";
 
 @Component({
   selector: 'app-customer-delete',
@@ -10,6 +12,7 @@ import {HttpErrorResponse} from "@angular/common/http";
 })
 export class CustomerDeleteComponent {
   error: string | null = null;
+
   constructor(public dialogRef: MatDialogRef<CustomerDeleteComponent>,
               @Inject(MAT_DIALOG_DATA) public data: CustomerDeleteView,
               private customerService: CustomersService) {
@@ -24,7 +27,7 @@ export class CustomerDeleteComponent {
     this.customerService.delete(this.data.id).subscribe({
       next: () => this.dialogRef.close(),
       error: err => {
-        if(err instanceof HttpErrorResponse && err.status > 0) {
+        if (err instanceof HttpErrorResponse && err.status > 0) {
           this.error = err.error.message;
         } else {
           this.error = err.message;

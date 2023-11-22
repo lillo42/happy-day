@@ -1,0 +1,77 @@
+<div class="container-col width-100 default-container-margin default-margin-top">
+  <h1 i18n>Discount Details</h1>
+  <h2 *ngIf="!hasFound" i18n>Discount Not found</h2>
+  <form [formGroup]="form" class="container-col width-90 default-margin-top" *ngIf="hasFound">
+    <mat-form-field appearance="outline">
+      <mat-label i18n>Name</mat-label>
+      <input matInput formControlName="name" placeholder="Douglas"/>
+      <mat-error *ngIf="form.get('name')!.hasError('required')" i18n>Name is mandatory</mat-error>
+      <mat-error *ngIf="form.get('name')!.hasError('maxlength')" i18n>Name must be less than 255</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Pix</mat-label>
+      <input matInput formControlName="pix" placeholder="123456"/>
+      <mat-error *ngIf="form.get('pix')!.hasError('maxlength')" i18n>Pix must be less than 255</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label i18n>Comment</mat-label>
+      <textarea matInput formControlName="comment" placeholder="...."></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label i18n>Products</mat-label>
+      <input type="text" placeholder="Chairs" matInput [matAutocomplete]="auto" #productInput>
+      <mat-autocomplete #auto="matAutocomplete" (optionSelected)="addProduct($event.option.value)">
+        <mat-option *ngFor="let product of filteredProducts" [value]="product">
+          {{ product.name }}
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+
+    <ng-container formArrayName="products">
+      <ng-container *ngFor="let product of products.controls; let i = index" [formGroup]="asFormGroup(product)">
+        <mat-form-field appearance="outline">
+          <mat-label i18n>ID</mat-label>
+          <input matInput type="text" formControlName="id"/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label i18n>Name</mat-label>
+          <input matInput type="text" formControlName="name"/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label i18n>Quantity</mat-label>
+          <input matInput type="number" formControlName="quantity" placeholder="1" min="0" step="0.01"/>
+          <mat-error *ngIf="product.get('quantity')!.hasError('required')" i18n>Quantity is required</mat-error>
+          <mat-error *ngIf="product.get('quantity')!.hasError('min')" i18n>Quantity must be large than 0</mat-error>
+        </mat-form-field>
+
+        <button mat-raised-button color="warn" (click)="deleteProduct(i)" i18n>Delete</button>
+      </ng-container>
+    </ng-container>
+
+    <div class="container-row default-margin-bottom">
+      <button mat-mini-fab matTooltip="Add new phone" (click)="addProduct()">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+
+    <mat-form-field appearance="outline" *ngIf="!isNew">
+      <mat-label i18n>Create At</mat-label>
+      <input matInput formControlName="createAt" readonly="true"/>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" *ngIf="!isNew">
+      <mat-label i18n>Update At</mat-label>
+      <input matInput formControlName="updateAt" readonly="true"/>
+    </mat-form-field>
+
+    <div class="container-row" style="gap: 10px">
+      <button mat-raised-button color="primary" (click)="save()" i18n>Save</button>
+      <button mat-raised-button (click)="cancel()" i18n>Cancel</button>
+    </div>
+  </form>
+</div>

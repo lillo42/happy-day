@@ -66,6 +66,7 @@ export class ProductListComponent implements AfterViewInit {
       .subscribe({
         next: page => {
           if (page.items === null) {
+            this.dataSourceLength = 0;
             this.dataSource.data = [];
             return;
           }

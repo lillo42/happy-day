@@ -39,7 +39,7 @@ export class ListCustomersComponent implements AfterViewInit {
   }
 
   delete(id: string): void {
-    this.dialog.open(CustomerDeleteComponent, {data: { id: id }})
+    this.dialog.open(CustomerDeleteComponent, {data: {id: id}})
       .afterClosed()
       .subscribe(() => this.load());
   }

@@ -1,9 +1,10 @@
-import {Component, Inject} from '@angular/core';
-import {HttpErrorResponse} from "@angular/common/http";
-import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
+import { Component, Inject } from "@angular/core";
+import { HttpErrorResponse } from "@angular/common/http";
 
-import {CustomerDeleteView} from "../customer-delete/customer-delete.component";
-import {ProductsService} from "../products.service";
+import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+
+import { CustomerDeleteView } from "../customer-delete/customer-delete.component";
+import { ProductsService } from "../products.service";
 
 @Component({
   selector: 'app-product-delete',

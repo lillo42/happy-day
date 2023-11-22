@@ -1,15 +1,15 @@
-import {Component, OnInit} from '@angular/core';
-import {DatePipe} from "@angular/common";
-import {HttpErrorResponse} from "@angular/common/http";
-import {FormBuilder, FormGroup, Validators} from "@angular/forms";
-import {ActivatedRoute, Router} from "@angular/router";
+import { DatePipe } from "@angular/common";
+import { HttpErrorResponse } from "@angular/common/http";
+import { Component, OnInit } from "@angular/core";
+import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { ActivatedRoute, Router } from "@angular/router";
 
-import {MatSnackBar} from "@angular/material/snack-bar";
+import { MatSnackBar } from "@angular/material/snack-bar";
 
-import {Product, ProductsService} from "../products.service";
-import {of, switchMap} from "rxjs";
-import {ProblemDetails} from "../common";
-import {Customer} from "../customers.service";
+import { of, switchMap } from "rxjs";
+
+import { Product, ProductsService } from "../products.service";
+import { ProblemDetails } from "../common";
 
 @Component({
   selector: 'app-product-details',
@@ -88,7 +88,7 @@ export class ProductDetailsComponent implements OnInit {
       ...this.form.value
     };
 
-    if(this.isNew) {
+    if (this.isNew) {
       this.productsService
         .create(product)
         .subscribe({

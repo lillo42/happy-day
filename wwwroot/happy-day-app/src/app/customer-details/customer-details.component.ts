@@ -1,12 +1,15 @@
 import { DatePipe } from "@angular/common";
+import { HttpErrorResponse } from "@angular/common/http";
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { of, switchMap } from "rxjs";
-import { Customer, CustomersService } from "../customers.service";
-import { HttpErrorResponse } from "@angular/common/http";
-import { ProblemDetails } from "../common";
+
 import { MatSnackBar } from "@angular/material/snack-bar";
+
+import { of, switchMap } from "rxjs";
+
+import { Customer, CustomersService } from "../customers.service";
+import { ProblemDetails } from "../common";
 
 @Component({
   selector: 'app-customer-details',
@@ -109,6 +112,7 @@ export class CustomerDetailsComponent implements OnInit {
           next: customer => {
             this.updateForm(customer);
             this.isNew = false;
+            this.id = customer.id;
           },
           error: error => this.handlerError(error)
         });
@@ -137,13 +141,13 @@ export class CustomerDetailsComponent implements OnInit {
   }
 
   private handlerError(error: HttpErrorResponse) {
-    if(error.status === 400) {
+    if (error.status === 400) {
       this.form.markAllAsTouched();
       this.form.markAsDirty();
       return;
     }
 
-    if(error.status == 0) {
+    if (error.status == 0) {
       this.snackBar.open(`an unexpected error happen: ${error.message}`, 'OK', {duration: 10000});
       return;
     }

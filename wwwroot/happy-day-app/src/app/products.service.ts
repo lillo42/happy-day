@@ -11,7 +11,8 @@ import { environment } from "../environments/environment";
 })
 export class ProductsService {
 
-  constructor(private httpClient: HttpClient) { }
+  constructor(private httpClient: HttpClient) {
+  }
 
   get(name: string | null,
       page: number,
