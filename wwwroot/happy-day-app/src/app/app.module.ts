@@ -23,7 +23,7 @@ import { NgxMaskDirective, provideNgxMask } from "ngx-mask";
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { ListCustomersComponent } from './list-customers/list-customers.component';
+import { CustomersListComponent } from './customers-list/customers-list.component';
 import { CustomerDetailsComponent } from './customer-details/customer-details.component';
 import { CustomerDeleteComponent } from './customer-delete/customer-delete.component';
 import { ProductDetailsComponent } from './product-details/product-details.component';
@@ -33,7 +33,7 @@ import { ProductDeleteComponent } from './product-delete/product-delete.componen
 @NgModule({
   declarations: [
     AppComponent,
-    ListCustomersComponent,
+    CustomersListComponent,
     CustomerDetailsComponent,
     CustomerDeleteComponent,
     ProductDetailsComponent,

@@ -13,11 +13,11 @@ import { CustomersService } from "../customers.service";
 import { CustomerDeleteComponent } from "../customer-delete/customer-delete.component";
 
 @Component({
-  selector: 'app-list-customers',
-  templateUrl: './list-customers.component.html',
-  styleUrls: ['./list-customers.component.scss']
+  selector: 'app-customers-list',
+  templateUrl: './customers-list.component.html',
+  styleUrls: ['./customers-list.component.scss']
 })
-export class ListCustomersComponent implements AfterViewInit {
+export class CustomersListComponent implements AfterViewInit {
   dataSourceLength = 0;
   displayedColumns: string[] = ['id', 'name', 'comment', 'phones', 'pix', 'actions'];
   dataSource: MatTableDataSource<CustomerElement>;
