@@ -44,7 +44,7 @@ export class DiscountDetailsComponent implements OnInit, AfterViewInit {
               private snackBar: MatSnackBar) {
     this.form = this.builder.group({
       name: [null, [Validators.required, Validators.maxLength(255)]],
-      price: [null, [Validators.required, Validators.min(0)]],
+      price: [null, [Validators.required, Validators.min(1)]],
       products: this.builder.array([]),
       createAt: [{value: null, disabled: true}, null],
       updateAt: [{value: null, disabled: true}, null],
@@ -93,10 +93,8 @@ export class DiscountDetailsComponent implements OnInit, AfterViewInit {
     if (this.productInput === null) {
       return;
     }
+
     this.loadProducts();
-    this.productInput.nativeElement.valueChange
-      .pipe(debounceTime(1000))
-      .subscribe(() => this.loadProducts());
   }
 
   get products(): FormArray {
@@ -107,12 +105,16 @@ export class DiscountDetailsComponent implements OnInit, AfterViewInit {
     this.products.removeAt(index);
   }
 
-  addProduct(product: Product | null = null): void {
+  addProduct(product: Product): void {
     this.products.push(this.builder.group({
-      id: [product?.id, [Validators.required]],
+      id: [{value: product?.id, disabled: true}, [Validators.required]],
       name: [{value: product?.name, disabled: true}, null],
-      quantity: [product?.quantity, [Validators.required, Validators.min(0)]],
+      quantity: [product?.quantity, [Validators.required, Validators.min(1)]],
     }));
+  }
+
+  displayProduct(product: Product | null): string {
+    return product?.name || '';
   }
 
   asFormGroup(control: AbstractControl): FormGroup {
@@ -131,7 +133,7 @@ export class DiscountDetailsComponent implements OnInit, AfterViewInit {
     }
 
     const discount = <Discount>{
-      ...this.form.value
+      ...this.form.getRawValue()
     };
 
     if (this.isNew) {
@@ -199,6 +201,4 @@ export class DiscountDetailsComponent implements OnInit, AfterViewInit {
     this.form.get("createAt")!.setValue(this.datePipe.transform(discount.createAt, 'dd/MM/yyyy HH:mm:ss'));
     this.form.get("updateAt")!.setValue(this.datePipe.transform(discount.updateAt, 'dd/MM/yyyy HH:mm:ss'));
   }
-
-
 }
