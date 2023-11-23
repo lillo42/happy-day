@@ -14,6 +14,7 @@ var _ DiscountRepository = (*GormDiscountRepository)(nil)
 type (
 	DiscountRepository interface {
 		GetOrCreate(ctx context.Context, id uuid.UUID) (Discount, error)
+		GetAll(ctx context.Context, filter DiscountFilter) (infra.Page[Discount], error)
 
 		Save(ctx context.Context, discount Discount) (Discount, error)
 		Delete(ctx context.Context, id uuid.UUID) error
@@ -33,7 +34,7 @@ type (
 func (g *GormDiscountRepository) GetAll(ctx context.Context, filter DiscountFilter) (infra.Page[Discount], error) {
 	query := g.db.
 		WithContext(ctx).
-		Table("products")
+		Model(&infra.Discount{})
 
 	if len(filter.Name) > 0 {
 		query.Where("name LIKE ?", "%"+filter.Name+"%")

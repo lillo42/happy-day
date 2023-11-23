@@ -8,6 +8,7 @@ import (
 	"happyday/infra"
 	"log/slog"
 	"net/http"
+	"strconv"
 )
 
 func Map(router *gin.RouterGroup) {
@@ -130,7 +131,47 @@ func Map(router *gin.RouterGroup) {
 	})
 
 	r.GET("", func(context *gin.Context) {
+		logger := infra.ResolverLogger(context)
 
+		val := context.Query("page")
+		page, _ := strconv.ParseUint(val, 10, 64)
+		if page > 0 {
+			page = page - 1
+		}
+
+		val = context.Query("size")
+		size, _ := strconv.ParseUint(val, 10, 64)
+		if size == 0 {
+			size = 50
+		}
+
+		filter := DiscountFilter{
+			Name: context.Query("name"),
+			Page: int(page),
+			Size: int(size),
+		}
+
+		repo := createRepository(context)
+
+		logger.InfoContext(context, "going to get all discounts",
+			slog.String("name", filter.Name),
+			slog.Uint64("page", page),
+			slog.Uint64("size", size),
+		)
+
+		res, err := repo.GetAll(context, filter)
+		if err != nil {
+			logger.WarnContext(context, "error during get all discounts", slog.Any("err", err),
+				slog.String("name", filter.Name),
+				slog.Uint64("page", page),
+				slog.Uint64("size", size),
+			)
+			writeError(context, err)
+			return
+		}
+
+		logger.InfoContext(context, "get all discount with success")
+		context.JSON(http.StatusOK, res)
 	})
 }
 
