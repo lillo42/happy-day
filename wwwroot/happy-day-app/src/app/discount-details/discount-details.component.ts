@@ -1,23 +1,23 @@
-import { CommonModule, DatePipe } from '@angular/common';
-import { HttpErrorResponse } from "@angular/common/http";
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
+import {CommonModule, DatePipe} from '@angular/common';
+import {HttpErrorResponse} from "@angular/common/http";
+import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {ActivatedRoute, Router} from "@angular/router";
 
-import { MatAutocompleteModule } from "@angular/material/autocomplete";
-import { MatButtonModule } from "@angular/material/button";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatIconModule } from "@angular/material/icon";
-import { MatInputModule } from "@angular/material/input";
-import { MatSnackBar } from "@angular/material/snack-bar";
-import { MatTooltipModule } from "@angular/material/tooltip";
+import {MatAutocompleteModule} from "@angular/material/autocomplete";
+import {MatButtonModule} from "@angular/material/button";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatIconModule} from "@angular/material/icon";
+import {MatInputModule} from "@angular/material/input";
+import {MatSnackBar} from "@angular/material/snack-bar";
+import {MatTooltipModule} from "@angular/material/tooltip";
 
-import { NgxMaskDirective } from "ngx-mask";
-import { debounceTime, empty, of, switchMap } from "rxjs";
+import {NgxMaskDirective} from "ngx-mask";
+import {of, switchMap} from "rxjs";
 
-import { ProblemDetails } from "../common";
-import { Discount, DiscountsService, Product } from "../discounts.service";
-import { ProductsService } from "../products.service";
+import {ProblemDetails} from "../common";
+import {Discount, DiscountProduct, DiscountsService} from "../discounts.service";
+import {ProductsService} from "../products.service";
 
 @Component({
   selector: 'app-discount-details',
@@ -31,7 +31,7 @@ export class DiscountDetailsComponent implements OnInit, AfterViewInit {
   id: string | null = null;
   isNew: boolean = true;
   hasFound: boolean = true;
-  filteredProducts: Product[] = [];
+  filteredProducts: DiscountProduct[] = [];
 
   @ViewChild("productInput") productInput: ElementRef | null = null;
 
@@ -90,10 +90,6 @@ export class DiscountDetailsComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    if (this.productInput === null) {
-      return;
-    }
-
     this.loadProducts();
   }
 
@@ -105,7 +101,7 @@ export class DiscountDetailsComponent implements OnInit, AfterViewInit {
     this.products.removeAt(index);
   }
 
-  addProduct(product: Product): void {
+  addProduct(product: DiscountProduct): void {
     this.products.push(this.builder.group({
       id: [{value: product?.id, disabled: true}, [Validators.required]],
       name: [{value: product?.name, disabled: true}, null],
@@ -113,7 +109,7 @@ export class DiscountDetailsComponent implements OnInit, AfterViewInit {
     }));
   }
 
-  displayProduct(product: Product | null): string {
+  displayProduct(product: DiscountProduct | null): string {
     return product?.name || '';
   }
 
@@ -169,12 +165,12 @@ export class DiscountDetailsComponent implements OnInit, AfterViewInit {
             return
           }
           this.filteredProducts = page.items.map(prod => {
-            return <Product>{
+            return <DiscountProduct>{
               id: prod.id,
               name: prod.name,
               quantity: 0,
             }
-          })
+          });
         },
         error: err => this.snackBar.open(err.message, 'OK')
       });

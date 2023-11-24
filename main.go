@@ -122,6 +122,12 @@ func runHttpServer() {
 		}
 	}
 
+	orders.DiscountServiceFactory = func(ctx context.Context) orders.DiscountService {
+		return &GlobalDiscountService{
+			repository: discounts.CreateRepository(ctx),
+		}
+	}
+
 	if err := engine.Run(); err != nil {
 		slog.Error("fatal error to run HTTP Server", slog.Any("err", err))
 		panic(fmt.Errorf("fatal error to run HTTP Server: %w", err))

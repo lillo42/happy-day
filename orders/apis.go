@@ -197,6 +197,27 @@ func Map(router *gin.RouterGroup) {
 		context.JSON(http.StatusOK, res)
 	})
 
+	r.POST("/quote", func(context *gin.Context) {
+		logger := infra.ResolverLogger(context)
+
+		var req QuoteRequest
+		if err := context.BindJSON(&req); err != nil {
+			logger.WarnContext(context, "error during json bind", slog.Any("err", err))
+			context.JSON(BadRequest.Status, &BadRequest)
+			return
+		}
+
+		command := createCommand(context)
+		res, err := command.Quote(context, req)
+
+		if err != nil {
+			logger.WarnContext(context, "error during quoting", slog.Any("err", err))
+			writeError(context, err)
+			return
+		}
+
+		context.JSON(http.StatusOK, res)
+	})
 }
 
 func writeError(context *gin.Context, err error) {
@@ -258,6 +279,7 @@ func createCommand(ctx context.Context) *Command {
 	return &Command{
 		productService:  ProductServiceFactory(ctx),
 		customerService: CustomerServiceFactory(ctx),
+		discountService: DiscountServiceFactory(ctx),
 		repository:      createRepository(ctx),
 	}
 }
@@ -271,6 +293,7 @@ func createRepository(ctx context.Context) OrderRepository {
 var (
 	ProductServiceFactory  func(ctx context.Context) ProductService
 	CustomerServiceFactory func(ctx context.Context) CustomerService
+	DiscountServiceFactory func(ctx context.Context) DiscountService
 
 	InternalErrorServer = infra.ProblemDetails{
 		Status: http.StatusInternalServerError,

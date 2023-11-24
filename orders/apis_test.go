@@ -11,6 +11,7 @@ import (
 	"gorm.io/gorm"
 	gormlogger "gorm.io/gorm/logger"
 	"happyday/customers"
+	"happyday/discounts"
 	"happyday/infra"
 	"happyday/products"
 	"log/slog"
@@ -53,6 +54,14 @@ func init() {
 		CustomerServiceFactory = func(ctx context.Context) CustomerService {
 			return &TestCustomerService{
 				repository: customers.CreateRepository(ctx),
+			}
+		}
+	}
+
+	if DiscountServiceFactory == nil {
+		DiscountServiceFactory = func(ctx context.Context) DiscountService {
+			return &TestDiscountService{
+				repository: discounts.CreateRepository(ctx),
 			}
 		}
 	}
@@ -353,7 +362,36 @@ type (
 	TestCustomerService struct {
 		repository customers.CustomerRepository
 	}
+
+	TestDiscountService struct {
+		repository discounts.DiscountRepository
+	}
 )
+
+func (t *TestDiscountService) GetAll(ctx context.Context, productsID []uuid.UUID) ([]DiscountProjection, error) {
+	discounts, err := t.repository.GetAllWithProducts(ctx, productsID)
+	if err != nil {
+		return nil, err
+	}
+
+	proj := make([]DiscountProjection, len(discounts))
+	for i, discount := range discounts {
+		prods := make([]DiscountProducts, len(discount.Products))
+		for j, prod := range discount.Products {
+			prods[j] = DiscountProducts{
+				ID:       prod.ID,
+				Quantity: prod.Quantity,
+			}
+		}
+
+		proj[i] = DiscountProjection{
+			Price:    discount.Price,
+			Products: prods,
+		}
+	}
+
+	return proj, nil
+}
 
 func (c *TestCustomerService) Exists(ctx context.Context, id uuid.UUID) (bool, error) {
 	cus, err := c.repository.GetOrCreate(ctx, id)

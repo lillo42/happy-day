@@ -1,16 +1,16 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
-import { Router } from "@angular/router";
+import {AfterViewInit, Component, ElementRef, ViewChild} from '@angular/core';
+import {Router} from "@angular/router";
 
-import { MatDialog } from "@angular/material/dialog";
-import { MatPaginator } from "@angular/material/paginator";
-import { MatSelect } from "@angular/material/select";
-import { MatSnackBar } from "@angular/material/snack-bar";
-import { MatTableDataSource } from "@angular/material/table";
+import {MatDialog} from "@angular/material/dialog";
+import {MatPaginator} from "@angular/material/paginator";
+import {MatSelect} from "@angular/material/select";
+import {MatSnackBar} from "@angular/material/snack-bar";
+import {MatTableDataSource} from "@angular/material/table";
 
-import { debounceTime } from "rxjs";
+import {debounceTime} from "rxjs";
 
-import { ProductsService } from "../products.service";
-import { ProductDeleteComponent } from "../product-delete/product-delete.component";
+import {ProductsService} from "../products.service";
+import {ProductDeleteComponent} from "../product-delete/product-delete.component";
 
 @Component({
   selector: 'app-product-list',
@@ -45,7 +45,7 @@ export class ProductListComponent implements AfterViewInit {
   }
 
   edit(id: string): Promise<boolean> {
-    return this.router.navigateByUrl(`/customers/${id}`);
+    return this.router.navigateByUrl(`/products/${id}`);
   }
 
   load(): void {
@@ -71,6 +71,7 @@ export class ProductListComponent implements AfterViewInit {
             return;
           }
 
+          this.dataSourceLength = page.totalPages;
           this.dataSource.data = page.items.map(product => {
             return <ProductElement>{
               id: product.id,
@@ -78,8 +79,6 @@ export class ProductListComponent implements AfterViewInit {
               price: product.price,
             }
           });
-
-          this.dataSourceLength = page.totalPages;
         },
         error: err => this.snack.open(err.message, 'OK')
       });

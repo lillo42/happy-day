@@ -1,10 +1,10 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from "@angular/common/http";
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpParams} from "@angular/common/http";
 
-import { Observable } from "rxjs";
+import {Observable} from "rxjs";
 
-import { environment } from "../environments/environment";
-import { Page } from "./common";
+import {environment} from "../environments/environment";
+import {Page} from "./common";
 
 @Injectable({
   providedIn: 'root'
@@ -50,12 +50,12 @@ export interface Discount {
   id: string;
   name: string;
   price: number;
-  products: Product[];
+  products: DiscountProduct[];
   createAt: Date;
   updateAt: Date;
 }
 
-export interface Product {
+export interface DiscountProduct {
   id: string;
   name: string;
   quantity: number;

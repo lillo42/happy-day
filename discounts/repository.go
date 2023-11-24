@@ -16,6 +16,8 @@ type (
 		GetOrCreate(ctx context.Context, id uuid.UUID) (Discount, error)
 		GetAll(ctx context.Context, filter DiscountFilter) (infra.Page[Discount], error)
 
+		GetAllWithProducts(ctx context.Context, productsId []uuid.UUID) ([]Discount, error)
+
 		Save(ctx context.Context, discount Discount) (Discount, error)
 		Delete(ctx context.Context, id uuid.UUID) error
 	}
@@ -30,6 +32,28 @@ type (
 		Size int
 	}
 )
+
+func (g *GormDiscountRepository) GetAllWithProducts(ctx context.Context, productsId []uuid.UUID) ([]Discount, error) {
+	var discountsDB []infra.Discount
+	result := g.db.
+		WithContext(ctx).
+		Model(&infra.Discount{}).
+		Preload("Products").
+		Preload("Products.Product", "id in (?)", productsId).
+		Scan(&discountsDB)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	discounts := make([]Discount, len(discountsDB))
+
+	for i, discountDB := range discountsDB {
+		discounts[i] = mapToDiscount(discountDB)
+	}
+
+	return discounts, nil
+}
 
 func (g *GormDiscountRepository) GetAll(ctx context.Context, filter DiscountFilter) (infra.Page[Discount], error) {
 	query := g.db.

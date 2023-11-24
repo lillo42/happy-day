@@ -44,7 +44,7 @@ func (s *SlogGorm) Info(ctx context.Context, query string, args ...interface{}) 
 		return
 	}
 
-	s.Logger.InfoContext(ctx, query, args)
+	s.Logger.InfoContext(ctx, query, slog.Any("args", args))
 }
 
 func (s *SlogGorm) Warn(ctx context.Context, query string, args ...interface{}) {
@@ -52,7 +52,7 @@ func (s *SlogGorm) Warn(ctx context.Context, query string, args ...interface{}) 
 		return
 	}
 
-	s.Logger.WarnContext(ctx, query, args)
+	s.Logger.WarnContext(ctx, query, slog.Any("args", args))
 }
 
 func (s *SlogGorm) Error(ctx context.Context, query string, args ...interface{}) {
@@ -60,7 +60,7 @@ func (s *SlogGorm) Error(ctx context.Context, query string, args ...interface{})
 		return
 	}
 
-	s.Logger.ErrorContext(ctx, query, args)
+	s.Logger.ErrorContext(ctx, query, slog.Any("args", args))
 }
 
 func (s *SlogGorm) Trace(ctx context.Context, begin time.Time, fc func() (sql string, rowsAffected int64), err error) {

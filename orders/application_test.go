@@ -157,7 +157,7 @@ func TestCreateOrChangeInvalidProduct(t *testing.T) {
 	productService := new(MockProductService)
 	productService.
 		On("Get", mock.Anything, mock.Anything).
-		Return(Product{}, nil)
+		Return(ProductProjection{}, nil)
 
 	command := &Command{
 		repository:      repo,

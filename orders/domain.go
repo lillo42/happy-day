@@ -13,7 +13,7 @@ type (
 		Address    string    `json:"address"`
 		Comment    string    `json:"comment,omitempty"`
 		DeliveryAt time.Time `json:"deliveryAt"`
-		PickUp     time.Time `json:"pickUp"`
+		PickUpAt   time.Time `json:"pickUpAt"`
 		TotalPrice float64   `json:"totalPrice"`
 		Discount   float64   `json:"discount"`
 		FinalPrice float64   `json:"finalPrice"`
@@ -26,9 +26,10 @@ type (
 	}
 
 	Customer struct {
-		ID     uuid.UUID `json:"id"`
-		Name   string    `json:"name"`
-		Phones []string  `json:"phones"`
+		ID      uuid.UUID `json:"id"`
+		Name    string    `json:"name"`
+		Comment string    `json:"comment"`
+		Phones  []string  `json:"phones"`
 	}
 
 	Product struct {
@@ -40,7 +41,7 @@ type (
 
 	Payment struct {
 		Method PaymentMethod `json:"method"`
-		Info   string        `json:"paymentInfo"`
+		Info   string        `json:"info"`
 		Value  float64       `json:"value"`
 		At     time.Time     `json:"at"`
 	}

@@ -38,7 +38,7 @@ func (g *GormOrderRepository) GetAll(ctx context.Context, filter OrderFilter) (i
 	query := g.db.
 		WithContext(ctx).
 		Model(&infra.Order{}).
-		Joins("JOIN customers ON customers.id = orders.id")
+		Joins("JOIN customers ON customers.id = orders.customer_id")
 
 	if len(filter.Address) > 0 {
 		query.Where("orders.address LIKE ?", "%"+filter.Address+"%")
@@ -68,6 +68,7 @@ func (g *GormOrderRepository) GetAll(ctx context.Context, filter OrderFilter) (i
 
 	var ordersDB []infra.Order
 	result = query.
+		Preload("Customer").
 		Preload("Payments").
 		Preload("Products").
 		Preload("Products.Product").
@@ -76,7 +77,7 @@ func (g *GormOrderRepository) GetAll(ctx context.Context, filter OrderFilter) (i
 		Offset(filter.Page * filter.Size).
 		Find(&ordersDB)
 
-	if result != nil {
+	if result.Error != nil {
 		return infra.Page[Order]{}, result.Error
 	}
 
@@ -139,7 +140,7 @@ func (g *GormOrderRepository) Save(ctx context.Context, order Order) (Order, err
 	orderDB.Comment = order.Comment
 	orderDB.Address = order.Address
 	orderDB.DeliveryAt = order.DeliveryAt
-	orderDB.PickUp = order.PickUp
+	orderDB.PickUp = order.PickUpAt
 	orderDB.TotalPrice = order.TotalPrice
 	orderDB.Discount = order.Discount
 	orderDB.FinalPrice = order.FinalPrice
@@ -266,7 +267,7 @@ func mapToOrder(orderDB infra.Order) Order {
 		Address:    orderDB.Address,
 		Comment:    orderDB.Comment,
 		DeliveryAt: orderDB.DeliveryAt,
-		PickUp:     orderDB.PickUp,
+		PickUpAt:   orderDB.PickUp,
 		TotalPrice: orderDB.TotalPrice,
 		Discount:   orderDB.Discount,
 		FinalPrice: orderDB.FinalPrice,
@@ -274,11 +275,12 @@ func mapToOrder(orderDB infra.Order) Order {
 		UpdateAt:   orderDB.UpdateAt,
 		Version:    orderDB.Version,
 		Payments:   make([]Payment, len(orderDB.Payments)),
-		Products:   make([]Product, len(orderDB.Payments)),
+		Products:   make([]Product, len(orderDB.Products)),
 		Customer: Customer{
-			ID:     orderDB.Customer.ExternalID,
-			Name:   orderDB.Customer.Name,
-			Phones: phones,
+			ID:      orderDB.Customer.ExternalID,
+			Name:    orderDB.Customer.Name,
+			Comment: orderDB.Customer.Comment,
+			Phones:  phones,
 		},
 	}
 

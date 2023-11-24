@@ -20,7 +20,7 @@ type (
 		Address    string    `json:"address"`
 		Comment    string    `json:"comment,omitempty"`
 		DeliveryAt time.Time `json:"deliveryAt"`
-		PickUp     time.Time `json:"pickUp"`
+		PickUp     time.Time `json:"pickUpAt"`
 		TotalPrice float64   `json:"totalPrice"`
 		Discount   float64   `json:"discount"`
 		FinalPrice float64   `json:"finalPrice"`
@@ -56,7 +56,7 @@ func (c *Command) CreateOrChange(context context.Context, req CreateOrChange) (O
 		return Order{}, ErrAddressIsTooLarge
 	}
 
-	if !req.DeliveryAt.Before(req.PickUp) {
+	if !req.DeliveryAt.Before(req.PickUp) && !req.DeliveryAt.Equal(req.PickUp) {
 		return Order{}, ErrDeliveryAtIsInvalid
 	}
 
@@ -117,7 +117,7 @@ func (c *Command) CreateOrChange(context context.Context, req CreateOrChange) (O
 	order.Address = req.Address
 	order.Comment = req.Comment
 	order.DeliveryAt = req.DeliveryAt
-	order.PickUp = req.PickUp
+	order.PickUpAt = req.PickUp
 	order.TotalPrice = req.TotalPrice
 	order.Discount = req.Discount
 	order.FinalPrice = req.FinalPrice

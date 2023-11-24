@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"happyday/infra"
 	"testing"
 )
 
@@ -227,6 +228,16 @@ type (
 func (m *MockProductService) Exists(ctx context.Context, id uuid.UUID) (bool, error) {
 	args := m.Called(ctx, id)
 	return args.Bool(0), args.Error(1)
+}
+
+func (m *MockDiscountRepository) GetAll(ctx context.Context, filter DiscountFilter) (infra.Page[Discount], error) {
+	args := m.Called(ctx, filter)
+	return args.Get(0).(infra.Page[Discount]), args.Error(1)
+}
+
+func (m *MockDiscountRepository) GetAllWithProducts(ctx context.Context, productsId []uuid.UUID) ([]Discount, error) {
+	args := m.Called(ctx, productsId)
+	return args.Get(0).([]Discount), args.Error(1)
 }
 
 func (m *MockDiscountRepository) GetOrCreate(ctx context.Context, id uuid.UUID) (Discount, error) {
