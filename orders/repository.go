@@ -154,7 +154,7 @@ func (g *GormOrderRepository) Save(ctx context.Context, order Order) (Order, err
 			ID:     uuid.New(),
 			Method: string(payment.Method),
 			At:     payment.At,
-			Value:  payment.Value,
+			Value:  payment.Amount,
 			Info:   payment.Info,
 		}
 	}
@@ -295,7 +295,7 @@ func mapToOrder(orderDB infra.Order) Order {
 
 	for i, payment := range orderDB.Payments {
 		order.Payments[i] = Payment{
-			Value:  payment.Value,
+			Amount: payment.Value,
 			At:     payment.At,
 			Info:   payment.Info,
 			Method: PaymentMethod(payment.Method),

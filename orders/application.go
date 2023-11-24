@@ -99,9 +99,8 @@ func (c *Command) CreateOrChange(context context.Context, req CreateOrChange) (O
 		}
 	}
 
-	order.Payments = make([]Payment, len(req.Payments))
 	for _, payment := range req.Payments {
-		if payment.Value <= 0 {
+		if payment.Amount <= 0 {
 			return Order{}, ErrPaymentValueIsInvalid
 		}
 
@@ -122,6 +121,7 @@ func (c *Command) CreateOrChange(context context.Context, req CreateOrChange) (O
 	order.Discount = req.Discount
 	order.FinalPrice = req.FinalPrice
 	order.Customer = Customer{ID: req.CustomerID}
+	order.Payments = req.Payments
 
 	return c.repository.Save(context, order)
 }

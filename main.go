@@ -106,7 +106,7 @@ func runHttpServer() {
 	discounts.Map(apiRouter)
 	orders.Map(apiRouter)
 
-	engine.Static("/", "./wwwroot")
+	//engine.Static("/", "./wwwroot")
 
 	discounts.ProductServiceFactory = func(ctx context.Context) discounts.ProductService {
 		return &GlobalProductService{

@@ -42,7 +42,7 @@ type (
 	Payment struct {
 		Method PaymentMethod `json:"method"`
 		Info   string        `json:"info"`
-		Value  float64       `json:"value"`
+		Amount float64       `json:"amount"`
 		At     time.Time     `json:"at"`
 	}
 )

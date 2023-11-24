@@ -43,7 +43,13 @@
       <mat-error *ngIf="form.get('finalPrice')!.hasError('min')" i18n>Final Price must be greater than 0</mat-error>
     </mat-form-field>
 
+    <mat-form-field appearance="outline">
+      <mat-label i18n>Comment</mat-label>
+      <textarea formControlName="comment" matInput placeholder="...."></textarea>
+    </mat-form-field>
+
     <ng-container formGroupName="customer">
+      <h3 i18n>Customer info</h3>
       <mat-form-field appearance="outline">
         <mat-label i18n>Customer ID</mat-label>
         <input formControlName="id" matInput/>
@@ -92,9 +98,11 @@
       </div>
     </ng-container>
 
+    <h3 i18n>Product info</h3>
     <mat-form-field appearance="outline">
       <mat-label i18n>Products</mat-label>
-      <input #productInput (keyup)="loadProducts()" [matAutocomplete]="auto" matInput placeholder="Chairs" type="text">
+      <input #productInput (keyup)="loadProducts()" [matAutocomplete]="auto" matInput placeholder="Chairs"
+             type="text">
       <mat-autocomplete #auto="matAutocomplete" (optionSelected)="addProduct($event.option.value)"
                         [displayWith]="displayProduct">
         <mat-option *ngFor="let product of filteredProducts" [value]="product">
@@ -104,8 +112,8 @@
     </mat-form-field>
 
     <ng-container formArrayName="products">
-      <div class="container-row product-item">
-        <ng-container *ngFor="let product of products.controls; let i = index" [formGroup]="asFormGroup(product)">
+      <ng-container *ngFor="let product of products.controls; let i = index" [formGroup]="asFormGroup(product)">
+        <div class="container-row product-item">
           <mat-form-field appearance="outline" class="product-field">
             <mat-label i18n>ID</mat-label>
             <input formControlName="id" matInput type="text"/>
@@ -131,14 +139,57 @@
 
           <button (click)="deleteProduct(i)" color="warn" i18n mat-raised-button matTooltip="remvoe product">Delete
           </button>
-        </ng-container>
-      </div>
+        </div>
+      </ng-container>
     </ng-container>
 
-    <mat-form-field appearance="outline">
-      <mat-label i18n>Comment</mat-label>
-      <textarea formControlName="comment" matInput placeholder="...."></textarea>
-    </mat-form-field>
+    <h3 i18n>Payment info</h3>
+    <div class="default-margin-bottom">
+      <button (click)="addPayment(null)" mat-raised-button>Add Payment</button>
+    </div>
+
+    <ng-container formArrayName="payments">
+      <ng-container *ngFor="let payment of payments.controls; let i = index" [formGroup]="asFormGroup(payment)">
+        <div class="container-row product-item">
+          <mat-form-field appearance="outline" class="product-field">
+            <mat-label i18n>Info</mat-label>
+            <input formControlName="info" matInput type="text"/>
+            <mat-error *ngIf="payment.get('info')!.hasError('required')">Info is mandatory</mat-error>
+            <mat-error *ngIf="payment.get('info')!.hasError('maxLength')">Info must be less than 100</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="product-field">
+            <mat-label i18n>Amount</mat-label>
+            <input formControlName="amount" matInput step="0.01" type="number"/>
+            <mat-error *ngIf="payment.get('amount')!.hasError('required')">Amount is mandatory</mat-error>
+            <mat-error *ngIf="payment.get('amount')!.hasError('min')">Amount must be greater than 0</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="product-field">
+            <mat-label i18n>At</mat-label>
+            <input [matDatepicker]="picker" formControlName="at" matInput>
+            <mat-hint>DD/MM/YYYY</mat-hint>
+            <mat-datepicker-toggle [for]="picker" matIconSuffix></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="product-field">
+            <mat-label i18n>Method</mat-label>
+            <mat-select formControlName="method">
+              <mat-option value="pix">Pix</mat-option>
+              <mat-option i18n value="bank-transfer">Bank transfer</mat-option>
+              <mat-option i18n value="cash">cash</mat-option>
+            </mat-select>
+            <mat-error *ngIf="payment.get('method')!.hasError('required')">Method is mandatory</mat-error>
+          </mat-form-field>
+
+          <button (click)="deletePayment(i)" color="warn" i18n mat-raised-button matTooltip="remvoe payment">
+            Delete
+          </button>
+        </div>
+      </ng-container>
+    </ng-container>
+
 
     <mat-form-field *ngIf="!isNew" appearance="outline">
       <mat-label i18n>Create At</mat-label>

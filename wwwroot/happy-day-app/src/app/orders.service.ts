@@ -100,7 +100,7 @@ export interface OrderProduct {
 
 export interface OrderPayment {
   info: string;
-  value: number;
+  amount: number;
   at: Date;
   method: "pix" | "bank-transfer" | "cash";
 }

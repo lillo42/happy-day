@@ -176,7 +176,7 @@ func TestHttpPost(t *testing.T) {
 			FinalPrice: 8,
 			CustomerID: customerID,
 			Payments: []Payment{
-				{At: time.Now(), Value: 8, Method: Pix, Info: testID.String()},
+				{At: time.Now(), Amount: 8, Method: Pix, Info: testID.String()},
 			},
 			Products: []Product{
 				{ID: productID, Quantity: 5},
@@ -286,7 +286,7 @@ func TestHttpPut(t *testing.T) {
 			FinalPrice: 10,
 			CustomerID: customerID,
 			Payments: []Payment{
-				{At: time.Now(), Value: 8, Method: Pix, Info: testID.String()},
+				{At: time.Now(), Amount: 8, Method: Pix, Info: testID.String()},
 			},
 			Products: []Product{
 				{ID: productID, Quantity: 6},

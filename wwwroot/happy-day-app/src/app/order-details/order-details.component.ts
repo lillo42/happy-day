@@ -2,6 +2,7 @@ import {CommonModule, DatePipe} from '@angular/common';
 import {HttpErrorResponse} from "@angular/common/http";
 import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from "@angular/core";
 import {AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {MatSelectModule} from "@angular/material/select";
 import {ActivatedRoute, Router} from "@angular/router";
 
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
@@ -20,13 +21,21 @@ import {debounceTime, of, switchMap} from "rxjs";
 import {ProblemDetails} from "../common";
 
 import {Customer, CustomersService} from "../customers.service";
-import {Order, OrderCreateOrChange, OrderCustomer, OrderProduct, OrderQuote, OrdersService} from "../orders.service";
+import {
+  Order,
+  OrderCreateOrChange,
+  OrderCustomer,
+  OrderPayment,
+  OrderProduct,
+  OrderQuote,
+  OrdersService
+} from "../orders.service";
 import {ProductsService} from "../products.service";
 
 @Component({
   selector: 'app-order-details',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatTooltipModule, MatAutocompleteModule, MatOptionModule, MatIconModule, NgxMaskDirective, MatDatepickerModule],
+  imports: [CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatTooltipModule, MatAutocompleteModule, MatOptionModule, MatIconModule, NgxMaskDirective, MatDatepickerModule, MatSelectModule],
   templateUrl: './order-details.component.html',
   styleUrl: './order-details.component.scss'
 })
@@ -199,6 +208,23 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
     ]));
   }
 
+  get payments(): FormArray {
+    return this.form.get('payments') as FormArray;
+  }
+
+  deletePayment(index: number): void {
+    this.payments.removeAt(index);
+  }
+
+  addPayment(payment: OrderPayment | null = null): void {
+    this.payments.push(this.builder.group({
+      info: [payment?.info, [Validators.required, Validators.maxLength(100)]],
+      amount: [payment?.amount, [Validators.required, Validators.min(0)]],
+      at: [payment?.at, [Validators.required]],
+      method: [payment?.method, [Validators.required]],
+    }));
+  }
+
   loadProducts(): void {
     if (this.productInput === null) {
       return;
@@ -364,6 +390,9 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
 
     this.products.clear();
     order.products.forEach(product => this.addProduct(product));
+
+    this.payments.clear();
+    order.payments.forEach(payment => this.addPayment(payment));
 
     this.form.get("createAt")!.setValue(this.datePipe.transform(order.createAt, 'dd/MM/yyyy HH:mm:ss'));
     this.form.get("updateAt")!.setValue(this.datePipe.transform(order.updateAt, 'dd/MM/yyyy HH:mm:ss'));

@@ -218,7 +218,7 @@ func TestCreateOrChangeInvalidPayment(t *testing.T) {
 				{ID: productID, Quantity: 10},
 			},
 			Payments: []Payment{
-				{Method: Pix, At: time.Now(), Value: 0},
+				{Method: Pix, At: time.Now(), Amount: 0},
 			},
 		})
 
@@ -239,7 +239,7 @@ func TestCreateOrChangeInvalidPayment(t *testing.T) {
 				{ID: productID, Quantity: 10},
 			},
 			Payments: []Payment{
-				{Method: Pix, At: time.Now(), Value: 1},
+				{Method: Pix, At: time.Now(), Amount: 1},
 			},
 		})
 
@@ -260,7 +260,7 @@ func TestCreateOrChangeInvalidPayment(t *testing.T) {
 				{ID: productID, Quantity: 10},
 			},
 			Payments: []Payment{
-				{Method: Pix, At: time.Now(), Value: 1, Info: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore  "},
+				{Method: Pix, At: time.Now(), Amount: 1, Info: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore  "},
 			},
 		})
 
@@ -308,7 +308,7 @@ func TestCreateOrChange(t *testing.T) {
 			{ID: productID, Quantity: 10},
 		},
 		Payments: []Payment{
-			{Method: Pix, At: time.Now(), Value: 10, Info: uuid.NewString()},
+			{Method: Pix, At: time.Now(), Amount: 10, Info: uuid.NewString()},
 		},
 	})
 
