@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/lmittmann/tint"
@@ -21,6 +22,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"os"
+	"path/filepath"
 	"runtime/debug"
 	"strings"
 	"time"
@@ -36,9 +38,13 @@ func main() {
 func loadConfig() {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yml")
-	viper.AddConfigPath(".")
+	path, err := os.Executable()
+	if err != nil || strings.Contains(path, "JetBrains") {
+		viper.AddConfigPath(".")
+	} else {
+		viper.AddConfigPath(filepath.Dir(path))
+	}
 	viper.AutomaticEnv()
-
 	if err := viper.ReadInConfig(); err != nil {
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
@@ -99,6 +105,8 @@ func runHttpServer() {
 			AllowHeaders: []string{"*"},
 		}))
 	}
+
+	engine.Use(static.Serve("/", static.LocalFile("./wwwroot", false)))
 
 	apiRouter := engine.Group("/api")
 	customers.Map(apiRouter)
