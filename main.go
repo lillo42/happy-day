@@ -92,17 +92,21 @@ func runHttpServer() {
 	engine := gin.New()
 	engine.Use(slogLogger)
 	engine.Use(slogRecovery)
-	engine.Use(cors.New(cors.Config{
-		AllowOrigins: []string{"*"},
-		AllowMethods: []string{"*"},
-		AllowHeaders: []string{"*"},
-	}))
+	if viper.GetBool("isCorEnable") {
+		engine.Use(cors.New(cors.Config{
+			AllowOrigins: []string{"*"},
+			AllowMethods: []string{"*"},
+			AllowHeaders: []string{"*"},
+		}))
+	}
 
 	apiRouter := engine.Group("/api")
 	customers.Map(apiRouter)
 	products.Map(apiRouter)
 	discounts.Map(apiRouter)
 	orders.Map(apiRouter)
+
+	engine.Static("/", "./wwwroot")
 
 	discounts.ProductServiceFactory = func(ctx context.Context) discounts.ProductService {
 		return &GlobalProductService{
