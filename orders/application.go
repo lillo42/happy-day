@@ -103,14 +103,6 @@ func (c *Command) CreateOrChange(context context.Context, req CreateOrChange) (O
 		if payment.Amount <= 0 {
 			return Order{}, ErrPaymentValueIsInvalid
 		}
-
-		if len(payment.Info) == 0 {
-			return Order{}, ErrPaymentInfoIsEmpty
-		}
-
-		if len(payment.Info) > 100 {
-			return Order{}, ErrPaymentInfoIsTooLarge
-		}
 	}
 
 	order.Address = req.Address

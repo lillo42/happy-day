@@ -111,7 +111,6 @@ func (g *GormCustomerRepository) Save(ctx context.Context, customer Customer) (C
 	customerDB.Name = customer.Name
 	customerDB.Comment = customer.Comment
 	customerDB.Phones = string(phones)
-	customerDB.Pix = customer.Pix
 	customerDB.Version = customer.Version + 1
 	customerDB.UpdateAt = time.Now()
 
@@ -158,7 +157,6 @@ func mapToCustomer(customerDB infra.Customer) Customer {
 		ID:       customerDB.ExternalID,
 		Name:     customerDB.Name,
 		Comment:  customerDB.Comment,
-		Pix:      customerDB.Pix,
 		Phones:   phones,
 		CreateAt: customerDB.CreateAt,
 		UpdateAt: customerDB.UpdateAt,

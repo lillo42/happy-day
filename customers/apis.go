@@ -223,12 +223,6 @@ var (
 		Title:  "Customer name is too large",
 	}
 
-	PixIsTooLarge = infra.ProblemDetails{
-		Status: http.StatusUnprocessableEntity,
-		Type:   "customer-pix-is-too-large",
-		Title:  "Customer pix is too large",
-	}
-
 	PhoneNumberIsInvalid = infra.ProblemDetails{
 		Status: http.StatusUnprocessableEntity,
 		Type:   "customer-phone-number-is-invalid",
@@ -263,10 +257,6 @@ func mapErrorToProblemDetails(context *gin.Context, err error) infra.ProblemDeta
 
 	if errors.Is(err, ErrNameIsTooLarge) {
 		return NameIsTooLarge
-	}
-
-	if errors.Is(err, ErrPixIsTooLarge) {
-		return PixIsTooLarge
 	}
 
 	if errors.Is(err, ErrPhoneNumberIsInvalid) {

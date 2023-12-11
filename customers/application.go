@@ -15,7 +15,6 @@ type (
 		ID      uuid.UUID `json:"id,omitempty"`
 		Name    string    `json:"name"`
 		Comment string    `json:"comment,omitempty"`
-		Pix     string    `json:"pix,omitempty"`
 		Phones  []string  `json:"phones,omitempty"`
 	}
 )
@@ -39,10 +38,6 @@ func (command *Command) CreateOrChange(ctx context.Context, req CreateOrChangeCu
 		return Customer{}, ErrNameIsTooLarge
 	}
 
-	if len(req.Pix) > 255 {
-		return Customer{}, ErrPixIsTooLarge
-	}
-
 	for _, phone := range req.Phones {
 		if len(phone) < 8 || len(phone) > 11 {
 			return Customer{}, ErrPhoneNumberIsInvalid
@@ -57,7 +52,6 @@ func (command *Command) CreateOrChange(ctx context.Context, req CreateOrChangeCu
 	customer.Name = req.Name
 	customer.Comment = req.Comment
 	customer.Phones = req.Phones
-	customer.Pix = req.Pix
 
 	return command.repository.Save(ctx, customer)
 }

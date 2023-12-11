@@ -41,7 +41,6 @@ type (
 
 	Payment struct {
 		Method PaymentMethod `json:"method"`
-		Info   string        `json:"info"`
 		Amount float64       `json:"amount"`
 		At     time.Time     `json:"at"`
 	}

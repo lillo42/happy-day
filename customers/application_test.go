@@ -41,25 +41,6 @@ func TestCreateOrChangeNameIsLargeThan255(t *testing.T) {
 	repository.AssertExpectations(t)
 }
 
-func TestCreateOrChangePixIsLargeThan255(t *testing.T) {
-	repository := new(MockCustomerRepository)
-	repository.On("GetOrCreate", mock.Anything, mock.Anything).Return(Customer{}, nil)
-
-	command := &Command{
-		repository: repository,
-	}
-
-	_, err := command.CreateOrChange(context.Background(), CreateOrChangeCustomer{
-		Name: "Lorem ipsum",
-		Pix:  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in",
-	})
-
-	assert.NotNil(t, err)
-	assert.Equal(t, ErrPixIsTooLarge, err)
-
-	repository.AssertExpectations(t)
-}
-
 func TestCreateOrChangePhoneIsEmpty(t *testing.T) {
 	repository := new(MockCustomerRepository)
 	repository.On("GetOrCreate", mock.Anything, mock.Anything).Return(Customer{}, nil)

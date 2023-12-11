@@ -12,7 +12,6 @@ type (
 		Name       string    `gorm:"size:255;not null"`
 		Comment    string
 		Phones     string
-		Pix        string    `gorm:"size:50"`
 		Orders     []Order   `gorm:"foreignKey:CustomerID;references:ID"`
 		CreateAt   time.Time `gorm:"not null"`
 		UpdateAt   time.Time `gorm:"not null"`
@@ -72,7 +71,6 @@ type (
 	OrderPayment struct {
 		ID      uuid.UUID `gorm:"size:36;primaryKey;not null"`
 		Method  string    `gorm:"size:50;not null"`
-		Info    string    `gorm:"size:100;not null"`
 		Value   float64   `gorm:"precision:10;scale:2;not null"`
 		At      time.Time `gorm:"not null"`
 		OrderID uint      `gorm:"not null;index"`

@@ -225,48 +225,6 @@ func TestCreateOrChangeInvalidPayment(t *testing.T) {
 		assert.NotNil(t, err)
 		assert.Equal(t, ErrPaymentValueIsInvalid, err)
 	})
-
-	t.Run("missing payment info", func(t *testing.T) {
-		_, err := command.CreateOrChange(context.Background(), CreateOrChange{
-			Address:    "test",
-			DeliveryAt: time.Now(),
-			PickUp:     time.Now().Add(time.Hour * 24),
-			TotalPrice: 10,
-			Discount:   5,
-			FinalPrice: 5,
-			CustomerID: uuid.New(),
-			Products: []Product{
-				{ID: productID, Quantity: 10},
-			},
-			Payments: []Payment{
-				{Method: Pix, At: time.Now(), Amount: 1},
-			},
-		})
-
-		assert.NotNil(t, err)
-		assert.Equal(t, ErrPaymentInfoIsEmpty, err)
-	})
-
-	t.Run("large payment info", func(t *testing.T) {
-		_, err := command.CreateOrChange(context.Background(), CreateOrChange{
-			Address:    "test",
-			DeliveryAt: time.Now(),
-			PickUp:     time.Now().Add(time.Hour * 24),
-			TotalPrice: 10,
-			Discount:   5,
-			FinalPrice: 5,
-			CustomerID: uuid.New(),
-			Products: []Product{
-				{ID: productID, Quantity: 10},
-			},
-			Payments: []Payment{
-				{Method: Pix, At: time.Now(), Amount: 1, Info: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore  "},
-			},
-		})
-
-		assert.NotNil(t, err)
-		assert.Equal(t, ErrPaymentInfoIsTooLarge, err)
-	})
 }
 
 func TestCreateOrChange(t *testing.T) {
@@ -308,7 +266,7 @@ func TestCreateOrChange(t *testing.T) {
 			{ID: productID, Quantity: 10},
 		},
 		Payments: []Payment{
-			{Method: Pix, At: time.Now(), Amount: 10, Info: uuid.NewString()},
+			{Method: Pix, At: time.Now(), Amount: 10},
 		},
 	})
 

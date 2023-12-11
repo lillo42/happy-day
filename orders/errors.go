@@ -14,6 +14,4 @@ var (
 	ErrCustomerNotFound      = errors.New("customer not found")
 	ErrProductNotFound       = errors.New("product not found")
 	ErrPaymentValueIsInvalid = errors.New("payment value is invalid")
-	ErrPaymentInfoIsEmpty    = errors.New("payment info is empty")
-	ErrPaymentInfoIsTooLarge = errors.New("payment info is too larger")
 )
