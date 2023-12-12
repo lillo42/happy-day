@@ -1,12 +1,12 @@
 import { DatePipe } from "@angular/common";
 import { HttpErrorResponse } from "@angular/common/http";
-import { Component, OnInit } from '@angular/core';
+import { Component, computed, OnInit, signal } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 
 import { MatSnackBar } from "@angular/material/snack-bar";
 
-import { of, switchMap } from "rxjs";
+import { Observable, of, switchMap, tap } from "rxjs";
 
 import { Customer, CustomersService } from "../customers.service";
 import { ProblemDetails } from "../common";
@@ -19,8 +19,10 @@ import { ProblemDetails } from "../common";
 export class CustomerDetailsComponent implements OnInit {
   form: FormGroup;
   id: string | null = null;
-  isNew: boolean = true;
-  hasFound: boolean = true;
+
+  isNew = computed(() => this.id === null);
+  hasFound = signal(false);
+  isLoading = signal(true);
 
   constructor(private activatedRoute: ActivatedRoute,
               private datePipe: DatePipe,
@@ -32,7 +34,6 @@ export class CustomerDetailsComponent implements OnInit {
       name: [null, [Validators.required, Validators.maxLength(255)]],
       comment: [null, null],
       phones: this.builder.array([]),
-      pix: [null, [Validators.maxLength(255)]],
       createAt: [{value: null, disabled: true}, null],
       updateAt: [{value: null, disabled: true}, null],
     });
@@ -44,7 +45,6 @@ export class CustomerDetailsComponent implements OnInit {
         const id = params.get('id');
         if (id !== null && id !== 'new') {
           this.id = id;
-          this.isNew = false;
           return this.customersService.getById(id);
         } else {
           const empty: Customer = {
@@ -52,20 +52,21 @@ export class CustomerDetailsComponent implements OnInit {
             name: '',
             comment: '',
             phones: [],
-            pix: '',
             createAt: new Date(),
             updateAt: new Date(),
           };
           return of(empty);
         }
       }))
+      .pipe(tap(() => this.isLoading.set(false)))
       .subscribe({
-        next: customer => this.updateForm(customer),
+        next: customer => {
+          this.updateForm(customer)
+          this.hasFound.set(true);
+        },
         error: error => {
           if (error instanceof HttpErrorResponse) {
-            if (error.status == 404) {
-              this.hasFound = false;
-            } else {
+            if (error.status !== 404) {
               const problemDetails: ProblemDetails = JSON.parse(error.message);
               this.snackBar.open(`an unexpected error happen: ${problemDetails.message}`, 'OK', {duration: 10000});
             }
@@ -105,25 +106,11 @@ export class CustomerDetailsComponent implements OnInit {
       ...this.form.value
     };
 
-    if (this.isNew) {
-      this.customersService
-        .create(customer)
-        .subscribe({
-          next: customer => {
-            this.updateForm(customer);
-            this.isNew = false;
-            this.id = customer.id;
-          },
-          error: error => this.handlerError(error)
-        });
-    } else {
-      this.customersService
-        .update(this.id!, customer)
-        .subscribe({
-          next: customer => this.updateForm(customer),
-          error: error => this.handlerError(error)
-        });
-    }
+    const save$: Observable<Customer> = this.isNew() ? this.customersService.create(customer) : this.customersService.update(this.id!, customer);
+    save$.subscribe({
+      next: _ => this.router.navigateByUrl('/customers'),
+      error: err => this.handlerError(err)
+    });
   }
 
   cancel(): Promise<boolean> {

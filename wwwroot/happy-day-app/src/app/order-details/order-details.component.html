@@ -22,28 +22,6 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline">
-      <mat-label i18n>Total Price</mat-label>
-      <input (change)="updateFinalPrice()" formControlName="totalPrice" matInput type="number"/>
-      <mat-error *ngIf="form.get('totalPrice')!.hasError('required')" i18n>Total price is mandatory</mat-error>
-      <mat-error *ngIf="form.get('totalPrice')!.hasError('min')" i18n>Total Price must be greater than 0</mat-error>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label i18n>Discount</mat-label>
-      <input (change)="updateFinalPrice()" formControlName="discount" matInput placeholder="1" step="0.01"
-             type="number"/>
-      <mat-error *ngIf="form.get('discount')!.hasError('required')" i18n>Discount is mandatory</mat-error>
-      <mat-error *ngIf="form.get('discount')!.hasError('min')" i18n>Discount must be greater than 0</mat-error>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label i18n>Final price</mat-label>
-      <input formControlName="finalPrice" matInput placeholder="1" step="0.01" type="number"/>
-      <mat-error *ngIf="form.get('finalPrice')!.hasError('required')" i18n>Final Price is mandatory</mat-error>
-      <mat-error *ngIf="form.get('finalPrice')!.hasError('min')" i18n>Final Price must be greater than 0</mat-error>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
       <mat-label i18n>Comment</mat-label>
       <textarea formControlName="comment" matInput placeholder="...."></textarea>
     </mat-form-field>
@@ -143,6 +121,28 @@
       </ng-container>
     </ng-container>
 
+    <mat-form-field appearance="outline">
+      <mat-label i18n>Total Price</mat-label>
+      <input (change)="updateFinalPrice()" formControlName="totalPrice" matInput type="number"/>
+      <mat-error *ngIf="form.get('totalPrice')!.hasError('required')" i18n>Total price is mandatory</mat-error>
+      <mat-error *ngIf="form.get('totalPrice')!.hasError('min')" i18n>Total Price must be greater than 0</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label i18n>Discount</mat-label>
+      <input (change)="updateFinalPrice()" formControlName="discount" matInput placeholder="1" step="0.01"
+             type="number"/>
+      <mat-error *ngIf="form.get('discount')!.hasError('required')" i18n>Discount is mandatory</mat-error>
+      <mat-error *ngIf="form.get('discount')!.hasError('min')" i18n>Discount must be greater than 0</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label i18n>Final price</mat-label>
+      <input formControlName="finalPrice" matInput placeholder="1" step="0.01" type="number"/>
+      <mat-error *ngIf="form.get('finalPrice')!.hasError('required')" i18n>Final Price is mandatory</mat-error>
+      <mat-error *ngIf="form.get('finalPrice')!.hasError('min')" i18n>Final Price must be greater than 0</mat-error>
+    </mat-form-field>
+
     <h3 i18n>Payment info</h3>
     <div class="default-margin-bottom">
       <button (click)="addPayment(null)" mat-raised-button>Add Payment</button>
@@ -189,7 +189,6 @@
         </div>
       </ng-container>
     </ng-container>
-
 
     <mat-form-field *ngIf="!isNew" appearance="outline">
       <mat-label i18n>Create At</mat-label>

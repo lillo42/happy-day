@@ -1,13 +1,14 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { DataSource } from "@angular/cdk/collections";
+import { AfterViewInit, Component, ElementRef, OnDestroy, signal, ViewChild } from '@angular/core';
 import { Router } from "@angular/router";
 
 import { MatDialog } from "@angular/material/dialog";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSelect } from "@angular/material/select";
 import { MatSnackBar } from "@angular/material/snack-bar";
-import { MatTableDataSource } from "@angular/material/table";
+import { NgxMaskService } from "ngx-mask";
 
-import { debounceTime } from "rxjs";
+import { BehaviorSubject, debounceTime, Observable, Subscription } from "rxjs";
 
 import { CustomersService } from "../customers.service";
 import { CustomerDeleteComponent } from "../customer-delete/customer-delete.component";
@@ -17,25 +18,36 @@ import { CustomerDeleteComponent } from "../customer-delete/customer-delete.comp
   templateUrl: './customers-list.component.html',
   styleUrls: ['./customers-list.component.scss']
 })
-export class CustomersListComponent implements AfterViewInit {
-  dataSourceLength = 0;
-  displayedColumns: string[] = ['id', 'name', 'comment', 'phones', 'pix', 'actions'];
-  dataSource: MatTableDataSource<CustomerElement>;
+export class CustomersListComponent implements AfterViewInit, OnDestroy {
+  displayedColumns: string[] = ['id', 'name', 'comment', 'phones', 'actions'];
+  dataSource: CustomerDataSource;
 
   @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
   @ViewChild('selectField') field: MatSelect | null = null;
   @ViewChild('inputFilter') filter: ElementRef | null = null;
 
-  constructor(private customersService: CustomersService,
-              private router: Router,
+  private paginatorSubscription: Subscription | null = null;
+
+  constructor(private router: Router,
+              private dialog: MatDialog,
               private snack: MatSnackBar,
-              private dialog: MatDialog) {
-    this.dataSource = new MatTableDataSource<CustomerElement>([]);
+              customersService: CustomersService,
+              ngMask: NgxMaskService) {
+    this.dataSource = new CustomerDataSource(customersService, ngMask);
   }
 
   ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
+    if (this.paginator === null) {
+      return;
+    }
+
+    this.paginatorSubscription = this.paginator.page.subscribe(() => this.load());
     this.load();
+  }
+
+  ngOnDestroy(): void {
+    this.paginatorSubscription?.unsubscribe();
+    this.paginatorSubscription = null;
   }
 
   delete(id: string): void {
@@ -66,36 +78,62 @@ export class CustomersListComponent implements AfterViewInit {
 
     const page = this.paginator?.pageIndex || 0;
     const size = this.paginator?.pageSize || 50;
+    this.dataSource.load(name, phone, comment, page, size,
+      err => this.snack.open(err.error.message, 'OK', {duration: 5000}));
+  }
+}
 
+interface CustomerElement {
+  id: string;
+  name: string;
+  comment: string;
+  phones: string;
+}
+
+class CustomerDataSource implements DataSource<CustomerElement> {
+  private items: BehaviorSubject<CustomerElement[]>;
+  private totalItems: BehaviorSubject<number>;
+  private isLoading: BehaviorSubject<boolean>;
+
+  public totalElements$: Observable<number>;
+
+  constructor(private customersService: CustomersService,
+              private ngMask: NgxMaskService) {
+    this.items = new BehaviorSubject<CustomerElement[]>([]);
+    this.isLoading = new BehaviorSubject<boolean>(false);
+    this.totalItems = new BehaviorSubject<number>(0);
+    this.totalElements$ = this.totalItems.asObservable();
+  }
+
+  connect(): Observable<CustomerElement[]> {
+    return this.items.asObservable();
+  }
+
+  disconnect(): void {
+    this.items.complete();
+    this.isLoading.complete();
+    this.totalItems.complete();
+  }
+
+  load(name: string, phone: string, comment: string, page: number, size: number, onError: (err: any) => void): void {
+    this.isLoading.next(true);
     this.customersService.get(name, phone, comment, page, size)
       .pipe(debounceTime(1000))
       .subscribe({
         next: page => {
-          if (page.items === null) {
-            this.dataSource.data = [];
-            return;
-          }
-
-          this.dataSourceLength = page.totalPages;
-          this.dataSource.data = page.items.map(customer => {
-            return <CustomerElement>{
-              id: customer.id,
-              name: customer.name,
-              comment: customer.comment,
-              pix: customer.pix,
-              phones: customer.phones.join(', ')
-            }
-          });
+          this.totalItems.next(page.totalItems);
+          this.items.next(page.items?.map(customer => <CustomerElement>{
+            id: customer.id,
+            name: customer.name,
+            comment: customer.comment,
+            phones: customer.phones?.map(phone => this.ngMask.applyMask(phone, '(00) 00000-0000||(00) 0000-0000')).join(', ') || ''
+          }) || []);
         },
-        error: err => this.snack.open(err.message, 'OK')
+        error: err => {
+          onError(err);
+          this.items.next([]);
+        },
+        complete: () => this.isLoading.next(false)
       });
   }
-}
-
-export interface CustomerElement {
-  id: string;
-  name: string;
-  comment: string;
-  pix: string;
-  phones: string;
 }

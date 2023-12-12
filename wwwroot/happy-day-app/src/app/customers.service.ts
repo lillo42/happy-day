@@ -60,7 +60,6 @@ export interface Customer {
   name: string;
   comment: string;
   phones: string[];
-  pix: string;
   createAt: Date;
   updateAt: Date;
 }
