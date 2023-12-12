@@ -10,7 +10,7 @@
 
     <mat-form-field class="filter-input">
       <mat-label i18n>Filter</mat-label>
-      <input matInput (keyup)="load()" placeholder="chairs" #inputFilter>
+      <input matInput (keyup)="load()" placeholder="Cadeira" #inputFilter>
     </mat-form-field>
   </div>
 
@@ -52,7 +52,7 @@
     </table>
     <mat-paginator
       (page)="load()"
-      [length]="dataSourceLength"
+      [length]="dataSource.totalElements$ | async"
       [pageSize]="50"
       [pageSizeOptions]="[5, 10, 25, 50]"
       [showFirstLastButtons]="true"></mat-paginator>

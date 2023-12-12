@@ -1,41 +1,51 @@
-import {AfterViewInit, Component, ElementRef, ViewChild} from '@angular/core';
-import {Router} from "@angular/router";
+import { DataSource } from "@angular/cdk/collections";
+import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
+import { Router } from "@angular/router";
 
-import {MatDialog} from "@angular/material/dialog";
-import {MatPaginator} from "@angular/material/paginator";
-import {MatSelect} from "@angular/material/select";
-import {MatSnackBar} from "@angular/material/snack-bar";
-import {MatTableDataSource} from "@angular/material/table";
+import { MatDialog } from "@angular/material/dialog";
+import { MatPaginator } from "@angular/material/paginator";
+import { MatSelect } from "@angular/material/select";
+import { MatSnackBar } from "@angular/material/snack-bar";
 
-import {debounceTime} from "rxjs";
+import { BehaviorSubject, debounceTime, Observable, Subscription } from "rxjs";
 
-import {ProductsService} from "../products.service";
-import {ProductDeleteComponent} from "../product-delete/product-delete.component";
+import { ProductsService } from "../products.service";
+import { ProductDeleteComponent } from "../product-delete/product-delete.component";
 
 @Component({
   selector: 'app-product-list',
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.scss']
 })
-export class ProductListComponent implements AfterViewInit {
-  dataSourceLength = 0;
+export class ProductListComponent implements AfterViewInit, OnDestroy {
   displayedColumns: string[] = ['id', 'name', 'price', 'actions'];
-  dataSource: MatTableDataSource<ProductElement>;
+  dataSource: ProductDataSource;
 
   @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
   @ViewChild('selectField') field: MatSelect | null = null;
   @ViewChild('inputFilter') filter: ElementRef | null = null;
 
-  constructor(private productsService: ProductsService,
-              private router: Router,
+  private paginatorSubscription: Subscription | null = null;
+
+  constructor(private router: Router,
               private snack: MatSnackBar,
-              private dialog: MatDialog) {
-    this.dataSource = new MatTableDataSource<ProductElement>([]);
+              private dialog: MatDialog,
+              productsService: ProductsService) {
+    this.dataSource = new ProductDataSource(productsService);
   }
 
   ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
+    if (this.paginator === null) {
+      return;
+    }
+
+    this.paginatorSubscription = this.paginator.page.subscribe(() => this.load());
     this.load();
+  }
+
+  ngOnDestroy(): void {
+    this.paginatorSubscription?.unsubscribe();
+    this.paginatorSubscription = null;
   }
 
   delete(id: string): void {
@@ -61,32 +71,69 @@ export class ProductListComponent implements AfterViewInit {
     const page = this.paginator?.pageIndex || 0;
     const size = this.paginator?.pageSize || 50;
 
+    this.dataSource.load(name, page, size, (err: any) => {
+      this.snack.open(err.message, 'OK', {duration: 5000});
+    });
+  }
+}
+
+interface ProductElement {
+  id: string;
+  name: string;
+  price: number;
+}
+
+class ProductDataSource implements DataSource<ProductElement> {
+  private items: BehaviorSubject<ProductElement[]>;
+  private totalItems: BehaviorSubject<number>;
+  private isLoading: BehaviorSubject<boolean>;
+
+
+  public totalElements$: Observable<number>;
+  constructor(private productsService: ProductsService) {
+    this.items = new BehaviorSubject<ProductElement[]>([]);
+    this.totalItems = new BehaviorSubject<number>(0);
+    this.isLoading = new BehaviorSubject<boolean>(false);
+    this.totalElements$ = this.totalItems.asObservable();
+  }
+
+  connect(): Observable<ProductElement[]> {
+    return this.items.asObservable();
+  }
+
+  disconnect(): void {
+    this.items.complete();
+    this.totalItems.complete();
+    this.isLoading.complete();
+  }
+
+  load(name: string | null,
+       page: number,
+       size: number,
+       error: (err: any) => void): void {
+    this.isLoading.next(true);
+
     this.productsService.get(name, page, size)
       .pipe(debounceTime(1000))
       .subscribe({
         next: page => {
           if (page.items === null) {
-            this.dataSourceLength = 0;
-            this.dataSource.data = [];
+            this.items.next([]);
+            this.totalItems.next(0);
             return;
           }
 
-          this.dataSourceLength = page.totalPages;
-          this.dataSource.data = page.items.map(product => {
+          this.items.next(page.items.map(product => {
             return <ProductElement>{
               id: product.id,
               name: product.name,
               price: product.price,
             }
-          });
+          }));
+          this.totalItems.next(page.totalItems);
         },
-        error: err => this.snack.open(err.message, 'OK')
+        error: err => error(err),
+        complete: () => this.isLoading.next(false)
       });
   }
-}
-
-export interface ProductElement {
-  id: string;
-  name: string;
-  price: number;
 }

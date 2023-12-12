@@ -18,8 +18,8 @@ func Map(router *gin.RouterGroup) {
 
 		val := context.Query("page")
 		page, _ := strconv.ParseUint(val, 10, 64)
-		if page > 0 {
-			page = page - 1
+		if page < 0 {
+			page = 0
 		}
 
 		val = context.Query("size")

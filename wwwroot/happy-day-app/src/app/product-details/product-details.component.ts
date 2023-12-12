@@ -1,6 +1,6 @@
 import { DatePipe } from "@angular/common";
 import { HttpErrorResponse } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, computed, OnInit, signal } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 
@@ -18,9 +18,10 @@ import { ProblemDetails } from "../common";
 })
 export class ProductDetailsComponent implements OnInit {
   form: FormGroup;
-  id: string | null = null;
-  hasFound: boolean = true;
-  isNew: boolean = true;
+  id = signal<string | null>(null);
+  hasFound = signal(false);
+  isNew = computed(() => this.id() === null);
+  isLoading = signal(false);
 
   constructor(private activatedRoute: ActivatedRoute,
               private datePipe: DatePipe,
@@ -40,12 +41,12 @@ export class ProductDetailsComponent implements OnInit {
     this.activatedRoute.paramMap
       .pipe(switchMap(params => {
         const id = params.get('id');
+        this.isLoading.set(true);
         if (id !== null && id !== 'new') {
-          this.id = id;
-          this.isNew = false;
+          this.id.set(id)
           return this.productsService.getById(id);
         } else {
-          const empty = {
+          const empty: Product = {
             id: '',
             name: '',
             price: 0,
@@ -56,20 +57,24 @@ export class ProductDetailsComponent implements OnInit {
         }
       }))
       .subscribe({
-        next: product => this.updateForm(product),
+        next: product => {
+          this.updateForm(product);
+          this.hasFound.set(true);
+        },
         error: error => {
           if (error instanceof HttpErrorResponse) {
             if (error.status === 404) {
-              this.hasFound = false;
+              this.hasFound.set(false);
             } else {
               const problemDetails: ProblemDetails = JSON.parse(error.message);
-              this.snackBar.open(`an unexpected error happen: ${problemDetails.message}`, 'OK', {duration: 10000});
+              this.snackBar.open($localize `an unexpected error happen: ${problemDetails.message}`, 'OK', {duration: 10000});
             }
             return;
           }
 
-          this.snackBar.open(`an unexpected error happen: ${error.toString()}`, 'OK', {duration: 10000});
-        }
+          this.snackBar.open($localize `an unexpected error happen: ${error.toString()}`, 'OK', {duration: 10000});
+        },
+        complete: () => this.isLoading.set(false)
       });
   }
 
@@ -88,24 +93,11 @@ export class ProductDetailsComponent implements OnInit {
       ...this.form.value
     };
 
-    if (this.isNew) {
-      this.productsService
-        .create(product)
-        .subscribe({
-          next: product => {
-            this.updateForm(product);
-            this.isNew = false;
-          },
-          error: error => this.handleError(error)
-        });
-    } else {
-      this.productsService
-        .update(this.id!, product)
-        .subscribe({
-          next: product => this.form.patchValue(product),
-          error: error => this.handleError(error)
-        });
-    }
+    const save$ = this.isNew() ? this.productsService.create(product) : this.productsService.update(this.id()!, product);
+    save$.subscribe({
+      next: _ => this.router.navigateByUrl('/products'),
+      error: error => this.handleError(error)
+    });
   }
 
   private handleError(error: HttpErrorResponse): void {
@@ -116,7 +108,7 @@ export class ProductDetailsComponent implements OnInit {
     }
 
     if (error.status == 0) {
-      this.snackBar.open(`an unexpected error happen: ${error.message}`, 'OK', {duration: 10000});
+      this.snackBar.open($localize `an unexpected error happen: ${error.message}`, 'OK', {duration: 10000});
       return;
     }
 
@@ -128,9 +120,9 @@ export class ProductDetailsComponent implements OnInit {
     } else if (problemDetails.type === 'product-price-is-invalid') {
       this.form.get('price')?.setErrors({required: true, min: true});
     } else if (problemDetails.type === 'product-conflict') {
-      this.snackBar.open('product update conflict, please reload the page', 'OK', {duration: 10000});
+      this.snackBar.open($localize `product update conflict, please reload the page`, 'OK', {duration: 10000});
     } else {
-      this.snackBar.open(`an unexpected error happen: ${problemDetails.message}`, 'OK', {duration: 10000});
+      this.snackBar.open($localize `an unexpected error happen: ${problemDetails.message}`, 'OK', {duration: 10000});
     }
   }
 

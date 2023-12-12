@@ -2,6 +2,7 @@ import { DatePipe } from "@angular/common";
 import { HttpErrorResponse } from "@angular/common/http";
 import { Component, computed, OnInit, signal } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { $localize } from "@angular/localize/init";
 import { ActivatedRoute, Router } from "@angular/router";
 
 import { MatSnackBar } from "@angular/material/snack-bar";
@@ -68,12 +69,12 @@ export class CustomerDetailsComponent implements OnInit {
           if (error instanceof HttpErrorResponse) {
             if (error.status !== 404) {
               const problemDetails: ProblemDetails = JSON.parse(error.message);
-              this.snackBar.open(`an unexpected error happen: ${problemDetails.message}`, 'OK', {duration: 10000});
+              this.snackBar.open($localize `an unexpected error happen: ${problemDetails.message}`, 'OK', {duration: 10000});
             }
             return;
           }
 
-          this.snackBar.open(`an unexpected error happen: ${error.toString()}`, 'OK', {duration: 10000});
+          this.snackBar.open($localize `an unexpected error happen: ${error.toString()}`, 'OK', {duration: 10000});
         }
       });
   }
@@ -149,9 +150,9 @@ export class CustomerDetailsComponent implements OnInit {
     } else if (problemDetails.type === 'customer-phone-number-is-invalid') {
       this.phones.controls.forEach(control => control.setErrors({pattern: true}));
     } else if (problemDetails.type === 'customer-conflict') {
-      this.snackBar.open('customer update conflict, please reload the page', 'OK', {duration: 10000});
+      this.snackBar.open($localize `customer update conflict, please reload the page`, 'OK', {duration: 10000});
     } else {
-      this.snackBar.open(`an unexpected error happen: ${problemDetails.message}`, 'OK', {duration: 10000});
+      this.snackBar.open($localize `an unexpected error happen: ${problemDetails.message}`, 'OK', {duration: 10000});
     }
   }
 }
