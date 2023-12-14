@@ -1,16 +1,16 @@
-import {DatePipe} from "@angular/common";
-import {HttpErrorResponse} from "@angular/common/http";
-import {Component, computed, OnInit, signal} from '@angular/core';
-import {FormArray, FormBuilder, FormGroup, Validators} from "@angular/forms";
-import {$localize} from "@angular/localize/init";
-import {ActivatedRoute, Router} from "@angular/router";
+import { DatePipe } from "@angular/common";
+import { HttpErrorResponse } from "@angular/common/http";
+import { Component, computed, OnInit, signal } from '@angular/core';
+import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { $localize } from "@angular/localize/init";
+import { ActivatedRoute, Router } from "@angular/router";
 
-import {MatSnackBar} from "@angular/material/snack-bar";
+import { MatSnackBar } from "@angular/material/snack-bar";
 
-import {Observable, of, switchMap, tap} from "rxjs";
+import { Observable, of, switchMap, tap } from "rxjs";
 
-import {Customer, CustomersService} from "../customers.service";
-import {ProblemDetails} from "../common";
+import { Customer, CustomersService } from "../customers.service";
+import { ProblemDetails } from "../common";
 
 @Component({
   selector: 'app-customer-details',
@@ -155,4 +155,6 @@ export class CustomerDetailsComponent implements OnInit {
       this.snackBar.open($localize`an unexpected error happen: ${problemDetails.message}`, 'OK', {duration: 10000});
     }
   }
+
+  protected readonly $localize = $localize;
 }

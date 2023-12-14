@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "happy-day-app": {
+    "mec-app": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,8 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/happy-day-app",
+            "localize": ["pt-BR"],
+            "outputPath": "dist/mec-app",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": [
@@ -113,7 +114,7 @@
       "i18n": {
         "sourceLocale": "en-GB",
         "locales": {
-          "pt": {
+          "pt-BR": {
             "translation": "src/locale/messages.pt.xlf",
             "baseHref": ""
           }
