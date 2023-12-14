@@ -1,4 +1,4 @@
-module happyday
+module mec
 
 go 1.21.5
 

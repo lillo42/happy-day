@@ -10,8 +10,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"happyday/infra"
 	"log"
+	"mec/infra"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -71,7 +71,6 @@ func TestDeleteShouldResponse204WhenCustomerExists(t *testing.T) {
 	result := db.Save(&infra.Customer{
 		ExternalID: customerID,
 		Name:       "test",
-		Pix:        "teste@test.com",
 		Comment:    "",
 		Version:    1,
 		CreateAt:   time.Now(),
@@ -175,7 +174,6 @@ func TestPutShouldReturn200WhenBodyIsValid(t *testing.T) {
 	data, _ := json.Marshal(&CreateOrChangeCustomer{
 		Name:    "Lorem",
 		Comment: "Ipsum",
-		Pix:     "pix-key",
 		Phones: []string{
 			"123456789",
 		},

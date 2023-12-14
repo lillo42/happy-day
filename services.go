@@ -3,10 +3,10 @@ package main
 import (
 	"context"
 	"github.com/google/uuid"
-	"happyday/customers"
-	"happyday/discounts"
-	"happyday/orders"
-	"happyday/products"
+	"mec/customers"
+	"mec/discounts"
+	"mec/orders"
+	"mec/products"
 )
 
 type (

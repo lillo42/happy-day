@@ -6,7 +6,7 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"happyday/infra"
+	"mec/infra"
 	"time"
 )
 
