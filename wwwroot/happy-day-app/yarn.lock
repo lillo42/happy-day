@@ -10,23 +10,23 @@
     "@jridgewell/gen-mapping" "^0.3.0"
     "@jridgewell/trace-mapping" "^0.3.9"
 
-"@angular-devkit/architect@0.1700.2":
-  version "0.1700.2"
-  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular-devkit/architect/-/architect-0.1700.2.tgz#698249b08e00d62c832c863eaa428c4d3c9303b0"
-  integrity sha512-N/m0KRdc0Bk3JIVTDKgVJ1f7rELE6ejaYaTanybZFD76lJfAeuTTzZ1HJfeeXso+O/9CGRD42bRowYv3hgM+eA==
+"@angular-devkit/architect@0.1700.7":
+  version "0.1700.7"
+  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular-devkit/architect/-/architect-0.1700.7.tgz#6137deee169704de6c675023cddb3f4e1d6ae2e9"
+  integrity sha512-32uitQKsYLGXAKoXBsmOnPsTt9pS+b9cnFI9ZvBFVhJ31I2EOM7vGcMFalhTxdB/DkVHk4TyO78efV0V26DwCA==
   dependencies:
-    "@angular-devkit/core" "17.0.2"
+    "@angular-devkit/core" "17.0.7"
     rxjs "7.8.1"
 
-"@angular-devkit/build-angular@^17.0.2":
-  version "17.0.2"
-  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular-devkit/build-angular/-/build-angular-17.0.2.tgz#925e04f3769742c4a4e8d180fec140b0296c6556"
-  integrity sha512-SFg8hTKs1aIW7DBaVAwq6W2HIreI4MRf7S3jDDzITnGZS2NB1qukFk2KHRMa7A+J61Z8wry0z44CCwXmINosKQ==
+"@angular-devkit/build-angular@^17.0.7":
+  version "17.0.7"
+  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular-devkit/build-angular/-/build-angular-17.0.7.tgz#0edbda90050efe7e0c9d9500144af05eebfc347b"
+  integrity sha512-AtEzLk6n6BXqQzk0Bsupe6GV0IgUe7RbpBfqROi+NZqMA7OUAHCX3xA6M68Qu+5KxBtW7T5lHeZZ7iP/y39wtQ==
   dependencies:
     "@ampproject/remapping" "2.2.1"
-    "@angular-devkit/architect" "0.1700.2"
-    "@angular-devkit/build-webpack" "0.1700.2"
-    "@angular-devkit/core" "17.0.2"
+    "@angular-devkit/architect" "0.1700.7"
+    "@angular-devkit/build-webpack" "0.1700.7"
+    "@angular-devkit/core" "17.0.7"
     "@babel/core" "7.23.2"
     "@babel/generator" "7.23.0"
     "@babel/helper-annotate-as-pure" "7.22.5"
@@ -37,7 +37,7 @@
     "@babel/preset-env" "7.23.2"
     "@babel/runtime" "7.23.2"
     "@discoveryjs/json-ext" "0.5.7"
-    "@ngtools/webpack" "17.0.2"
+    "@ngtools/webpack" "17.0.7"
     "@vitejs/plugin-basic-ssl" "1.0.1"
     ansi-colors "4.1.3"
     autoprefixer "10.4.16"
@@ -82,7 +82,7 @@
     tree-kill "1.2.2"
     tslib "2.6.2"
     undici "5.27.2"
-    vite "4.5.0"
+    vite "4.5.1"
     webpack "5.89.0"
     webpack-dev-middleware "6.1.1"
     webpack-dev-server "4.15.1"
@@ -91,18 +91,18 @@
   optionalDependencies:
     esbuild "0.19.5"
 
-"@angular-devkit/build-webpack@0.1700.2":
-  version "0.1700.2"
-  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular-devkit/build-webpack/-/build-webpack-0.1700.2.tgz#8d52f7c075191b4bfecfbeff47e552ac7e55f7d3"
-  integrity sha512-hvUJaHwU59usxmX08/6hdIeN/sB8PgeqV0g/fP5bgr0J0la6ojYl8WS5Ndsp9hmol1Q4bIVpQTV8BUa4U8/wYA==
+"@angular-devkit/build-webpack@0.1700.7":
+  version "0.1700.7"
+  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular-devkit/build-webpack/-/build-webpack-0.1700.7.tgz#896520220b5b09f8e9a9c617ee0d9caabb489766"
+  integrity sha512-B9Mg/qYDpE5my8PJ3VPQyRSUV0Oq1bFUzU8s0ZpqEZl1URKc04pm0LtLmebrMIcUZgDiGk0RHaD+O1E9IV/bdQ==
   dependencies:
-    "@angular-devkit/architect" "0.1700.2"
+    "@angular-devkit/architect" "0.1700.7"
     rxjs "7.8.1"
 
-"@angular-devkit/core@17.0.2":
-  version "17.0.2"
-  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular-devkit/core/-/core-17.0.2.tgz#59267504398e78daa792e35acd4be40e229d4b29"
-  integrity sha512-wmQyiXIqmdm9KSiB7d5SnDaqqRZSsZ7Oy2kEI4gUyLr2y9icj/4zpTpYvsqKyhF1NMU8ElZ5b4s1ru2pirlDVg==
+"@angular-devkit/core@17.0.7":
+  version "17.0.7"
+  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular-devkit/core/-/core-17.0.7.tgz#a11b04b4d51103ce456c49739a34d129e34a9dc5"
+  integrity sha512-vATobHo5O5tJba424hJfQWLb40GzvZPNsI74dcgSUTgrDph8ksmk5xB9OvEvf0INorQZ2IMphj/VIWj4/+JqSA==
   dependencies:
     ajv "8.12.0"
     ajv-formats "2.1.1"
@@ -111,42 +111,42 @@
     rxjs "7.8.1"
     source-map "0.7.4"
 
-"@angular-devkit/schematics@17.0.2":
-  version "17.0.2"
-  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular-devkit/schematics/-/schematics-17.0.2.tgz#a3c17ce880a4c5bd410e2c0589615fba0f1bf393"
-  integrity sha512-NOGC/TN6M+Vt2vSR3D1t3v8RNn2lm02nkm8UniACkwqnCjod5Npt1CfdweOSLEDaO5TR6xemG2+0gl0yGRXJ7w==
+"@angular-devkit/schematics@17.0.7":
+  version "17.0.7"
+  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular-devkit/schematics/-/schematics-17.0.7.tgz#35f085d5b3da249c3d8513be5613d02219fedb2e"
+  integrity sha512-BY11OkJkM3xyXcvyD7x5kGY/c8Ufd4AfPvI0D9imhVxbns45Q48b1DlvCQvSnCJ/s+OwnkrYb/Efa70ZiaGu8A==
   dependencies:
-    "@angular-devkit/core" "17.0.2"
+    "@angular-devkit/core" "17.0.7"
     jsonc-parser "3.2.0"
     magic-string "0.30.5"
     ora "5.4.1"
     rxjs "7.8.1"
 
-"@angular/animations@^17.0.4":
-  version "17.0.4"
-  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular/animations/-/animations-17.0.4.tgz#8c12976c2f80bff53095dd86f4c421a8f6bd17d9"
-  integrity sha512-XHkTBZAoYf1t4Hb06RkYa6cgtjEA5JGq1ArXu/DckOS6G/ZuY+dwWULEmaf9ejJem8O78ol223ZQ5d7sXqpixQ==
+"@angular/animations@^17.0.7":
+  version "17.0.7"
+  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular/animations/-/animations-17.0.7.tgz#0a9f212ea615014c0e646978fd8a5a52cb85a179"
+  integrity sha512-IjZjPGMxvi2a9o7fzjwNO44FvhTZlVSgcPtqM6Glq0+WVeQcnZxf1Onj68M/FGx2AunS8elRbrgPxTexVeSo7A==
   dependencies:
     tslib "^2.3.0"
 
-"@angular/cdk@17.0.1":
-  version "17.0.1"
-  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular/cdk/-/cdk-17.0.1.tgz#f1852c79ed0c34ef5f76014c048d1184174b5b50"
-  integrity sha512-0hrXm2D0s0/vUtDoLFRWTs75k5WY/hQmfnsaJXHeqinbE3eKOxmQxL1i7ymnMSQthEWzgRAhzS3Nfs7Alw3dQA==
+"@angular/cdk@17.0.4":
+  version "17.0.4"
+  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular/cdk/-/cdk-17.0.4.tgz#02ea9ae9b85d29b6eb1ac4c63a3fc175767b4d59"
+  integrity sha512-mh/EuIR0NPfpNqAXBSZWuJeBMXUvUDYdKhiFWZet5NLO1bDgFe1MGLBjtW4us95k4BZsMLbCKNxJgc+4JqwUvg==
   dependencies:
     tslib "^2.3.0"
   optionalDependencies:
     parse5 "^7.1.2"
 
-"@angular/cli@^17.0.2":
-  version "17.0.2"
-  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular/cli/-/cli-17.0.2.tgz#a7629c7c8a2ebc70c8b8c409da6c9f4496d5123e"
-  integrity sha512-ebKFDtyRZHLKqr1f8cOKDWVybNPfo5JVctRWCJ+FghVDQARl6gsZaJG4twkf3DIgBaSShtHK4JSjTrHtG2RWjg==
+"@angular/cli@^17.0.7":
+  version "17.0.7"
+  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular/cli/-/cli-17.0.7.tgz#ecdcbf4cd3400d56871b64b644195a4a2a6cb580"
+  integrity sha512-oSa0GVAQNA7wFbLJYeaO3kV4iUcbKEqXDLxcIE8s1GfHddBOlXH2P1T4fXonCBl5qvV+joP0G0+fs7I0w2utZQ==
   dependencies:
-    "@angular-devkit/architect" "0.1700.2"
-    "@angular-devkit/core" "17.0.2"
-    "@angular-devkit/schematics" "17.0.2"
-    "@schematics/angular" "17.0.2"
+    "@angular-devkit/architect" "0.1700.7"
+    "@angular-devkit/core" "17.0.7"
+    "@angular-devkit/schematics" "17.0.7"
+    "@schematics/angular" "17.0.7"
     "@yarnpkg/lockfile" "1.1.0"
     ansi-colors "4.1.3"
     ini "4.1.1"
@@ -162,17 +162,17 @@
     symbol-observable "4.0.0"
     yargs "17.7.2"
 
-"@angular/common@^17.0.4":
-  version "17.0.4"
-  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular/common/-/common-17.0.4.tgz#d15ee599560c5d1bed2412498eae6d9728e90e21"
-  integrity sha512-/y38PbuiaWOuOmP5ZELTlJSjZGijc6Nq2XQloT5pKsaH935prxPjyWazwlY6cUnJMQgSRU644/ULosDJec7Zxw==
+"@angular/common@^17.0.7":
+  version "17.0.7"
+  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular/common/-/common-17.0.7.tgz#8222a94f3ffae119920c0857118d8fa01cc89740"
+  integrity sha512-bPPL6x0KOAOTxKSE2j4EWmEUOnqZYzOYiHzroa5b9UEyA9NvGkd9bm3zIxw8xcndRj1Ehcmvpi6KBLcYBBbWfg==
   dependencies:
     tslib "^2.3.0"
 
-"@angular/compiler-cli@^17.0.4":
-  version "17.0.4"
-  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular/compiler-cli/-/compiler-cli-17.0.4.tgz#fcb0f89e346188ebaa7aa01725a1f54bc350bdbb"
-  integrity sha512-ywj8XNI+hvHHYGcNWvXaVHSRtcd3S7MqJNgXWfnb0JjAb282oGSvjEc7wnH4ERqkvnSrpk1kQ2Fj3uJ2P5zfmQ==
+"@angular/compiler-cli@^17.0.7":
+  version "17.0.7"
+  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular/compiler-cli/-/compiler-cli-17.0.7.tgz#7fa39624bbc2e5b2311087ecffdc83aed5d84f1b"
+  integrity sha512-YnL38idjIYtl3BXYpv+sVJKWGbUjHT6eyQSQVAfO/1AwWqVa21K9hnE+Q37VmUKEcKFMnQembeuErA+KVsGI6A==
   dependencies:
     "@babel/core" "7.23.2"
     "@jridgewell/sourcemap-codec" "^1.4.14"
@@ -183,47 +183,47 @@
     tslib "^2.3.0"
     yargs "^17.2.1"
 
-"@angular/compiler@^17.0.4":
-  version "17.0.4"
-  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular/compiler/-/compiler-17.0.4.tgz#9e8ad18b59acf9d5b05239cee06e3cb3e6af302f"
-  integrity sha512-OweJui9EWCa1ZcZjkJHS5z1gqICqyryR1Gdmyr8vIa6HD8wU/5BaeBJPCDgYgt+qJkvcT/sPxgZQsc2pVeUwbQ==
+"@angular/compiler@^17.0.7":
+  version "17.0.7"
+  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular/compiler/-/compiler-17.0.7.tgz#cb695fccaa5dbb51f380f835d81dddb9039d8bcb"
+  integrity sha512-QHPuLti2c2tGZmOGZ0cfCHo4LxiHUkC27I0aZFDyQSSQqEI5obQGVlEREHysw0nsS3sYIcLvqcwcKcRtXlXtxQ==
   dependencies:
     tslib "^2.3.0"
 
-"@angular/core@^17.0.4":
-  version "17.0.4"
-  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular/core/-/core-17.0.4.tgz#92af147b2160dafaecc87397da7ccc93066681f8"
-  integrity sha512-zk+z5sYPZd87pLxECx27quB5FvSmoi9PjJlcSlaBwwqaGnh/tPJI14u3q1dRY/CoZgP9egEiwc428+DzvOzJew==
+"@angular/core@^17.0.7":
+  version "17.0.7"
+  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular/core/-/core-17.0.7.tgz#ab1a38824d60fd07e533c0f03386c4a5a84f3749"
+  integrity sha512-mEkelXkzEi6+A9GjdKOSGGzQAfo1iAjVTn6YsplNUeGE5JgDZYZ7sXGQqs0Lin7dzJxnPAgGjCOl7SpWLXIPSQ==
   dependencies:
     tslib "^2.3.0"
 
-"@angular/forms@^17.0.4":
-  version "17.0.4"
-  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular/forms/-/forms-17.0.4.tgz#a5aafcf99893710741c6ee5f20370643f59c42f7"
-  integrity sha512-R5J87dfJNWwi5SESD7tRkZnqG4u8KNAT4vImX4oG70/6vWioKUSWpLoSp1gpzy9UW51E85AKb8DNvIex7LclSg==
+"@angular/forms@^17.0.7":
+  version "17.0.7"
+  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular/forms/-/forms-17.0.7.tgz#b8d1ffbe565567c529b0b9ac3e9f7cb51f24c655"
+  integrity sha512-28BxRxEmgZIofGwVp6s2v3ri/kuWW+/EY/ZXhavlWKJEh4ATJl72k0RkRWNcQi4wnvn0Qb8tFdnVJnvRZvvKEw==
   dependencies:
     tslib "^2.3.0"
 
-"@angular/localize@17.0.4":
-  version "17.0.4"
-  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular/localize/-/localize-17.0.4.tgz#f7454e955a15a90a76c2bfbd3df5db7768d066cd"
-  integrity sha512-4kLvkwAI9lVaxKzMVjF/0do/Xfn4r3W1bk9Xzb7fYLS21wz11ouL0aV7umtHT5DOZiwkY/F8rOYaJm5Fkz8ubw==
+"@angular/localize@17.0.7":
+  version "17.0.7"
+  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular/localize/-/localize-17.0.7.tgz#46b6623734c7e46070125f5ff29bf34dc83cad36"
+  integrity sha512-avYYQ8zin2thzvsH2YP3WxlwkvOzjNEXxjv4yyZBx6wul68e/753kQK/0RmSUYaBpDTUEZYzrPpDay00TKwBOA==
   dependencies:
     "@babel/core" "7.23.2"
     fast-glob "3.3.1"
     yargs "^17.2.1"
 
-"@angular/material-moment-adapter@17.0.1":
-  version "17.0.1"
-  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular/material-moment-adapter/-/material-moment-adapter-17.0.1.tgz#ac8b3916ba6f753a8a1845a6a21908266cb9ff00"
-  integrity sha512-njb4rQ85FNEfKeR2NFIfrg3/AyOCbga5vy/KxN+Am7G0ytpdKa5r3Fl4mIybSkuBfFPU/uHbeMEGXmvYcpKUqA==
+"@angular/material-moment-adapter@17.0.4":
+  version "17.0.4"
+  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular/material-moment-adapter/-/material-moment-adapter-17.0.4.tgz#9da006e8c3149eb4d6950e6a1c4f1a8ff6751d82"
+  integrity sha512-op97dc7eKPiQZM6FVfci+XYsfL6SQw8io0OLjPl2SUDTs0ImU6rZwjX4m1gAp8iIC3oNo9e4unHF7Fq5/2hUmw==
   dependencies:
     tslib "^2.3.0"
 
-"@angular/material@17.0.1":
-  version "17.0.1"
-  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular/material/-/material-17.0.1.tgz#ecfd1b88eb8838c4f59a2baaa49081a6954badd4"
-  integrity sha512-avicxHCJAeg26Tg8z6+g54tMTQZPP5kaaRmkd97QGtJn3wKiAen6WOgmEhlrA4jPJ71CsdyxcUruEX+BHB6X4Q==
+"@angular/material@17.0.4":
+  version "17.0.4"
+  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular/material/-/material-17.0.4.tgz#d3d7b093ae09662f18b04a27cfccfab8f4182895"
+  integrity sha512-IKkys4EavE1TMHApPMbFLvJU4pP8S8XNfY2eS7/kFwW7eyTcz0zV/IKeBbxkpej19MaouozU+KWeRJtxHg6x8g==
   dependencies:
     "@material/animation" "15.0.0-canary.a246a4439.0"
     "@material/auto-init" "15.0.0-canary.a246a4439.0"
@@ -274,24 +274,24 @@
     "@material/typography" "15.0.0-canary.a246a4439.0"
     tslib "^2.3.0"
 
-"@angular/platform-browser-dynamic@^17.0.4":
-  version "17.0.4"
-  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular/platform-browser-dynamic/-/platform-browser-dynamic-17.0.4.tgz#71ccbbee8c76e72a469c23671b5ab9a25705b93c"
-  integrity sha512-mZZNH+iFzFug0z7rBQKdFz375sR6Y4iBbHu2aJD2BpgA2/SJaZ0WHGlF4bHbtpCYkZi3f4wKF2+Cwe4G5ebPOQ==
+"@angular/platform-browser-dynamic@^17.0.7":
+  version "17.0.7"
+  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular/platform-browser-dynamic/-/platform-browser-dynamic-17.0.7.tgz#a2404d4625f17078c6de595bbddb6011eda2f74a"
+  integrity sha512-OquwUX9fLWA2JUZW5Jm6atk0CPt0sA7Tg24eGLsr6g1XfTS7jRZprlGaa72NgPLnQVV6m84o/ZiNYS6yPmq1Gg==
   dependencies:
     tslib "^2.3.0"
 
-"@angular/platform-browser@^17.0.4":
-  version "17.0.4"
-  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular/platform-browser/-/platform-browser-17.0.4.tgz#aa52dd99adaabf363b0329abe9c310950bea0672"
-  integrity sha512-lApUzVPfCEz/4aot77qzWUNg7yQgT0JSzy3BrBm95+2TbgH894J9Fswhig0sEN9jxGSkc3A5Yp5fs1HJcPqUiw==
+"@angular/platform-browser@^17.0.7":
+  version "17.0.7"
+  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular/platform-browser/-/platform-browser-17.0.7.tgz#9f7f048be9b584254d468cc4d1be772ff2b08288"
+  integrity sha512-bm9/wt51nc/MPjft/FlRNIgFSeLjDtfJOT7M32Rt6kOHhNKSK7ZTPWdMe9ahuHSbAhLzd0G/4NsT5sKrWSeVZg==
   dependencies:
     tslib "^2.3.0"
 
-"@angular/router@^17.0.4":
-  version "17.0.4"
-  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular/router/-/router-17.0.4.tgz#2cc0c79c26206ac4085f2d452b39712e4230f799"
-  integrity sha512-hQ+T+h6YE9NqyOmjqAIHe/k8xtW+yh0Mp8FCcl8REBezNyLXmOdsScCIOOc7GeFtbjRnQyJrBo4QxZ81acHP7Q==
+"@angular/router@^17.0.7":
+  version "17.0.7"
+  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@angular/router/-/router-17.0.7.tgz#a1bc4f49ad2f0bb1f6e1ab0a0e63d92836d7cbea"
+  integrity sha512-rUFPe1uDlYYw6+3Gq68czW7WxBH7zT/D3UsT1otqwUV4RnQQsVze4fIit9FqJh7tuP4y3WpB4XBNf7p7Oi6TJw==
   dependencies:
     tslib "^2.3.0"
 
@@ -2286,10 +2286,10 @@
     "@material/theme" "15.0.0-canary.a246a4439.0"
     tslib "^2.1.0"
 
-"@ngtools/webpack@17.0.2":
-  version "17.0.2"
-  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@ngtools/webpack/-/webpack-17.0.2.tgz#56530480e934d60379b2e662f8ac8c39dd5c2469"
-  integrity sha512-6pRp00NLdbXopqmNSSnMsliMW4soEVkICmkUJ7STm0Tc/9Bd6h2iaNSoNOUDq5EyV1+kJCRWjBWjlHoD66BJHA==
+"@ngtools/webpack@17.0.7":
+  version "17.0.7"
+  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@ngtools/webpack/-/webpack-17.0.7.tgz#21e457c8ac9645990589df2ed9e536bde58697e6"
+  integrity sha512-gwhUhpwXn0trwwKdSu9WlJbEcLt+s/2fPwoD9lZ0y3wXfrOogsfcNBJKeO5BZf1h+A3AWt7ePmgrZXSJM+865Q==
 
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
@@ -2380,13 +2380,13 @@
   resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@pkgjs/parseargs/-/parseargs-0.11.0.tgz#a77ea742fab25775145434eb1d2328cf5013ac33"
   integrity sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==
 
-"@schematics/angular@17.0.2":
-  version "17.0.2"
-  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@schematics/angular/-/angular-17.0.2.tgz#a0c516a9d007c42880ab82d42a01815e941ea2e8"
-  integrity sha512-orJx36TzDBBNcKGi2POg4b2nHxypS0iM+cFAOQkrmuuXTdBvaPOp7WEUQYDGzVpleqXmkqhRyrhVCXBZ9MbekQ==
+"@schematics/angular@17.0.7":
+  version "17.0.7"
+  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/@schematics/angular/-/angular-17.0.7.tgz#7e4e411f523413a6a80aad1309b5e278a2baca7b"
+  integrity sha512-d7QKmcKrM4owb/2bR7Ipf23roiNbvbD/x7reNhQAtKAPLSHJ3Ulkf1+Yv+dj+9f+K7y9SBviEUSrD27BQ9WaxQ==
   dependencies:
-    "@angular-devkit/core" "17.0.2"
-    "@angular-devkit/schematics" "17.0.2"
+    "@angular-devkit/core" "17.0.7"
+    "@angular-devkit/schematics" "17.0.7"
     jsonc-parser "3.2.0"
 
 "@sigstore/bundle@^2.1.0":
@@ -7125,10 +7125,10 @@ vary@^1, vary@~1.1.2:
   resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/vary/-/vary-1.1.2.tgz#2299f02c6ded30d4a5961b0b9f74524a18f634fc"
   integrity sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==
 
-vite@4.5.0:
-  version "4.5.0"
-  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/vite/-/vite-4.5.0.tgz#ec406295b4167ac3bc23e26f9c8ff559287cff26"
-  integrity sha512-ulr8rNLA6rkyFAlVWw2q5YJ91v098AFQ2R0PRFwPzREXOUJQPtFUG0t+/ZikhaOCDqFoDhN6/v8Sq0o4araFAw==
+vite@4.5.1:
+  version "4.5.1"
+  resolved "https://artifactory.cd.je-labs.com:443/artifactory/api/npm/npm-virtual/vite/-/vite-4.5.1.tgz#3370986e1ed5dbabbf35a6c2e1fb1e18555b968a"
+  integrity sha512-AXXFaAJ8yebyqzoNB9fu2pHoo/nWX+xZlaRwoeYUxEqBO+Zj4msE5G+BhGBll9lYEKv9Hfks52PAF2X7qDYXQA==
   dependencies:
     esbuild "^0.18.10"
     postcss "^8.4.27"
