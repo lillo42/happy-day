@@ -1,4 +1,5 @@
-import {AfterViewInit, Component, ElementRef, ViewChild} from '@angular/core';
+import {DataSource} from "@angular/cdk/collections";
+import {AfterViewInit, Component, ElementRef, OnDestroy, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router, RouterLink} from "@angular/router";
 
@@ -11,8 +12,8 @@ import {MatInputModule} from "@angular/material/input";
 import {MatPaginator, MatPaginatorModule} from "@angular/material/paginator";
 import {MatSelect, MatSelectModule} from "@angular/material/select";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {MatTableDataSource, MatTableModule} from "@angular/material/table";
-import {debounceTime} from "rxjs";
+import {MatTableModule} from "@angular/material/table";
+import {BehaviorSubject, debounceTime, Observable, Subscription} from "rxjs";
 
 import {OrderDeleteComponent} from "../order-delete/order-delete.component";
 import {OrdersService} from "../orders.service";
@@ -25,25 +26,35 @@ import {OrdersService} from "../orders.service";
   templateUrl: './order-list.component.html',
   styleUrl: './order-list.component.scss'
 })
-export class OrderListComponent implements AfterViewInit {
-  dataSourceLength = 0;
+export class OrderListComponent implements AfterViewInit, OnDestroy {
   displayedColumns: string[] = ['id', 'customerName', 'deliveryAt', 'pickUpAt', 'finalPrice', 'actions'];
-  dataSource: MatTableDataSource<OrderElement>;
+  dataSource: OrderDataSource;
 
   @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
   @ViewChild('selectField') field: MatSelect | null = null;
   @ViewChild('inputFilter') filter: ElementRef | null = null;
 
-  constructor(private orderService: OrdersService,
+  private paginatorSubscription: Subscription | null = null;
+
+  constructor(orderService: OrdersService,
               private router: Router,
               private snack: MatSnackBar,
               private dialog: MatDialog) {
-    this.dataSource = new MatTableDataSource<OrderElement>([]);
+    this.dataSource = new OrderDataSource(orderService);
   }
 
   ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
+    if (this.paginator === null) {
+      return;
+    }
+
+    this.paginatorSubscription = this.paginator.page.subscribe(() => this.load());
     this.load();
+  }
+
+  ngOnDestroy(): void {
+    this.paginatorSubscription?.unsubscribe();
+    this.paginatorSubscription = null;
   }
 
   delete(id: string): void {
@@ -78,18 +89,54 @@ export class OrderListComponent implements AfterViewInit {
     const page = this.paginator?.pageIndex || 0;
     const size = this.paginator?.pageSize || 50;
 
-    this.orderService.get(name, address, customerName, customerPhone, page, size)
+    this.dataSource.load(name, address, customerName, customerPhone, page, size, err => this.snack.open(err.message, 'OK'));
+  }
+}
+
+interface OrderElement {
+  id: string;
+  customerName: string;
+  deliveryAt: Date;
+  pickUpAt: Date;
+  finalPrice: number;
+}
+
+class OrderDataSource implements DataSource<OrderElement> {
+  public totalElements$: Observable<number>;
+  private items: BehaviorSubject<OrderElement[]>;
+  private totalItems: BehaviorSubject<number>;
+  private isLoading: BehaviorSubject<boolean>;
+
+  constructor(private ordersService: OrdersService) {
+    this.items = new BehaviorSubject<OrderElement[]>([]);
+    this.totalItems = new BehaviorSubject<number>(0);
+    this.isLoading = new BehaviorSubject<boolean>(false);
+    this.totalElements$ = this.totalItems.asObservable();
+  }
+
+  connect(): Observable<OrderElement[]> {
+    return this.items.asObservable();
+  }
+
+  disconnect(): void {
+    this.items.complete();
+    this.totalItems.complete();
+    this.isLoading.complete();
+  }
+
+  load(name: string | null, address: string | null, customerName: string | null, customerPhone: string | null, page: number, size: number, error: (err: any) => void): void {
+    this.isLoading.next(true);
+    this.ordersService.get(name, address, customerName, customerPhone, page, size)
       .pipe(debounceTime(1000))
       .subscribe({
         next: page => {
           if (page.items === null) {
-            this.dataSourceLength = 0;
-            this.dataSource.data = [];
+            this.items.next([]);
+            this.totalItems.next(0);
             return;
           }
 
-          this.dataSourceLength = page.totalPages;
-          this.dataSource.data = page.items.map(order => {
+          this.items.next(page.items.map(order => {
             return <OrderElement>{
               id: order.id,
               customerName: order.customer.name,
@@ -97,17 +144,11 @@ export class OrderListComponent implements AfterViewInit {
               pickUpAt: order.pickUpAt,
               finalPrice: order.finalPrice
             };
-          });
+          }));
+          this.totalItems.next(page.totalItems);
         },
-        error: err => this.snack.open(err.message, 'OK', {duration: 5000})
+        error: err => error(err),
+        complete: () => this.isLoading.next(false)
       })
   }
-}
-
-export interface OrderElement {
-  id: string;
-  customerName: string;
-  deliveryAt: Date;
-  pickUpAt: Date;
-  finalPrice: number;
 }

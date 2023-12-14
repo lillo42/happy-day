@@ -39,7 +39,7 @@
                type="text">
         <mat-autocomplete #autoCustomer="matAutocomplete" (optionSelected)="updateCustomer($event.option.value)"
                           [displayWith]="displayCustomer">
-          <mat-option *ngFor="let customer of filteredCustomers" [value]="customer">
+          <mat-option *ngFor="let customer of filteredCustomers()" [value]="customer">
             {{ customer.name }}
           </mat-option>
         </mat-autocomplete>
@@ -83,7 +83,7 @@
              type="text">
       <mat-autocomplete #auto="matAutocomplete" (optionSelected)="addProduct($event.option.value)"
                         [displayWith]="displayProduct">
-        <mat-option *ngFor="let product of filteredProducts" [value]="product">
+        <mat-option *ngFor="let product of filteredProducts()" [value]="product">
           {{ product.name }}
         </mat-option>
       </mat-autocomplete>
@@ -121,6 +121,7 @@
       </ng-container>
     </ng-container>
 
+    <h3 i18n>Value info</h3>
     <mat-form-field appearance="outline">
       <mat-label i18n>Total Price</mat-label>
       <input (change)="updateFinalPrice()" formControlName="totalPrice" matInput type="number"/>
@@ -151,13 +152,6 @@
     <ng-container formArrayName="payments">
       <ng-container *ngFor="let payment of payments.controls; let i = index" [formGroup]="asFormGroup(payment)">
         <div class="container-row product-item">
-          <mat-form-field appearance="outline" class="product-field">
-            <mat-label i18n>Info</mat-label>
-            <input formControlName="info" matInput type="text"/>
-            <mat-error *ngIf="payment.get('info')!.hasError('required')">Info is mandatory</mat-error>
-            <mat-error *ngIf="payment.get('info')!.hasError('maxLength')">Info must be less than 100</mat-error>
-          </mat-form-field>
-
           <mat-form-field appearance="outline" class="product-field">
             <mat-label i18n>Amount</mat-label>
             <input formControlName="amount" matInput step="0.01" type="number"/>

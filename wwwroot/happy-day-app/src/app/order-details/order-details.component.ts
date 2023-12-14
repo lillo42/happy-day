@@ -1,7 +1,8 @@
 import {CommonModule, DatePipe} from '@angular/common';
 import {HttpErrorResponse} from "@angular/common/http";
-import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from "@angular/core";
+import {AfterViewInit, Component, computed, ElementRef, OnInit, signal, ViewChild} from "@angular/core";
 import {AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {$localize} from "@angular/localize/init";
 import {MatSelectModule} from "@angular/material/select";
 import {ActivatedRoute, Router} from "@angular/router";
 
@@ -41,11 +42,15 @@ import {ProductsService} from "../products.service";
 })
 export class OrderDetailsComponent implements OnInit, AfterViewInit {
   form: FormGroup;
-  id: string | null = null;
-  isNew: boolean = true;
-  hasFound: boolean = true;
-  filteredProducts: OrderProduct[] = [];
-  filteredCustomers: OrderCustomer[] = [];
+
+  id = signal<string | null>(null);
+  hasFound = signal(false);
+  isNew = computed(() => this.id() === null);
+  isLoading = signal(false);
+
+
+  filteredProducts = signal<OrderProduct[]>([]);
+  filteredCustomers = signal<OrderCustomer[]>([]);
 
   @ViewChild("productInput") productInput: ElementRef | null = null;
   @ViewChild("customerInput") customerInput: ElementRef | null = null;
@@ -109,8 +114,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
       .pipe(switchMap(params => {
         const id = params.get('id');
         if (id !== null && id !== 'new') {
-          this.id = id;
-          this.isNew = false;
+          this.id.set(id);
           return this.ordersService.getById(id);
         } else {
           const empty: Order = {
@@ -141,11 +145,14 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
         }
       }))
       .subscribe({
-        next: order => this.updateForm(order),
+        next: order => {
+          this.updateForm(order);
+          this.hasFound.set(true);
+        },
         error: error => {
           if (error instanceof HttpErrorResponse) {
             if (error.status == 404) {
-              this.hasFound = false;
+              this.hasFound.set(false);
             } else {
               const problemDetails: ProblemDetails = JSON.parse(error.message);
               this.snackBar.open(`an unexpected error happen: ${problemDetails.message}`, 'OK', {duration: 10000});
@@ -154,7 +161,8 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
           }
 
           this.snackBar.open(`an unexpected error happen: ${error.toString()}`, 'OK', {duration: 10000});
-        }
+        },
+        complete: () => this.isLoading.set(false)
       })
     ;
   }
@@ -166,6 +174,7 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
 
   deleteProduct(index: number): void {
     this.products.removeAt(index);
+    this.quote();
   }
 
   addProduct(product: OrderProduct): void {
@@ -218,7 +227,6 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
 
   addPayment(payment: OrderPayment | null = null): void {
     this.payments.push(this.builder.group({
-      info: [payment?.info, [Validators.required, Validators.maxLength(100)]],
       amount: [payment?.amount, [Validators.required, Validators.min(0)]],
       at: [payment?.at, [Validators.required]],
       method: [payment?.method, [Validators.required]],
@@ -236,18 +244,18 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
       .subscribe({
         next: page => {
           if (page.items === null) {
-            this.filteredProducts = [];
+            this.filteredProducts.set([]);
             return;
           }
 
-          this.filteredProducts = page.items.map(prod => {
+          this.filteredProducts.set(page.items.map(prod => {
             return <OrderProduct>{
               id: prod.id,
               name: prod.name,
               quantity: 0,
               price: prod.price,
             }
-          });
+          }));
         },
         error: err => this.snackBar.open(err.message, 'OK')
       });
@@ -264,17 +272,18 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
       .subscribe({
         next: page => {
           if (page.items === null) {
-            this.filteredCustomers = [];
+            this.filteredCustomers.set([]);
             return;
           }
 
-          this.filteredCustomers = page.items.map(customer => {
+          this.filteredCustomers.set(page.items.map(customer => {
             return <OrderCustomer>{
               id: customer.id,
               name: customer.name,
               phones: customer.phones,
+              comment: customer.comment,
             }
-          });
+          }));
         },
         error: err => this.snackBar.open(err.message, 'OK')
       });
@@ -356,18 +365,14 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
           payments: order.payments,
         };
 
-        if (this.isNew) {
+        if (this.isNew()) {
           return this.ordersService.create(req);
         } else {
-          return this.ordersService.update(this.id!, req);
+          return this.ordersService.update(this.id()!, req);
         }
       }))
       .subscribe({
-        next: order => {
-          this.updateForm(order);
-          this.isNew = false;
-          this.id = order.id;
-        },
+        next: _ => this.router.navigateByUrl('/orders'),
         error: error => this.handlerError(error)
       });
   }
@@ -380,8 +385,26 @@ export class OrderDetailsComponent implements OnInit, AfterViewInit {
     }
 
     if (error.status == 0) {
-      this.snackBar.open(`an unexpected error happen: ${error.message}`, 'OK', {duration: 10000});
+      this.snackBar.open($localize`an unexpected error happen: ${error.message}`, 'OK', {duration: 10000});
       return;
+    }
+
+    const problemDetails: ProblemDetails = error.error;
+    if (problemDetails.type === 'order-address-is-empty') {
+      this.form.get('address')!.setErrors({required: true});
+    } else if (problemDetails.type === 'order-address-is-too-large') {
+      this.form.get('address')!.setErrors({maxlength: true});
+    } else if (problemDetails.type === '"order-delivery-at-is-invalid') {
+      this.form.get('deliveryAt')!.setErrors({matStartDateInvalid: true});
+      this.form.get('pickUpAt')!.setErrors({matStartDateInvalid: true});
+    } else if (problemDetails.type === 'order-final-price-at-is-invalid') {
+      this.form.get('finalPrice')!.setErrors({min: true});
+    } else if (problemDetails.type === 'order-payment-value-is-invalid') {
+      this.payments.controls.forEach(control => control.setErrors({min: true}));
+    } else if (problemDetails.type === 'order-conflict') {
+      this.snackBar.open($localize`order update conflict, please reload the page`, 'OK', {duration: 10000});
+    } else {
+      this.snackBar.open($localize`an unexpected error happen: ${problemDetails.message}`, 'OK', {duration: 10000});
     }
   }
 
