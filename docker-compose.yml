@@ -7,8 +7,8 @@ services:
     image: postgres
     container_name: postgres-mec
     environment:
-      POSTGRES_DB: happy_day
-      POSTGRES_PASSWORD: HappyDay$123
+      POSTGRES_DB: mec
+      POSTGRES_PASSWORD: Mec$123
     ports:
       - "5432:5432"
     volumes:
@@ -22,9 +22,9 @@ services:
     ports:
       - "8080:8080"
     environment:
-      isCorEnable: true
-      connectionString: "user=postgres password=HappyDay$123 host=postgres port=5432 dbname=happy_day"
+      isCorEnable: false
+      connectionString: user=postgres password=Mec$123 host=postgres port=5432 dbname=mec
       mode: release
-      staticSite: "./wwwroot/pt-BR"
+      staticSite: ./wwwroot/pt-BR
     depends_on:
       - postgres

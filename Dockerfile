@@ -26,4 +26,6 @@ COPY --from=backend-builder /app/mec /app
 # https://docs.docker.com/engine/reference/builder/#expose
 EXPOSE 8080
 
-CMD [ "/app/mec" ]
+WORKDIR /app
+
+CMD [ "mec" ]

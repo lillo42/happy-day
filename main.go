@@ -22,7 +22,6 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"os"
-	"path/filepath"
 	"runtime/debug"
 	"strings"
 	"time"
@@ -36,15 +35,12 @@ func main() {
 }
 
 func loadConfig() {
+	viper.AddConfigPath(".")
 	viper.SetConfigName("config")
 	viper.SetConfigType("yml")
-	path, err := os.Executable()
-	if err != nil || strings.Contains(path, "JetBrains") {
-		viper.AddConfigPath(".")
-	} else {
-		viper.AddConfigPath(filepath.Dir(path))
-	}
+
 	viper.AutomaticEnv()
+
 	if err := viper.ReadInConfig(); err != nil {
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
