@@ -1,18 +1,21 @@
 version: "3"
 volumes:
-  happy-day-postgres:
+  mec-postgres:
+
 services:
   postgres:
     image: postgres
+    container_name: postgres-mec
     environment:
       POSTGRES_DB: happy_day
       POSTGRES_PASSWORD: HappyDay$123
     ports:
       - "5432:5432"
     volumes:
-      - "happy-day-postgres:/var/lib/postgresql/data"
+      - "mec-postgres:/var/lib/postgresql/data"
 
   app:
+    container_name: mec-app
     build:
       dockerfile: Dockerfile
       context: .
@@ -22,5 +25,6 @@ services:
       isCorEnable: true
       connectionString: "user=postgres password=HappyDay$123 host=postgres port=5432 dbname=happy_day"
       mode: release
+      staticSite: "./wwwroot/pt-BR"
     depends_on:
       - postgres

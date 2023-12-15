@@ -1,11 +1,11 @@
 FROM node:18 AS front-builder
 
-COPY ./wwwroot/happy-day-app /app
+COPY ./wwwroot/mec-app /app
 
 WORKDIR /app
 RUN yarn install
 RUN npm i -g @angular/cli@17
-RUN ng build --build-optimizer --aot
+RUN ng build --build-optimizer --aot --localize
 
 FROM golang:1.21 AS backend-builder
 
@@ -15,9 +15,9 @@ RUN CGO_ENABLED=0 GOOS=linux  go build -ldflags "-s -w"
 
 FROM alpine
 
-COPY --from=front-builder /app/dist/happy-day-app /app/wwwroot
+COPY --from=front-builder /app/dist/mec-app /app/wwwroot
 COPY --from=backend-builder /app/config.yml /app
-COPY --from=backend-builder /app/happyday /app
+COPY --from=backend-builder /app/mec /app
 
 # Optional:
 # To bind to a TCP port, runtime parameters must be supplied to the docker command.
@@ -26,4 +26,4 @@ COPY --from=backend-builder /app/happyday /app
 # https://docs.docker.com/engine/reference/builder/#expose
 EXPOSE 8080
 
-CMD [ "/app/happyday" ]
+CMD [ "/app/mec" ]

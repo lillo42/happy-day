@@ -106,13 +106,20 @@ func runHttpServer() {
 		}))
 	}
 
-	engine.Use(static.Serve("/", static.LocalFile("./wwwroot", false)))
+	engine.Use(static.Serve("/", static.LocalFile(viper.GetString("staticSite"), false)))
 
 	apiRouter := engine.Group("/api")
 	customers.Map(apiRouter)
 	products.Map(apiRouter)
 	discounts.Map(apiRouter)
 	orders.Map(apiRouter)
+
+	engine.NoRoute(func(c *gin.Context) {
+		if !strings.HasPrefix(c.Request.URL.Path, "/api") {
+			c.Request.URL.Path = "/"
+			engine.HandleContext(c)
+		}
+	})
 
 	//engine.Static("/", "./wwwroot")
 

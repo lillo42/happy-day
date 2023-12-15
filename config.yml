@@ -3,3 +3,4 @@ connectionString: "user=postgres password=HappyDay$123 host=localhost port=5432 
 logger:
   mode: text
 isCorEnable: true
+staticSite: "./wwwroot/mec-app/dist/mec-app/pt-BR"
