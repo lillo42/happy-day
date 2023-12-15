@@ -39,6 +39,8 @@ func loadConfig() {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yml")
 
+	viper.SetEnvPrefix("MEC")
+	viper.EnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
@@ -58,8 +60,8 @@ func createLogger() *slog.Logger {
 func runDatabaseMigration() {
 	infra.GormFactory = func(ctx context.Context) *gorm.DB {
 		logger := infra.ResolverLogger(ctx)
-		connectionString := viper.GetString("connectionString")
-		db, err := gorm.Open(postgres.New(postgres.Config{DSN: connectionString}), &gorm.Config{
+
+		db, err := gorm.Open(postgres.New(postgres.Config{DSN: viper.GetString("connectionString")}), &gorm.Config{
 			Logger: &infra.SlogGorm{
 				Logger:                    logger,
 				LogLevel:                  gormlogger.Info,

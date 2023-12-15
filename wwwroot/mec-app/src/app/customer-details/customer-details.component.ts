@@ -155,6 +155,4 @@ export class CustomerDetailsComponent implements OnInit {
       this.snackBar.open($localize`an unexpected error happen: ${problemDetails.message}`, 'OK', {duration: 10000});
     }
   }
-
-  protected readonly $localize = $localize;
 }

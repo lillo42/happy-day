@@ -28,4 +28,4 @@ EXPOSE 8080
 
 WORKDIR /app
 
-CMD [ "mec" ]
+CMD [ "./mec" ]

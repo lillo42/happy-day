@@ -22,9 +22,9 @@ services:
     ports:
       - "8080:8080"
     environment:
-      isCorEnable: false
-      connectionString: user=postgres password=Mec$123 host=postgres port=5432 dbname=mec
-      mode: release
-      staticSite: ./wwwroot/pt-BR
+      MEC_ISCORENABLE: false
+      MEC_CONNECTIONSTRING: user=postgres password=Mec$123 host=postgres port=5432 dbname=mec
+      MEC_MODE: release
+      MEC_STATICSITE: ./wwwroot/pt-BR
     depends_on:
       - postgres
