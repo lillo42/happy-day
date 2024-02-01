@@ -1,19 +1,19 @@
 <template>
-  <div class="product-list-container flex flex-column gap-2">
+  <div class="flex flex-column gap-2 padding-x-10">
     <Toast />
     <ConfirmDialog />
 
     <DataTable :value="data.items" :loading="loading" :filters="filters" filterDisplay="row">
       <template #header>
         <div class="flex flex-wrap align-items-center justify-content-between gap-2">
-          <span class="text-xl text-900 font-bold">Products</span>
+          <span class="text-xl text-900 font-bold">Discounts</span>
           <Button icon="pi pi-plus" rounded raised @click="addOrEdit('new')" />
           <Button icon="pi pi-refresh" rounded raised @click="fetchData()" />
         </div>
       </template>
 
-      <template #empty> No product found. </template>
-      <template #loading> Loading product data. Please wait. </template>
+      <template #empty> No discount found. </template>
+      <template #loading> Loading discount data. Please wait. </template>
 
       <Column field="id" header="Id" />
       <Column field="name" header="Name">
@@ -31,6 +31,7 @@
           {{ formatCurrency(slotProps.data.price) }}
         </template>
       </Column>
+
       <Column header="Actions">
         <template #body="slotProps">
           <div class="flex flex-row gap-1">
@@ -40,7 +41,7 @@
               severity="danger"
               rounded
               raised
-              @click="deleteProduct(slotProps.data.id, slotProps.data.name)"
+              @click="deleteDiscount(slotProps.data)"
             />
           </div>
         </template>
@@ -63,12 +64,12 @@ import { FilterMatchMode } from 'primevue/api'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 
-import type { ProductService } from '@/services/product.service'
+import type { DiscountService } from '@/services/discount.service'
 
 const toast = useToast()
-const router = useRouter()
 const confirm = useConfirm()
-const service = inject<ProductService>('ProductService')
+const router = useRouter()
+const service = inject<DiscountService>('DiscountService')
 if (service === null || service === undefined) {
   throw new Error('service is null or undefined')
 }
@@ -83,7 +84,7 @@ const pageSize = ref(10)
 
 const loading = ref(true)
 const data = ref({
-  items: [] as ProductView[],
+  items: [] as DiscountView[],
   totalItems: 0
 })
 
@@ -96,7 +97,45 @@ const formatCurrency = (value: number) => {
 
 const addOrEdit = (id: string | null = null) => {
   id = id ?? 'new'
-  router.push(`/products/${id}`)
+  router.push(`/discounts/${id}`)
+}
+
+const deleteDiscount = (item: DiscountView) => {
+  confirm.require({
+    message: `Are you sure you want to delete this discount(name: ${item.name})?`,
+    header: 'Product delete confirmation',
+    icon: 'pi pi-exclamation-triangle',
+    rejectLabel: 'Cancel',
+    acceptLabel: 'Delete',
+    rejectClass: 'p-button-secondary p-button-outlined',
+    acceptClass: 'p-button-danger',
+    reject: () => {},
+    accept: async () => {
+      try {
+        const response = await service.delete(item.id)
+        if (response.success) {
+          toast.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: `Discount ${item.name} deleted`
+          })
+          await fetchData()
+        } else {
+          toast.add({
+            severity: 'error',
+            summary: 'Error during delete discount',
+            detail: response.error?.message ?? 'unexpected error'
+          })
+        }
+      } catch (error: any) {
+        toast.add({
+          severity: 'error',
+          summary: 'Error to connect API',
+          detail: error.toString() ?? 'unexpected error'
+        })
+      }
+    }
+  })
 }
 
 const fetchData = async () => {
@@ -107,7 +146,7 @@ const fetchData = async () => {
   }
 
   try {
-    const response = await service.getAll(name.value, page.value, pageSize.value)
+    const response = await service.fetchAll(name.value, page.value, pageSize.value)
     if (response.success) {
       const items = response.data!.items ?? []
       data.value = {
@@ -136,45 +175,7 @@ const fetchData = async () => {
   loading.value = false
 }
 
-const deleteProduct = (id: string, name: string) => {
-  confirm.require({
-    message: `Are you sure you want to delete this product(name: ${name})?`,
-    header: 'Product delete confirmation',
-    icon: 'pi pi-exclamation-triangle',
-    rejectLabel: 'Cancel',
-    acceptLabel: 'Delete',
-    rejectClass: 'p-button-secondary p-button-outlined',
-    acceptClass: 'p-button-danger',
-    reject: () => {},
-    accept: async () => {
-      try {
-        const response = await service.delete(id)
-        if (response.success) {
-          toast.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: `Product ${name} deleted`
-          })
-          await fetchData()
-        } else {
-          toast.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: response.error?.message ?? 'unexpected error'
-          })
-        }
-      } catch (error: any) {
-        toast.add({
-          severity: 'error',
-          summary: 'Error to connect API',
-          detail: error.toString() ?? 'unexpected error'
-        })
-      }
-    }
-  })
-}
-
-interface ProductView {
+interface DiscountView {
   id: string
   name: string
   price: number
@@ -182,12 +183,7 @@ interface ProductView {
 </script>
 
 <style scoped>
-.product-list-container {
-  justify-content: center;
+.padding-x-10 {
   padding: 0 10%;
-}
-
-.products-filter-container {
-  max-width: 20%;
 }
 </style>

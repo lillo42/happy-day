@@ -1,5 +1,5 @@
 <template>
-  <header class="tool-bar">
+  <header class="tool-bar shadow-3">
     <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="24" height="24" />
 
     <RouterLink to="/products">Products</RouterLink>

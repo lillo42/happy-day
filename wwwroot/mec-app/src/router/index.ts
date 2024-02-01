@@ -1,7 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import ProductListView from '../views/ProductListView.vue'
-import ProductView from '../views/ProductView.vue'
+const DiscountListView = () => import('../views/DiscountListView.vue')
+const DiscountView = () => import('../views/DiscountView.vue')
+
+const ProductListView = () => import('../views/ProductListView.vue')
+const ProductView = () => import('../views/ProductView.vue')
+
+const CustomerListView = () => import('../views/CustomerListView.vue')
+const CustomerView = () => import('../views/CustomerView.vue')
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -15,6 +21,26 @@ const router = createRouter({
       path: '/products/:id',
       name: 'product',
       component: ProductView
+    },
+    {
+      path: '/discounts',
+      name: 'discounts',
+      component: DiscountListView
+    },
+    {
+      path: '/discounts/:id',
+      name: 'discount',
+      component: DiscountView
+    },
+    {
+      path: '/customers',
+      name: 'customers',
+      component: CustomerListView
+    },
+    {
+      path: '/customers/:id',
+      name: 'customer',
+      component: CustomerView
     }
     // {
     //   path: '/about',

@@ -1,18 +1,18 @@
 import type { ApiResponse, Page, ProblemDetails } from '@/models/common'
-import type { Product } from '@/models/product'
+import type { Discount } from '@/models/discount'
 
-export class ProductService {
+export class DiscountService {
   private readonly api: string
 
   constructor() {
-    this.api = `${import.meta.env.VITE_MEC_API}/api/products`
+    this.api = `${import.meta.env.VITE_MEC_API}/api/discounts`
   }
 
-  public async getAll(
+  public async fetchAll(
     name: string | null,
     page: number | null,
     size: number | null
-  ): Promise<ApiResponse<Page<Product>>> {
+  ): Promise<ApiResponse<Page<Discount>>> {
     const params = new URLSearchParams()
     if (page !== null) {
       params.set('page', page.toString())
@@ -38,16 +38,16 @@ export class ProductService {
       }
     }
 
-    const products: Page<Product> = await response.json()
+    const discounts: Page<Discount> = await response.json()
     return {
-      data: products,
+      data: discounts,
       error: null,
       success: true,
       response: response
     }
   }
 
-  public async get(id: string): Promise<ApiResponse<Product>> {
+  public async fetch(id: string): Promise<ApiResponse<Discount>> {
     const response = await fetch(`${this.api}/${id}`)
     if (!response.ok) {
       const error: ProblemDetails = await response.json()
@@ -59,22 +59,22 @@ export class ProductService {
       }
     }
 
-    const product: Product = await response.json()
+    const discount: Discount = await response.json()
     return {
-      data: product,
+      data: discount,
       error: null,
       success: true,
       response: response
     }
   }
 
-  public async create(product: Product): Promise<ApiResponse<Product>> {
+  public async create(discount: Discount): Promise<ApiResponse<Discount>> {
     const response = await fetch(this.api, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(product)
+      body: JSON.stringify(discount)
     })
 
     if (!response.ok) {
@@ -87,23 +87,24 @@ export class ProductService {
       }
     }
 
-    const entity: Product = await response.json()
+    discount = await response.json()
     return {
-      data: entity,
+      data: discount,
       error: null,
       success: true,
       response: response
     }
   }
 
-  public async update(product: Product): Promise<ApiResponse<Product>> {
-    const response = await fetch(`${this.api}/${product.id}`, {
+  public async update(discount: Discount): Promise<ApiResponse<Discount>> {
+    const response = await fetch(`${this.api}/${discount.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(product)
+      body: JSON.stringify(discount)
     })
+
     if (!response.ok) {
       const error: ProblemDetails = await response.json()
       return {
@@ -114,9 +115,9 @@ export class ProductService {
       }
     }
 
-    const entity: Product = await response.json()
+    discount = await response.json()
     return {
-      data: entity,
+      data: discount,
       error: null,
       success: true,
       response: response
@@ -129,7 +130,6 @@ export class ProductService {
     })
 
     const error: ProblemDetails | null = response.ok ? null : await response.json()
-
     return {
       data: null,
       error: error,

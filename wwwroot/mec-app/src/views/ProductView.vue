@@ -52,6 +52,7 @@
 <script setup lang="ts">
 import { computed, inject, onMounted, reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+
 import { useToast } from 'primevue/usetoast'
 
 import type { Product } from '@/models/product'
@@ -93,7 +94,6 @@ const fetchProduct = async (id: string | null) => {
   try {
     const response = await service.get(id)
     if (response.success) {
-      // sometimes even the US needs 24-hour time
       const options: Intl.DateTimeFormatOptions = {
         year: 'numeric',
         month: 'numeric',
@@ -115,7 +115,7 @@ const fetchProduct = async (id: string | null) => {
     } else {
       toast.add({
         severity: 'error',
-        summary: 'Error',
+        summary: 'Error during fetch product',
         detail: response.error?.message ?? 'unexpected error'
       })
     }
@@ -145,7 +145,7 @@ const save = async () => {
     } else {
       toast.add({
         severity: 'error',
-        summary: 'Error',
+        summary: 'Error during saving product',
         detail: response.error?.message ?? 'unexpected error'
       })
     }
