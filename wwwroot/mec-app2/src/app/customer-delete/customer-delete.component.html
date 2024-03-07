@@ -1,0 +1,10 @@
+<h1 i18n mat-dialog-title>Delete customer</h1>
+
+<div i18n mat-dialog-content>
+  Are you sure you want to delete the customer {{ data.id }}?
+</div>
+
+<div mat-dialog-actions>
+  <button (click)="delete()" color="warn" i18n mat-button>Yes</button>
+  <button (click)="cancel()" i18n mat-button>No</button>
+</div>

@@ -9,6 +9,9 @@ const ProductView = () => import('../views/ProductView.vue')
 const CustomerListView = () => import('../views/CustomerListView.vue')
 const CustomerView = () => import('../views/CustomerView.vue')
 
+const OrderListView = () => import('../views/OrderListView.vue')
+const OrderView = () => import('../views/OrderView.vue')
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -41,15 +44,17 @@ const router = createRouter({
       path: '/customers/:id',
       name: 'customer',
       component: CustomerView
+    },
+    {
+      path: '/orders',
+      name: 'orders',
+      component: OrderListView
+    },
+    {
+      path: '/orders/:id',
+      name: 'order',
+      component: OrderView
     }
-    // {
-    //   path: '/about',
-    //   name: 'about',
-    //   // route level code-splitting
-    //   // this generates a separate chunk (About.[hash].js) for this route
-    //   // which is lazy-loaded when the route is visited.
-    //   component: () => import('../views/AboutView.vue')
-    // }
   ]
 })
 

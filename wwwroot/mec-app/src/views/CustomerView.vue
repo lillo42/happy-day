@@ -202,8 +202,8 @@ const fetchData = async () => {
       customer.phones = response.data!.phones.map((phone: string) => {
         return { number: format(phone, '(##) ####-#####') }
       })
-      customer.createdAt = formatter.format(new Date(response.data!.createAt))
-      customer.updatedAt = formatter.format(new Date(response.data!.updateAt))
+      customer.createdAt = formatter.format(response.data!.createAt)
+      customer.updatedAt = formatter.format(response.data!.updateAt)
     } else {
       toast.add({
         severity: 'error',

@@ -35,7 +35,7 @@
               v-model="comment"
               @input="fetchData()"
               class="p-column-filter"
-              placeholder="Search by name"
+              placeholder="Search by comment"
             />
           </template>
         </Column>
@@ -124,7 +124,7 @@ const addOrEdit = (id: string) => {
 const deleteCustomer = (item: CustomerView) => {
   confirm.require({
     message: `Are you sure you want to delete this customer(name: ${item.name})?`,
-    header: 'Product delete confirmation',
+    header: 'Customer delete confirmation',
     icon: 'pi pi-exclamation-triangle',
     rejectLabel: 'Cancel',
     acceptLabel: 'Delete',

@@ -8,6 +8,7 @@ import router from './router'
 
 import { CustomerService } from './services/customer.service'
 import { DiscountService } from './services/discount.service'
+import { OrderService } from './services/order.service'
 import { ProductService } from './services/product.service'
 
 import 'primevue/resources/themes/lara-light-green/theme.css'
@@ -17,6 +18,7 @@ import 'primeflex/primeflex.css'
 import PrimeVue from 'primevue/config'
 
 import AutoComplete from 'primevue/autocomplete'
+import Calendar from 'primevue/calendar'
 import Button from 'primevue/button'
 import ConfirmDialog from 'primevue/confirmdialog'
 import DataTable from 'primevue/datatable'
@@ -43,6 +45,8 @@ app.use(router)
 
 app.use(PrimeVue)
 app.component('AutoComplete', AutoComplete)
+// eslint-disable-next-line vue/multi-word-component-names
+app.component('Calendar', Calendar)
 // eslint-disable-next-line vue/multi-word-component-names, vue/no-reserved-component-names
 app.component('Button', Button)
 app.component('ConfirmDialog', ConfirmDialog)
@@ -72,5 +76,6 @@ app.use(ConfirmationService)
 app.provide('CustomerService', new CustomerService())
 app.provide('DiscountService', new DiscountService())
 app.provide('ProductService', new ProductService())
+app.provide('OrderService', new OrderService())
 
 app.mount('#app')

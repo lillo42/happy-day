@@ -1,0 +1,202 @@
+<div class="container-col width-100 default-container-margin default-margin-top">
+  <h1 i18n>Order Details</h1>
+  <h2 *ngIf="!hasFound" i18n>Order Not found</h2>
+  <form *ngIf="hasFound" [formGroup]="form" class="container-col width-90 default-margin-top">
+    <mat-form-field appearance="outline">
+      <mat-label i18n>Address</mat-label>
+      <input formControlName="address" matInput placeholder="Rua XXX"/>
+      <mat-error *ngIf="form.get('address')!.hasError('required')" i18n>Address is mandatory</mat-error>
+      <mat-error *ngIf="form.get('address')!.hasError('maxlength')" i18n>Address must be less than 1000</mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="date-field">
+      <mat-label>Delivery Date</mat-label>
+      <mat-date-range-input [rangePicker]="picker">
+        <input formControlName="deliveryAt" matStartDate placeholder="Delivery At">
+        <input formControlName="pickUpAt" matEndDate placeholder="Pick Up At">
+      </mat-date-range-input>
+      <mat-datepicker-toggle [for]="picker" matIconSuffix></mat-datepicker-toggle>
+      <mat-date-range-picker #picker></mat-date-range-picker>
+      <mat-error *ngIf="form.get('deliveryAt')!.hasError('matStartDateInvalid')" i18n>Invalid delivery at</mat-error>
+      <mat-error *ngIf="form.get('pickUpAt')!.hasError('matStartDateInvalid')" i18n>Invalid pick up at</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label i18n>Comment</mat-label>
+      <textarea formControlName="comment" matInput placeholder="...."></textarea>
+    </mat-form-field>
+
+    <ng-container formGroupName="customer">
+      <h3 i18n>Customer info</h3>
+      <mat-form-field appearance="outline">
+        <mat-label i18n>Customer ID</mat-label>
+        <input formControlName="id" matInput/>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label i18n>Customer Name</mat-label>
+        <input #customerInput (keyup)="loadCustomers()" [matAutocomplete]="autoCustomer" matInput placeholder="Chairs"
+               type="text">
+        <mat-autocomplete #autoCustomer="matAutocomplete" (optionSelected)="updateCustomer($event.option.value)"
+                          [displayWith]="displayCustomer">
+          <mat-option *ngFor="let customer of filteredCustomers()" [value]="customer">
+            {{ customer.name }}
+          </mat-option>
+        </mat-autocomplete>
+
+        <mat-error *ngIf="customer.get('name')!.hasError('required')" i18n>Name is mandatory</mat-error>
+        <mat-error *ngIf="customer.get('name')!.hasError('maxlength')" i18n>Name must be less than 255</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label i18n>Customer Comment</mat-label>
+        <textarea formControlName="comment" matInput placeholder="...."></textarea>
+      </mat-form-field>
+
+      <ng-container formArrayName="phones">
+        <ng-container *ngFor="let phone of customerPhones.controls; let i = index">
+          <mat-form-field appearance="outline">
+            <mat-label i18n>Customer Phone</mat-label>
+            <input [formControlName]="i" mask="(00) 0000-0000" matInput placeholder="123456789"/>
+            <mat-error *ngIf="phone.hasError('required')" i18n>Phone number is required</mat-error>
+            <mat-error *ngIf="phone.hasError('minlength')" i18n>Phone number must be large than 8</mat-error>
+            <mat-error *ngIf="phone.hasError('maxlength')" i18n>Phone number must be less than 11</mat-error>
+            <mat-error *ngIf="phone.hasError('pattern')" i18n>Phone number is invalid</mat-error>
+            <button (click)="deleteCustomerPhone(i)" mat-icon-button matSuffix matTooltip="delete phone">
+              <mat-icon>delete_forever</mat-icon>
+            </button>
+          </mat-form-field>
+        </ng-container>
+      </ng-container>
+
+      <div class="container-row default-margin-bottom">
+        <button (click)="addCustomerPhone()" mat-raised-button matTooltip="Add new phone">
+          Add customer phone
+        </button>
+      </div>
+    </ng-container>
+
+    <h3 i18n>Product info</h3>
+    <mat-form-field appearance="outline">
+      <mat-label i18n>Products</mat-label>
+      <input #productInput (keyup)="loadProducts()" [matAutocomplete]="auto" matInput placeholder="Chairs"
+             type="text">
+      <mat-autocomplete #auto="matAutocomplete" (optionSelected)="addProduct($event.option.value)"
+                        [displayWith]="displayProduct">
+        <mat-option *ngFor="let product of filteredProducts()" [value]="product">
+          {{ product.name }}
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+
+    <ng-container formArrayName="products">
+      <ng-container *ngFor="let product of products.controls; let i = index" [formGroup]="asFormGroup(product)">
+        <div class="container-row product-item">
+          <mat-form-field appearance="outline" class="product-field">
+            <mat-label i18n>ID</mat-label>
+            <input formControlName="id" matInput type="text"/>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="product-field">
+            <mat-label i18n>Name</mat-label>
+            <input formControlName="name" matInput type="text"/>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="product-field">
+            <mat-label i18n>Price</mat-label>
+            <input formControlName="price" matInput type="number"/>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="product-field">
+            <mat-label i18n>Quantity</mat-label>
+            <input (change)="quote()" formControlName="quantity" matInput min="0" placeholder="1" step="1"
+                   type="number"/>
+            <mat-error *ngIf="product.get('quantity')!.hasError('required')" i18n>Quantity is required</mat-error>
+            <mat-error *ngIf="product.get('quantity')!.hasError('min')" i18n>Quantity must be large than 0</mat-error>
+          </mat-form-field>
+
+          <button (click)="deleteProduct(i)" color="warn" i18n mat-raised-button matTooltip="remvoe product">Delete
+          </button>
+        </div>
+      </ng-container>
+    </ng-container>
+
+    <h3 i18n>Value info</h3>
+    <mat-form-field appearance="outline">
+      <mat-label i18n>Total Price</mat-label>
+      <input (change)="updateFinalPrice()" formControlName="totalPrice" matInput type="number"/>
+      <mat-error *ngIf="form.get('totalPrice')!.hasError('required')" i18n>Total price is mandatory</mat-error>
+      <mat-error *ngIf="form.get('totalPrice')!.hasError('min')" i18n>Total Price must be greater than 0</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label i18n>Discount</mat-label>
+      <input (change)="updateFinalPrice()" formControlName="discount" matInput placeholder="1" step="0.01"
+             type="number"/>
+      <mat-error *ngIf="form.get('discount')!.hasError('required')" i18n>Discount is mandatory</mat-error>
+      <mat-error *ngIf="form.get('discount')!.hasError('min')" i18n>Discount must be greater than 0</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label i18n>Final price</mat-label>
+      <input formControlName="finalPrice" matInput placeholder="1" step="0.01" type="number"/>
+      <mat-error *ngIf="form.get('finalPrice')!.hasError('required')" i18n>Final Price is mandatory</mat-error>
+      <mat-error *ngIf="form.get('finalPrice')!.hasError('min')" i18n>Final Price must be greater than 0</mat-error>
+    </mat-form-field>
+
+    <h3 i18n>Payment info</h3>
+    <div class="default-margin-bottom">
+      <button (click)="addPayment(null)" mat-raised-button>Add Payment</button>
+    </div>
+
+    <ng-container formArrayName="payments">
+      <ng-container *ngFor="let payment of payments.controls; let i = index" [formGroup]="asFormGroup(payment)">
+        <div class="container-row product-item">
+          <mat-form-field appearance="outline" class="product-field">
+            <mat-label i18n>Amount</mat-label>
+            <input formControlName="amount" matInput step="0.01" type="number"/>
+            <mat-error *ngIf="payment.get('amount')!.hasError('required')">Amount is mandatory</mat-error>
+            <mat-error *ngIf="payment.get('amount')!.hasError('min')">Amount must be greater than 0</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="product-field">
+            <mat-label i18n>At</mat-label>
+            <input [matDatepicker]="picker" formControlName="at" matInput>
+            <mat-hint>DD/MM/YYYY</mat-hint>
+            <mat-datepicker-toggle [for]="picker" matIconSuffix></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="product-field">
+            <mat-label i18n>Method</mat-label>
+            <mat-select formControlName="method">
+              <mat-option value="pix">Pix</mat-option>
+              <mat-option i18n value="bank-transfer">Bank transfer</mat-option>
+              <mat-option i18n value="cash">cash</mat-option>
+            </mat-select>
+            <mat-error *ngIf="payment.get('method')!.hasError('required')">Method is mandatory</mat-error>
+          </mat-form-field>
+
+          <button (click)="deletePayment(i)" color="warn" i18n mat-raised-button matTooltip="remvoe payment">
+            Delete
+          </button>
+        </div>
+      </ng-container>
+    </ng-container>
+
+    <mat-form-field *ngIf="!isNew" appearance="outline">
+      <mat-label i18n>Create At</mat-label>
+      <input formControlName="createAt" matInput readonly="true"/>
+    </mat-form-field>
+
+    <mat-form-field *ngIf="!isNew" appearance="outline">
+      <mat-label i18n>Update At</mat-label>
+      <input formControlName="updateAt" matInput readonly="true"/>
+    </mat-form-field>
+
+    <div class="container-row" style="gap: 10px">
+      <button (click)="save()" color="primary" i18n mat-raised-button>Save</button>
+      <button (click)="cancel()" i18n mat-raised-button>Cancel</button>
+    </div>
+  </form>
+</div>

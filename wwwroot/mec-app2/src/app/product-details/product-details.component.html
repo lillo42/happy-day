@@ -1,0 +1,41 @@
+<div class="container-col width-100 default-container-margin default-margin-top">
+  <h1 i18n>Product Details</h1>
+
+  <h2 *ngIf="!hasFound() && !isLoading()" i18n>Product Not found</h2>
+
+  <ng-template *ngIf="isLoading()">
+    <h2 i18n>Loading product</h2>
+    <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
+  </ng-template>
+
+  <form *ngIf="hasFound()" [formGroup]="form" class="container-col width-90 default-margin-top">
+    <mat-form-field appearance="outline">
+      <mat-label i18n>Name</mat-label>
+      <input formControlName="name" matInput placeholder="Chairs"/>
+      <mat-error *ngIf="form.get('name')!.hasError('required')" i18n>Name is mandatory</mat-error>
+      <mat-error *ngIf="form.get('name')!.hasError('maxlength')" i18n>Name must be less than 255</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label i18n>Price</mat-label>
+      <input formControlName="price" matInput placeholder="10.00" step="0.01" type="number"/>
+      <mat-error *ngIf="form.get('price')!.hasError('required')" i18n>Price is mandatory</mat-error>
+      <mat-error *ngIf="form.get('price')!.hasError('min')" i18n>Price must be greater than 0</mat-error>
+    </mat-form-field>
+
+    <mat-form-field *ngIf="!isNew" appearance="outline">
+      <mat-label i18n>Create At</mat-label>
+      <input formControlName="createAt" matInput readonly="true"/>
+    </mat-form-field>
+
+    <mat-form-field *ngIf="!isNew" appearance="outline">
+      <mat-label i18n>Update At</mat-label>
+      <input formControlName="updateAt" matInput readonly="true"/>
+    </mat-form-field>
+
+    <div class="container-row" style="gap: 10px">
+      <button (click)="save()" color="primary" i18n mat-raised-button>Save</button>
+      <button (click)="cancel()" i18n mat-raised-button>Cancel</button>
+    </div>
+  </form>
+</div>
